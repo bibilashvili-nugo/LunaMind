@@ -1,26 +1,49 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@font-face {
+  font-family: "Aclonica";
+  src: url("/fonts/Aclonica-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@font-face {
+  font-family: "HelveticaNeue";
+  src: url("/fonts/HelveticaNeue-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@font-face {
+  font-family: "LGVAnastasia";
+  src: url("/fonts/hinted-LGVAnastasia-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@font-face {
+  font-family: "HelveticaNeueMedium";
+  src: url("/fonts/HelveticaNeueMedium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-helveticaneue-regular {
+  font-family: "HelveticaNeue", sans-serif;
+}
+
+.font-helveticaneue-medium {
+  font-family: "HelveticaNeueMedium", sans-serif;
+}
+
+.font-aclonica-regular {
+  font-family: "Aclonica", sans-serif;
+}
+
+.font-lgvanastasia-regular {
+  font-family: "LGVAnastasia", sans-serif;
 }
