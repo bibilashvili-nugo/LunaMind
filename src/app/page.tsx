@@ -11,7 +11,9 @@ export default function Home() {
         <NavBar />
       </div>
       <Hero />
-      <VideoLesson />
+      <div className="flex w-full mx-auto justify-center">
+        <VideoLesson />
+      </div>
       <Tutors />
       <ChooseAnyTime />
     </div>

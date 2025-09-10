@@ -30,7 +30,7 @@ const VideoLesson = () => {
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl sm:rounded-3xl relative ">
+    <div className="w-full overflow-hidden rounded-2xl sm:rounded-3xl relative md:w-[720px]">
       {React.createElement("mux-player", {
         ref: playerRef,
         "playback-id": playbackId,
