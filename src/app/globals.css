@@ -36,6 +36,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "SpaceGrotesk-Bold";
+  src: url("/fonts/SpaceGrotesk-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 .font-helveticaneue-regular {
   font-family: "HelveticaNeue", sans-serif;
 }
@@ -50,4 +58,12 @@
 
 .font-lgvanastasia-regular {
   font-family: "LGVAnastasia", sans-serif;
+}
+
+.font-spacegrotesk-bold {
+  font-family: "SpaceGrotesk-Bold", sans-serif;
+}
+
+mux-player::part(control-fullscreen) {
+  display: none !important;
 }

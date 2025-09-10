@@ -1,5 +1,7 @@
 import Hero from "../../components/home/Hero";
 import NavBar from "../../components/home/NavBar";
+import Tutors from "../../components/home/Tutors";
+import VideoLesson from "../../components/ui/VideoLesson";
 
 export default function Home() {
   return (
@@ -8,6 +10,8 @@ export default function Home() {
         <NavBar />
       </div>
       <Hero />
+      <VideoLesson />
+      <Tutors />
     </div>
   );
 }

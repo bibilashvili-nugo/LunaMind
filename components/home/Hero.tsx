@@ -2,7 +2,7 @@ import React from "react";
 
 const Hero = () => {
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center pb-6">
       <span className="font-aclonica-regular text-2xl leading-[0] text-[#0C0F21] pt-8 pb-6 sm:text-[32px] sm:pb-8 lg:hidden">
         LunaMind
       </span>
