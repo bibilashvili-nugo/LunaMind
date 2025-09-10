@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-3xl: 1920px;
+}
+
 @font-face {
   font-family: "Aclonica";
   src: url("/fonts/Aclonica-Regular.ttf") format("truetype");
