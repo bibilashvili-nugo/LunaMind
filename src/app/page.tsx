@@ -1,3 +1,4 @@
+import ChooseAnyTime from "../../components/home/ChooseAnyTime";
 import Hero from "../../components/home/Hero";
 import NavBar from "../../components/home/NavBar";
 import Tutors from "../../components/home/Tutors";
@@ -12,6 +13,7 @@ export default function Home() {
       <Hero />
       <VideoLesson />
       <Tutors />
+      <ChooseAnyTime />
     </div>
   );
 }
