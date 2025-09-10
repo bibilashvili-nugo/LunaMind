@@ -8,7 +8,11 @@ const ChooseAnyTime = () => {
         შენ შეგიძლია სწავლისთვის აირჩიო კვირის ნებისმიერი დღე
       </p>
 
-      <div className="flex gap-4">
+      <div className="rounded-[16px] bg-[#F6F7FB] h-[242px] flex items-center justify-center p-[16px] sm:hidden">
+        <div className="w-full h-full bg-white rounded-xl"></div>
+      </div>
+
+      <div className="gap-4 hidden sm:flex">
         <div className="rounded-[16px] bg-[#F6F7FB] h-[242px] sm:h-[282px] flex items-center justify-center p-[16px] sm:w-1/2">
           <div className="w-full h-full bg-white rounded-xl"></div>
         </div>
