@@ -63,7 +63,3 @@
 .font-spacegrotesk-bold {
   font-family: "SpaceGrotesk-Bold", sans-serif;
 }
-
-mux-player::part(control-fullscreen) {
-  display: none !important;
-}
