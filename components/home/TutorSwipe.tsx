@@ -6,7 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { tutorSwiper } from "../../constants/data";
 import Image from "next/image";
-import { Star } from "react-coolicons";
+import { ChevronLeft, ChevronRight, Star } from "react-coolicons";
 
 const TutorSwipe = () => {
   return (
@@ -119,12 +119,17 @@ const TutorSwipe = () => {
       </Swiper>
 
       {/* Custom navigation buttons */}
-      <div className="flex justify-center gap-4 mt-4">
-        <button className="custom-prev bg-gray-200 px-4 py-2 rounded-lg shadow">
-          &lt;
-        </button>
-        <button className="custom-next bg-gray-200 px-4 py-2 rounded-lg shadow">
-          &gt;
+      <div className="w-full flex items-center justify-center pt-6 lg:pt-8 sm:justify-between">
+        <div className="hidden sm:flex gap-3">
+          <button className="custom-prev p-[10px] bg-[#111425] rounded-[40px] flex items-center justify-center">
+            <ChevronLeft className="text-white" />
+          </button>
+          <button className="custom-next p-[10px] bg-[#111425] rounded-[40px] flex items-center justify-center">
+            <ChevronRight className="text-white" />
+          </button>
+        </div>
+        <button className="bg-[#111425] text-white py-4 px-9 rounded-[40px] cursor-pointer text-sm leading-5 font-helveticaneue-medium">
+          ყველას ნახვა
         </button>
       </div>
     </div>
