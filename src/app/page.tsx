@@ -4,6 +4,7 @@ import Hero from "../../components/home/Hero";
 import NavBar from "../../components/home/NavBar";
 import Tutors from "../../components/home/Tutors";
 import TutorsType from "../../components/home/TutorsType";
+import WhyOurPlatform from "../../components/home/WhyOurPlatform";
 import VideoLesson from "../../components/ui/VideoLesson";
 
 export default function Home() {
@@ -24,6 +25,7 @@ export default function Home() {
         <ChooseAnyTime />
       </div>
       <DiscoverEducation />
+      <WhyOurPlatform />
     </div>
   );
 }

@@ -23,6 +23,11 @@ interface DiscoveryEducationItem {
   backgroundColor: string;
 }
 
+interface WhyOurPlatform {
+  title: string;
+  description: string;
+}
+
 export const headerData = [
   { title: "მთავარი", href: "/" },
   { title: "რატომ ჩვენ", href: "/about-us" },
@@ -61,5 +66,38 @@ export const discoveryEducationData: DiscoveryEducationItem[] = [
       "განიცადეთ უნიკალური საგანმანათლებლო მოგზაურობა შეუდარებელი სწავლის მოქნილობისთვის",
     icon: TrendingUp,
     backgroundColor: "#FF8C38",
+  },
+];
+
+export const whyOurPlatformData: WhyOurPlatform[] = [
+  {
+    title: "ონლაინ ვიდეო გაკვეთილები",
+    description:
+      "HD ხარისხის ვიდეო და ხმა, ინტერაქტიული ვაითბორდი და რეალურ დროში თანამშრომლობა",
+  },
+  {
+    title: "დამომწბული რეპეტიტორები",
+    description:
+      "HD ხარისხის ვიდეო და ხმა, ინტერაქტიული ვაითბორდი და რეალურ დროში თანამშრომლობა",
+  },
+  {
+    title: "უსაფრთხო გადახდები",
+    description:
+      "HD ხარისხის ვიდეო და ხმა, ინტერაქტიული ვაითბორდი და რეალურ დროში თანამშრომლობა",
+  },
+  {
+    title: "მოქნილი განრიგი",
+    description:
+      "HD ხარისხის ვიდეო და ხმა, ინტერაქტიული ვაითბორდი და რეალურ დროში თანამშრომლობა",
+  },
+  {
+    title: "პროგრესის ტრეკინგი",
+    description:
+      "HD ხარისხის ვიდეო და ხმა, ინტერაქტიული ვაითბორდი და რეალურ დროში თანამშრომლობა",
+  },
+  {
+    title: "კომუნიკაცია",
+    description:
+      "HD ხარისხის ვიდეო და ხმა, ინტერაქტიული ვაითბორდი და რეალურ დროში თანამშრომლობა",
   },
 ];
