@@ -2,6 +2,7 @@ import ChooseAnyTime from "../../components/home/ChooseAnyTime";
 import Hero from "../../components/home/Hero";
 import NavBar from "../../components/home/NavBar";
 import Tutors from "../../components/home/Tutors";
+import TutorsType from "../../components/home/TutorsType";
 import VideoLesson from "../../components/ui/VideoLesson";
 
 export default function Home() {
@@ -11,11 +12,16 @@ export default function Home() {
         <NavBar />
       </div>
       <Hero />
-      <div className="flex w-full mx-auto justify-center">
+      <div className="lg:flex lg:gap-6">
         <VideoLesson />
+        <div className="lg:order-3 lg:w-[20%] lg:h-full">
+          <Tutors />
+          <div className="hidden lg:block lg:w-full lg:h-full">
+            <TutorsType />
+          </div>
+        </div>
+        <ChooseAnyTime />
       </div>
-      <Tutors />
-      <ChooseAnyTime />
     </div>
   );
 }
