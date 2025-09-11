@@ -1,4 +1,5 @@
 import { SectionHeader } from "../ui/Text";
+import TutorSwipe from "./TutorSwipe";
 
 const ExperiencedTutorsSection = () => {
   return (
@@ -7,6 +8,7 @@ const ExperiencedTutorsSection = () => {
         title="ჩვენი გამოცდილი რეპეტიტორები"
         description="ჩვენ გვჯერა, რომ ტექნოლოგიებს შეუძლიათ სწავლის გამოცდილების შეცვლა"
       />
+      <TutorSwipe />
     </div>
   );
 };
