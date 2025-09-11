@@ -33,7 +33,7 @@ const Tutors = () => {
           <span className="font-spacegrotesk-bold text-[#0C0F21] text-2xl leading-6">
             137+
           </span>
-          <span className="text-sm leading-4 text-[#939393] font-helveticaneue-regular">
+          <span className="text-xs leading-4 text-[#939393] font-helveticaneue-regular">
             რეპეტიტორი
           </span>
         </div>
