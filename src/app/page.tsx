@@ -1,4 +1,5 @@
 import ChooseAnyTime from "../../components/home/ChooseAnyTime";
+import DiscoverEducation from "../../components/home/DiscoverEducation";
 import Hero from "../../components/home/Hero";
 import NavBar from "../../components/home/NavBar";
 import Tutors from "../../components/home/Tutors";
@@ -22,6 +23,7 @@ export default function Home() {
         </div>
         <ChooseAnyTime />
       </div>
+      <DiscoverEducation />
     </div>
   );
 }
