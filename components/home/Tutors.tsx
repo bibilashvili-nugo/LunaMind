@@ -11,14 +11,14 @@ const Tutors = () => {
 
   return (
     <>
-      <div className="flex items-center justify-center gap-3 pt-6 pb-6 lg:pb-4 lg:pt-0">
+      <div className="flex items-center justify-center gap-3 pt-6 pb-6 lg:pb-4 3xl:pb-6 lg:pt-0">
         <div className="flex items-center">
           {tutorImages.map((src, index) => (
             <div
               key={index}
               className={`-ml-6 w-[52px] h-[52px] border-4 border-white rounded-full overflow-hidden lg:w-[45px] lg:h-[45px] xl:w-[52px] xl:h-[52px]
               ${index === 0 ? "ml-0" : ""} 
-              ${index === 4 ? "block lg:hidden" : ""}`}
+              ${index === 4 ? "block lg:hidden xl:block" : ""}`}
             >
               <Image
                 alt={`tutor ${index + 1}`}
@@ -38,7 +38,7 @@ const Tutors = () => {
           </span>
         </div>
       </div>
-      <div className="w-full text-center text-xs leading-4 font-helveticaneue-regular text-[#737373]  hidden lg:block pb-3">
+      <div className="w-full text-center text-xs leading-4 font-helveticaneue-regular text-[#737373]  hidden lg:block pb-3 3xl:pb-4">
         აირჩიე სასურველი საგანი და დაიწყე ონლაინ მომზადება
       </div>
     </>

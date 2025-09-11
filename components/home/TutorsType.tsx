@@ -9,7 +9,7 @@ const TutorsType = () => {
   return (
     <div className="hidden sm:flex sm:flex-col justify-between h-[282px] bg-[#F6F7FB] rounded-4xl sm:w-1/2 px-4 pt-4 lg:w-full lg:h-full lg:pb-4 xl:pb-0">
       <div className="flex gap-2 w-full">
-        <div className="flex flex-col gap-2 w-1/2 lg:hidden">
+        <div className="flex flex-col gap-2 w-1/2 lg:hidden 2xl:flex">
           {firstColumn.map((item) => {
             const Icon = item?.icon;
             const Id = item?.id;
@@ -36,7 +36,7 @@ const TutorsType = () => {
           })}
         </div>
 
-        <div className="flex flex-col gap-2 w-1/2 lg:hidden">
+        <div className="flex flex-col gap-2 w-1/2 lg:hidden 2xl:flex">
           {secondColumn.map((item) => {
             const Icon = item?.icon;
             const Id = item?.id;
@@ -89,7 +89,7 @@ const TutorsType = () => {
             );
           })}
         </div>
-        <div className="hidden flex-col gap-[8px] xl:flex xl:justify-center mx-auto w-full ">
+        <div className="hidden flex-col gap-[8px] xl:flex xl:justify-center mx-auto w-full 2xl:hidden">
           {fourthColumn.map((item) => {
             const Icon = item?.icon;
             const Id = item?.id;
@@ -117,7 +117,7 @@ const TutorsType = () => {
         </div>
       </div>
 
-      <div className="w-full text-center text-xs leading-4 font-helveticaneue-regular text-[#737373] pb-[26px] pt-[18px] lg:hidden xl:block xl:pb-[20px]">
+      <div className="w-full text-center text-xs leading-4 font-helveticaneue-regular text-[#737373] pb-[26px] pt-[18px] lg:hidden xl:block xl:pb-[20px] 3xl:pb-6">
         მიიღე საუკეთესო გამოცდილება
       </div>
     </div>
