@@ -1,5 +1,6 @@
 import ChooseAnyTime from "../../components/home/ChooseAnyTime";
 import DiscoverEducation from "../../components/home/DiscoverEducation";
+import Footer from "../../components/home/Footer";
 import Hero from "../../components/home/Hero";
 import NavBar from "../../components/home/NavBar";
 import OurPackages from "../../components/home/OurPackages";
@@ -37,6 +38,7 @@ export default function Home() {
         <StudentTestimonials />
         <OurPackages />
       </div>
+      <Footer />
     </>
   );
 }
