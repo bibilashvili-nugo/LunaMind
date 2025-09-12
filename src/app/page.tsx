@@ -29,6 +29,7 @@ export default function Home() {
         <DiscoverEducation />
         <WhyOurPlatform />
       </div>
+
       <TutorSwipe />
     </>
   );
