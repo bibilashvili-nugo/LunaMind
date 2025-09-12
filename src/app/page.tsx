@@ -2,6 +2,7 @@ import ChooseAnyTime from "../../components/home/ChooseAnyTime";
 import DiscoverEducation from "../../components/home/DiscoverEducation";
 import Hero from "../../components/home/Hero";
 import NavBar from "../../components/home/NavBar";
+import StudentTestimonials from "../../components/home/StudentTestimonials";
 import Tutors from "../../components/home/Tutors";
 import TutorsType from "../../components/home/TutorsType";
 import TutorSwipe from "../../components/home/TutorSwipe";
@@ -31,6 +32,9 @@ export default function Home() {
       </div>
 
       <TutorSwipe />
+      <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
+        <StudentTestimonials />
+      </div>
     </>
   );
 }
