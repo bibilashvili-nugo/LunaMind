@@ -4,7 +4,7 @@ const Footer = () => {
       className="bg-[#080A16] rounded-tl-4xl rounded-tr-4xl mt-[55px] sm:mt-[44px] lg:mt-[64px] 3xl:mt-[84px]
     flex flex-col gap-[44px]"
     >
-      <div className="pt-[44px] px-4 flex flex-col gap-3 lg:px-[44px] lg:pt-[64px]">
+      <div className="pt-[44px] px-4 flex flex-col gap-3 lg:px-[44px] lg:pt-[64px] 2xl:px-[80px] 3xl:mt-[60px] 3xl:px-[160px]">
         <span className="text-white text-[40px] leading-[40px] font-lgvanastasia-regular text-center lg:text-[64px] lg:leading-[64px]">
           მზად ხარ დაიწყო განათლების ინოვაცია დღესვე ?
         </span>
@@ -20,7 +20,7 @@ const Footer = () => {
           გახდი რეპეტიტორი
         </span>
       </div>
-      <div className="px-4 pb-[32px] lg:px-[44px] lg:mt-[20px]">
+      <div className="px-4 pb-[32px] lg:px-[44px] lg:mt-[20px] 2xl:px-[80px] 3xl:px-[160px] 3xl:pt-[64px]">
         <hr className="text-white/10 pb-6" />
         <div className="flex flex-col gap-5 lg:flex-row lg:justify-between lg:items-center">
           <span className="font-aclonica-regular text-white text-[32px] leading-[100%]">
