@@ -2,9 +2,9 @@ import Image from "next/image";
 import { SectionHeader } from "../ui/Text";
 import { Star } from "../ui/Icons";
 
-const StudentTestimonials = () => {
+const StudentTestimonials = ({ id }: { id: string }) => {
   return (
-    <div className="pt-8 sm:pt-[44px] lg:pt-[64px] 3xl:pt-[84px]">
+    <div className="pt-8 sm:pt-[44px] lg:pt-[64px] 3xl:pt-[84px]" id={id}>
       <SectionHeader
         title="რას ამბობენ ჩვენი სტუდენტები"
         description="ჩვენ გვჯერა, რომ ტექნოლოგიებს შეუძლიათ სწავლის გამოცდილების შეცვლა"

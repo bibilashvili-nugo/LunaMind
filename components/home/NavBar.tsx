@@ -1,12 +1,20 @@
 "use client";
 
-import Link from "next/link";
 import { headerData } from "../../constants/data";
-import { usePathname } from "next/navigation";
 import { AccountCircle, ArrowDown, GeorgianFlag } from "../ui/Icons";
 
 const NavBar = () => {
-  const pathname = usePathname();
+  const handleScroll = (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    href: string
+  ) => {
+    e.preventDefault();
+    const targetId = href.replace("#", "");
+    const targetEl = document.getElementById(targetId);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   return (
     <div className="flex items-center justify-between pt-6 lg:pb-[44px]">
       <div className="text-2xl leading-[100%] font-aclonica-regular xl:text-[32px]">
@@ -14,17 +22,20 @@ const NavBar = () => {
       </div>
       <ul className="flex bg-[#F6F7FB] rounded-[50px] p-1">
         {headerData.map((item, index) => {
-          const isActive = pathname === item.href;
+          // const isActive = pathname === item.href;
           return (
             <li
               key={index}
-              className={`font-helveticaneue-regular text-sm leading-5 px-5 py-3 cursor-pointer rounded-[50px] 3xl:text-base 3xl:leading-6 ${
-                isActive
-                  ? "text-[#0C0F21] bg-white "
-                  : "text-[#737373] bg-[#F6F7FB]"
-              }`}
+              className={`font-helveticaneue-regular text-sm leading-5 px-5 py-3 cursor-pointer rounded-[50px] 3xl:text-base 3xl:leading-6 `}
+              // ${
+              //   isActive
+              //     ? "text-[#0C0F21] bg-white "
+              //     : "text-[#737373] bg-[#F6F7FB]"
+              // }
             >
-              <Link href={item.href}>{item.title}</Link>
+              <a href={item.href} onClick={(e) => handleScroll(e, item.href)}>
+                {item.title}
+              </a>
             </li>
           );
         })}

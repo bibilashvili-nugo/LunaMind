@@ -193,9 +193,12 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Star } from "react-coolicons";
 import { SectionHeader } from "../ui/Text";
 
-const TutorSwipe = () => {
+const TutorSwipe = ({ id }: { id: string }) => {
   return (
-    <div className="pt-[32px] sm:pt-[44px] lg:pt-[52px] xl:pt-[64px] 3xl:pt-[84px]">
+    <div
+      className="pt-[32px] sm:pt-[44px] lg:pt-[52px] xl:pt-[64px] 3xl:pt-[84px]"
+      id={id}
+    >
       {/* Section Header */}
       <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         <SectionHeader

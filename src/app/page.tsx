@@ -30,13 +30,13 @@ export default function Home() {
           <ChooseAnyTime />
         </div>
         <DiscoverEducation />
-        <WhyOurPlatform />
+        <WhyOurPlatform id="why" />
       </div>
 
-      <TutorSwipe />
+      <TutorSwipe id="tutors" />
       <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
-        <StudentTestimonials />
-        <OurPackages />
+        <StudentTestimonials id="reviews" />
+        <OurPackages id="packages" />
       </div>
       <Footer />
     </>

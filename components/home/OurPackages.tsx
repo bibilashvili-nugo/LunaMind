@@ -1,8 +1,11 @@
 import Packages from "../ui/Packages";
 
-const OurPackages = () => {
+const OurPackages = ({ id }: { id: string }) => {
   return (
-    <div className="pt-[32px] flex flex-col justify-center items-center sm:pt-[44px] lg:pt-[64px]">
+    <div
+      className="pt-[32px] flex flex-col justify-center items-center sm:pt-[44px] lg:pt-[64px]"
+      id={id}
+    >
       <span className="text-[#0C0F21] text-[40px] leading-[40px] font-lgvanastasia-regular lg:text-[64px] lg:leading-[52px]">
         ჩვენი პაკეტები
       </span>

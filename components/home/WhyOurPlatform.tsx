@@ -1,9 +1,12 @@
 import { whyOurPlatformData } from "../../constants/data";
 import { UnionCrown } from "../ui/Icons";
 
-const WhyOurPlatform = () => {
+const WhyOurPlatform = ({ id }: { id: string }) => {
   return (
-    <div className="pt-[32px] sm:pt-[44px] lg:pt-[52px] xl:pt-[88px] 2xl:pt-[64px] 3xl:pt-[96px]">
+    <div
+      className="pt-[32px] sm:pt-[44px] lg:pt-[52px] xl:pt-[88px] 2xl:pt-[64px] 3xl:pt-[96px]"
+      id={id}
+    >
       <div
         className="flex flex-col gap-2 lg:flex-row lg:items-center xl:flex-col xl:justify-center xl:text-center xl:gap-3
       pb-6 lg:pb-8 xl:pb-[44px]"
