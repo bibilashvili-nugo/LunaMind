@@ -4,46 +4,55 @@ import { useEffect, useState } from "react";
 import { headerData } from "../../constants/data";
 import { AccountCircle, ArrowDown, GeorgianFlag } from "../ui/Icons";
 
+const NAV_OFFSET = 80;
+
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeId, setActiveId] = useState<string>(headerData[0]?.href || "");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+      if (isScrolling) return;
+
+      setIsScrolled(window.scrollY > 300);
+
+      if (window.scrollY === 0) {
+        setActiveId(headerData[0].href);
+        return;
       }
 
-      headerData.forEach((item) => {
+      for (const item of headerData) {
         const el = document.getElementById(item.href.replace("#", ""));
         if (el) {
           const rect = el.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
+          if (rect.top - NAV_OFFSET <= 0 && rect.bottom - NAV_OFFSET > 0) {
             setActiveId(item.href);
+            break;
           }
         }
-      });
+      }
     };
+
+    handleScroll();
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isScrolling]);
 
   const handleScrollClick = (
     e: React.MouseEvent<HTMLElement>,
     href: string
   ) => {
     e.preventDefault();
-    const targetId = href.replace("#", "");
-    const targetEl = document.getElementById(targetId);
+    const targetEl = document.getElementById(href.replace("#", ""));
     if (targetEl) {
-      const offset = 80;
+      setIsScrolling(true);
+
       const elementPosition =
         targetEl.getBoundingClientRect().top + window.scrollY;
-      const offsetPosition = elementPosition - offset;
+      const offsetPosition = elementPosition - NAV_OFFSET;
 
       window.scrollTo({
         top: offsetPosition,
@@ -51,6 +60,8 @@ const NavBar = () => {
       });
 
       setActiveId(href);
+
+      setTimeout(() => setIsScrolling(false), 300);
     }
   };
 
@@ -65,36 +76,32 @@ const NavBar = () => {
           <div className="text-2xl leading-[100%] font-aclonica-regular xl:text-[32px]">
             LunaMind
           </div>
+
           <ul className="flex bg-[#F6F7FB] rounded-[50px] p-1">
-            {headerData.map((item, index) => {
+            {headerData.map((item) => {
+              const isHovered = hoveredId === item.href;
+              const isActive = activeId === item.href;
+              const liClass = `font-helveticaneue-regular text-sm leading-5 px-5 py-3 cursor-pointer rounded-[50px] 3xl:text-base 3xl:leading-6 transition-all duration-300 ${
+                isHovered
+                  ? "text-[#0C0F21] bg-white scale-105"
+                  : !hoveredId && isActive
+                  ? "text-[#0C0F21] bg-white"
+                  : "text-[#737373] bg-[#F6F7FB] hover:text-[#0C0F21] hover:bg-white  hover:scale-105"
+              }`;
               return (
                 <li
-                  key={index}
+                  key={item.href}
+                  className={liClass}
                   onClick={(e) => handleScrollClick(e, item.href)}
                   onMouseEnter={() => setHoveredId(item.href)}
                   onMouseLeave={() => setHoveredId(null)}
-                  className={`font-helveticaneue-regular text-sm leading-5 px-5 py-3 cursor-pointer rounded-[50px] 3xl:text-base 3xl:leading-6
-                  ${
-                    hoveredId
-                      ? hoveredId === item.href
-                        ? "text-[#0C0F21] bg-white"
-                        : "text-[#737373] bg-[#F6F7FB]"
-                      : activeId === item.href
-                      ? "text-[#0C0F21] bg-white"
-                      : "text-[#737373] bg-[#F6F7FB]"
-                  }`}
                 >
-                  <a
-                    href={item.href}
-                    onClick={(e) => e.preventDefault()}
-                    className="block w-full h-full"
-                  >
-                    {item.title}
-                  </a>
+                  {item.title}
                 </li>
               );
             })}
           </ul>
+
           <div className="flex items-center gap-2 xl:gap-6">
             <div className="bg-[#FFD52A] py-[14px] px-[24px] rounded-[40px] xl:flex xl:items-center xl:gap-2">
               <AccountCircle />
@@ -102,6 +109,7 @@ const NavBar = () => {
                 შესვლა
               </span>
             </div>
+
             <div className="flex items-center py-[10px] pl-[10px] border border-[#EDEEF2] rounded-[40px]">
               <GeorgianFlag />
               <ArrowDown />
