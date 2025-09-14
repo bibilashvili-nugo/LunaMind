@@ -18,7 +18,7 @@ export default function Home() {
         <div className="hidden lg:block">
           <NavBar />
         </div>
-        <Hero />
+        <Hero id="home" />
         <div className="lg:flex lg:gap-6">
           <VideoLesson />
           <div className="lg:order-3 lg:w-[20%] lg:h-full">

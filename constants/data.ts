@@ -29,7 +29,7 @@ interface WhyOurPlatform {
 }
 
 export const headerData = [
-  { title: "მთავარი", href: "/" },
+  { title: "მთავარი", href: "#home" },
   { title: "რატომ ჩვენ", href: "#why" },
   { title: "რეპეტიტორები", href: "#tutors" },
   { title: "შეფასებები", href: "#reviews" },
