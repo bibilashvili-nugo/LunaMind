@@ -50,9 +50,12 @@ const NavBar = () => {
     if (targetEl) {
       setIsScrolling(true);
 
-      const elementPosition =
-        targetEl.getBoundingClientRect().top + window.scrollY;
-      const offsetPosition = elementPosition - NAV_OFFSET;
+      let offsetPosition = 0;
+      if (href !== "#home") {
+        const elementPosition =
+          targetEl.getBoundingClientRect().top + window.scrollY;
+        offsetPosition = elementPosition - NAV_OFFSET;
+      }
 
       window.scrollTo({
         top: offsetPosition,
@@ -73,7 +76,10 @@ const NavBar = () => {
     >
       <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         <div className="flex items-center justify-between pt-6">
-          <div className="text-2xl leading-[100%] font-aclonica-regular xl:text-[32px]">
+          <div
+            className="text-2xl leading-[100%] font-aclonica-regular xl:text-[32px] cursor-pointer"
+            onClick={(e) => handleScrollClick(e, "#home")}
+          >
             LunaMind
           </div>
 
