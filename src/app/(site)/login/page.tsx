@@ -26,16 +26,11 @@ const LoginPage = () => {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.message || "Login failed");
-        return;
-      }
-
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        router.replace("/dashboard"); // ✅ replace
+      if (res.ok) {
+        // ✅ აღარ გვჭირდება localStorage, middleware ინახავს cookie-ს
+        router.replace("/dashboard");
       } else {
-        setError("Token not received from server");
+        setError(data.message || "Login failed");
       }
     } catch (err) {
       console.error("🔥 Client login error:", err);
