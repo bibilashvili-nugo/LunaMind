@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
   try {
@@ -29,10 +30,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // უბრალოდ სიმულაცია: შეგვინახავთ token-ს localStorage-ში client-side-ზე
+    // ✅ Generate a real JWT token
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "7d" } // token expires in 7 days
+    );
+
     return NextResponse.json({
       message: "წარმატებით შედით",
-      token: "demo-token",
+      token,
     });
   } catch (err) {
     console.error(err);
