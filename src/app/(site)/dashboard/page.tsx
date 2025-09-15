@@ -11,7 +11,7 @@ const Dashboard = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      router.push("/login");
+      router.replace("/login"); // ✅ replace, რომ history-ში არ დარჩეს
     } else {
       setLoading(false);
     }
@@ -19,7 +19,7 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    router.push("/login");
+    router.replace("/login");
   };
 
   if (loading) return <div>Loading...</div>;

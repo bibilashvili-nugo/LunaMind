@@ -16,7 +16,7 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    // const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -31,15 +31,14 @@ const LoginPage = () => {
         return;
       }
 
-      // Save token in localStorage
       if (data.token) {
         localStorage.setItem("token", data.token);
+        router.replace("/dashboard"); // ✅ replace
+      } else {
+        setError("Token not received from server");
       }
-
-      // Redirect to dashboard
-      router.push("/dashboard");
     } catch (err) {
-      console.error(err);
+      console.error("🔥 Client login error:", err);
       setError("სერვერის შეცდომა. სცადეთ მოგვიანებით.");
     }
   };
