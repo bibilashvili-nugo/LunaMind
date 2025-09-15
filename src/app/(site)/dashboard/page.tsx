@@ -8,18 +8,24 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for token in cookie via API call is better, but for simplicity keep local check if needed
     const token = localStorage.getItem("token");
 
     if (!token) {
-      router.replace("/login"); // ✅ replace, რომ history-ში არ დარჩეს
+      router.replace("/login");
     } else {
       setLoading(false);
     }
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.replace("/login");
+  // ✅ Updated logout function
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.replace("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
