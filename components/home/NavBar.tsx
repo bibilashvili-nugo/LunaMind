@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { headerData } from "../../constants/data";
-import { AccountCircle, ArrowDown, GeorgianFlag } from "../ui/Icons";
+import { AccountCircle } from "../ui/Icons";
 import Link from "next/link";
 import LanguageDropDown from "../ui/LanguageDropDown";
 
