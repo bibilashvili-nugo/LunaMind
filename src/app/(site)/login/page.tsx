@@ -16,9 +16,9 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    // const API_URL = process.env.NEXT_PUBLIC_API_URL;
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
