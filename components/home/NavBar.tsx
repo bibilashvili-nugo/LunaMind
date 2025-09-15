@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { headerData } from "../../constants/data";
 import { AccountCircle, ArrowDown, GeorgianFlag } from "../ui/Icons";
+import Link from "next/link";
+import LanguageDropDown from "../ui/LanguageDropDown";
 
 const NAV_OFFSET = 80;
 
@@ -109,17 +111,16 @@ const NavBar = () => {
           </ul>
 
           <div className="flex items-center gap-2 xl:gap-6">
-            <div className="bg-[#FFD52A] py-[14px] px-[24px] rounded-[40px] xl:flex xl:items-center xl:gap-2">
-              <AccountCircle />
-              <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-[24px] font-helveticaneue-medium">
-                შესვლა
-              </span>
-            </div>
+            <Link href={"/login"}>
+              <div className="bg-[#FFD52A] py-[14px] px-[24px] rounded-[40px] xl:flex xl:items-center xl:gap-2">
+                <AccountCircle />
+                <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-[24px] font-helveticaneue-medium">
+                  შესვლა
+                </span>
+              </div>
+            </Link>
 
-            <div className="flex items-center py-[10px] pl-[10px] border border-[#EDEEF2] rounded-[40px]">
-              <GeorgianFlag />
-              <ArrowDown />
-            </div>
+            <LanguageDropDown />
           </div>
         </div>
       </div>
