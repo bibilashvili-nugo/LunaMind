@@ -2,16 +2,17 @@
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  const response = NextResponse.json({ message: "Logged out" });
+  const res = NextResponse.json({ message: "Logged out" });
 
-  // ❌ ამოაშორე token cookie
-  response.cookies.set({
+  res.cookies.set({
     name: "token",
     value: "",
     httpOnly: true,
     path: "/",
-    expires: new Date(0), // სასწრაფოდ ვადაგასული
+    maxAge: 0,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   });
 
-  return response;
+  return res;
 }

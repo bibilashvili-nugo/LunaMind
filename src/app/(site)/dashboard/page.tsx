@@ -8,17 +8,10 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for token in cookie via API call is better, but for simplicity keep local check if needed
-    const token = localStorage.getItem("token");
+    // Wait a tiny bit to let middleware handle redirect
+    setLoading(false);
+  }, []);
 
-    if (!token) {
-      router.replace("/login");
-    } else {
-      setLoading(false);
-    }
-  }, [router]);
-
-  // ✅ Updated logout function
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
