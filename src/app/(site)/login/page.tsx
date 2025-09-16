@@ -39,7 +39,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="px-4 pt-8 flex flex-col gap-8 max-w-md mx-auto">
+    <div className="px-4 pt-8 flex flex-col mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <span className="text-2xl text-[#0C0F21] font-aclonica-regular">
@@ -49,11 +49,11 @@ const LoginPage = () => {
       </div>
 
       {/* Title */}
-      <div className="flex flex-col items-center">
-        <span className="text-[44px] text-[#0C0F21] font-lgvanastasia-regular">
+      <div className="flex flex-col items-center mt-8">
+        <span className="text-[44px] text-[#0C0F21] font-lgvanastasia-regular leading-[100%]">
           ავტორიზაცია
         </span>
-        <span className="text-sm text-[#737373] font-helveticaneue-regular">
+        <span className="text-sm text-[#737373] font-helveticaneue-regular leading-5">
           შეიყვანეთ თქვენი მონაცემები
         </span>
       </div>
@@ -62,23 +62,25 @@ const LoginPage = () => {
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col mt-6">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="ელ.ფოსტა"
-          className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none"
+          className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none text-sm leading-5 font-helveticaneue-regular
+          placeholder:font-helveticaneue-regular placeholder:text-[#737373] placeholder:text-sm placeholder:leading-5"
           required
         />
 
-        <div className="relative w-full">
+        <div className="relative w-full mt-4">
           <input
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="პაროლი"
-            className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none"
+            className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none text-sm leading-5 font-helveticaneue-regular
+          placeholder:font-helveticaneue-regular placeholder:text-[#737373] placeholder:text-sm placeholder:leading-5"
             required
           />
           <button
@@ -90,38 +92,42 @@ const LoginPage = () => {
           </button>
         </div>
 
-        <span className="text-end text-xs text-[#0C0F21] font-helveticaneue-regular mt-2 cursor-pointer hover:underline">
+        <span className="text-end text-xs leading-4 text-[#0C0F21] font-helveticaneue-regular cursor-pointer hover:underline mt-3">
           პაროლის აღდგენა
         </span>
 
         <button
           type="submit"
-          className="w-full font-helveticaneue-medium text-sm text-[#0C0F21] py-4 bg-[#FFD52A] rounded-[40px] mt-4 cursor-pointer hover:bg-[#e6c21f] transition"
+          className="w-full font-helveticaneue-medium text-sm text-[#0C0F21] py-4 bg-[#FFD52A] rounded-[40px] 
+          cursor-pointer hover:bg-[#e6c21f] transition leading-5 mt-6"
         >
           შესვლა
         </button>
       </form>
 
       {/* Social login buttons */}
-      <div className="flex flex-col gap-4 mt-4">
+      <div className="flex flex-col mt-8 gap-4">
         <button className="flex items-center gap-2 border border-[#EBEBEB] rounded-[12px] w-full justify-center py-3 hover:bg-gray-100 transition">
           <div className="w-6 h-6 bg-[#D9D9D9] rounded-full"></div>
-          <span className="text-sm text-[#737373] font-helveticaneue-regular">
+          <span className="text-sm text-[#737373] font-helveticaneue-regular leading-5">
             Google
           </span>
         </button>
         <button className="flex items-center gap-2 border border-[#EBEBEB] rounded-[12px] w-full justify-center py-3 hover:bg-gray-100 transition">
           <div className="w-6 h-6 bg-[#D9D9D9] rounded-full"></div>
-          <span className="text-sm text-[#737373] font-helveticaneue-regular">
+          <span className="text-sm text-[#737373] font-helveticaneue-regular leading-5">
             Facebook
           </span>
         </button>
       </div>
 
       {/* Registration link */}
-      <div className="text-center text-xs text-[#0C0F21] font-helveticaneue-regular mt-6">
+      <div className="text-center text-xs text-[#0C0F21] font-helveticaneue-regular leading-4 mt-6">
         არ გაქვს ანგარიში?{" "}
-        <Link href="/register" className="text-[#0077FF] hover:underline">
+        <Link
+          href="/register"
+          className="text-[#0077FF] hover:underline leading-4 text-xs"
+        >
           რეგისტრაცია
         </Link>
       </div>
