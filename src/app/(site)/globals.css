@@ -63,3 +63,45 @@
 .font-spacegrotesk-bold {
   font-family: "SpaceGrotesk-Bold", sans-serif;
 }
+
+.marquee {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* XL gap between items */
+  animation: scrollUp 10s linear infinite;
+}
+
+.marquee-inner-scrollDown {
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* XL gap between items */
+  animation: scrollDown 10s linear infinite;
+}
+
+.marquee-inner:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scrollUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes scrollDown {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}

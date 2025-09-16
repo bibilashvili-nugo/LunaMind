@@ -142,16 +142,26 @@ const LoginPage = () => {
         </div>
       </div>
       <hr className="hidden lg:block w-px h-full bg-[#E5E5E5]" />
-      <div className="hidden lg:flex lg:w-[35%]  overflow-hidden xl:w-1/2 xl:flex-row xl:gap-6">
-        <div className="lg:flex lg:flex-col gap-6 -mt-[100px] w-full">
-          <ContentWillBeAdd />
-          <ContentWillBeAdd />
-          <ContentWillBeAdd />
+      <div className="hidden lg:flex lg:w-[35%] h-screen overflow-hidden relative xl:w-1/2 xl:gap-6">
+        <div className="marquee xl:w-1/2 lg:w-full">
+          <div className="marquee-inner">
+            {[...Array(10)].map((_, i) => (
+              <ContentWillBeAdd key={i} />
+            ))}
+            {[...Array(10)].map((_, i) => (
+              <ContentWillBeAdd key={`dup-left-${i}`} />
+            ))}
+          </div>
         </div>
-        <div className="hidden xl:flex xl:flex-col w-full gap-6">
-          <ContentWillBeAdd />
-          <ContentWillBeAdd />
-          <ContentWillBeAdd />
+        <div className="w-1/2 hidden xl:block xl:w-1/2">
+          <div className="marquee-inner-scrollDown">
+            {[...Array(10)].map((_, i) => (
+              <ContentWillBeAdd key={i} />
+            ))}
+            {[...Array(10)].map((_, i) => (
+              <ContentWillBeAdd key={`dup-left-${i}`} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
