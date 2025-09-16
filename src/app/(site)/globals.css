@@ -74,14 +74,14 @@
   display: flex;
   flex-direction: column;
   gap: 24px; /* XL gap between items */
-  animation: scrollUp 10s linear infinite;
+  animation: scrollUp 40s linear infinite;
 }
 
 .marquee-inner-scrollDown {
   display: flex;
   flex-direction: column;
   gap: 24px; /* XL gap between items */
-  animation: scrollDown 10s linear infinite;
+  animation: scrollDown 40s linear infinite;
 }
 
 .marquee-inner:hover {
