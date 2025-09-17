@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import LanguageDropDown from "./LanguageDropDown";
 import { useState } from "react";

@@ -9,6 +9,7 @@ import {
   LoginRegisterContentSocial,
   LoginRegisterContentTitle,
 } from "../../../../components/ui/LoginRegisterContent";
+import Link from "next/link";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -86,12 +87,13 @@ const LoginPage = () => {
             </button>
           </div>
 
-          <span
+          <Link
+            href={"/password-recive"}
             className="text-end text-xs leading-4 text-[#0C0F21] font-helveticaneue-regular cursor-pointer hover:underline mt-3
           xl:text-sm xl:leading-5"
           >
             პაროლის აღდგენა
-          </span>
+          </Link>
 
           <button
             type="submit"
