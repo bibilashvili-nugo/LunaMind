@@ -138,9 +138,9 @@ export const LoginRegisterContentTermsAndPrivacy = ({
         onChange={onChange}
         className="w-[18px] h-[18px] rounded-[4px] border border-[#EBEBEB]"
       />
-      <label className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
+      <label className="text-sm leading-5 font-helveticaneue-regular text-[#737373] xl:text-base xl:leading-6">
         ვეთანხმები{" "}
-        <span className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF]">
+        <span className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6">
           {text}
         </span>
       </label>

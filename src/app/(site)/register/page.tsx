@@ -66,7 +66,7 @@ const RegistrationForm = () => {
 
   return (
     <div className="h-screen flex px-4 sm:px-6 lg:px-[44px] w-full gap-6 2xl:px-[152px] 2xl:gap-[44px]">
-      <div className="pt-8 flex flex-col mx-auto w-full lg:w-[65%] xl:w-1/2">
+      <div className="pt-8 flex flex-col mx-auto w-full lg:w-[65%] xl:w-1/2 h-screen overflow-y-auto hide-scrollbar">
         {/* Header */}
         <LoginRegisterContentHeader />
         {/* Title */}
@@ -99,48 +99,52 @@ const RegistrationForm = () => {
               მასწავლებელი
             </div>
           </div>
-
-          <LoginRegisterContentInput
-            placeholder="სახელი და გვარი"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            type="text"
-          />
-          <LoginRegisterContentInput
-            placeholder="ელ.ფოსტა"
-            type="email"
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-          />
-          <LoginRegisterContentInput
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="ტელეფონის ნომერი"
-          />
-          <LoginRegisterContentInputPassword
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="პაროლი"
-          />
-          <LoginRegisterContentInputPassword
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="გაიმეორეთ პაროლი"
-          />
-          <LoginRegisterContentTermsAndPrivacy
-            checked={acceptedTerms}
-            onChange={(e) => setAcceptedTerms(e.target.checked)}
-            text="წესებს და პირობებს"
-          />
-          <LoginRegisterContentTermsAndPrivacy
-            checked={acceptedPrivacy}
-            onChange={(e) => setAcceptedPrivacy(e.target.checked)}
-            text="კონფიდენციალურობის პოლიტიკას"
-          />
+          <div className="mt-[20px] lg:mt-[24px] flex flex-col gap-4">
+            <LoginRegisterContentInput
+              placeholder="სახელი და გვარი"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              type="text"
+            />
+            <LoginRegisterContentInput
+              placeholder="ელ.ფოსტა"
+              type="email"
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+            />
+            <LoginRegisterContentInput
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="ტელეფონის ნომერი"
+            />
+            <LoginRegisterContentInputPassword
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="პაროლი"
+            />
+            <LoginRegisterContentInputPassword
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="გაიმეორეთ პაროლი"
+            />
+          </div>
+          <div className="mt-3 flex flex-col gap-[16px]">
+            <LoginRegisterContentTermsAndPrivacy
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              text="წესებს და პირობებს"
+            />
+            <LoginRegisterContentTermsAndPrivacy
+              checked={acceptedPrivacy}
+              onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+              text="კონფიდენციალურობის პოლიტიკას"
+            />
+          </div>
           <button
             type="submit"
-            className="bg-[#FFD52A] py-4 w-full rounded-[40px] text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium"
+            className="bg-[#FFD52A] py-4 w-full rounded-[40px] text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium
+            mt-6 xl:text-base xl:leading-6"
           >
             რეგისტრაცია
           </button>

@@ -84,7 +84,8 @@
   animation: scrollDown 40s linear infinite;
 }
 
-.marquee-inner:hover {
+.marquee-wrapper:hover .marquee-inner,
+.marquee-wrapper:hover .marquee-inner-scrollDown {
   animation-play-state: paused;
 }
 
@@ -104,4 +105,14 @@
   100% {
     transform: translateY(0);
   }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none; /* Firefox */
 }

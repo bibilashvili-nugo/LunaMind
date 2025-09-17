@@ -2,7 +2,7 @@ import ContentWillBeAdd from "./ContentWillBeAdd";
 
 const SpinContent = () => {
   return (
-    <div className="hidden lg:flex lg:w-[35%] h-screen overflow-hidden relative xl:w-1/2 xl:gap-6">
+    <div className="hidden lg:flex lg:w-[35%] h-screen overflow-hidden relative xl:w-1/2 xl:gap-6 marquee-wrapper">
       <div className="marquee xl:w-1/2 lg:w-full">
         <div className="marquee-inner">
           {[...Array(10)].map((_, i) => (
