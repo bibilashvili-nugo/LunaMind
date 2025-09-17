@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SpinContent from "../../../../components/ui/SpinContent";
 import {
   LoginRegisterContentHeader,
+  LoginRegisterContentInput,
+  LoginRegisterContentInputPassword,
   LoginRegisterContentSocial,
+  LoginRegisterContentTermsAndPrivacy,
   LoginRegisterContentTitle,
 } from "../../../../components/ui/LoginRegisterContent";
 import Link from "next/link";
@@ -70,6 +73,78 @@ const RegistrationForm = () => {
         <LoginRegisterContentTitle title="რეგისტრაცია" />
         {/* Error Message */}
         {error && <p className="text-red-500 mb-4">{error}</p>}
+        <form onSubmit={handleSubmit} className="flex flex-col mt-6">
+          <div className="flex w-full items-center border border-[#EBEBEB] rounded-[62px] p-1">
+            <div
+              onClick={() => setRole("STUDENT")}
+              className={`w-1/2 text-center text-sm leading-5 cursor-pointer 
+                ${
+                  role === "STUDENT"
+                    ? "font-helveticaneue-medium text-[#0C0F21] bg-[#F6F7FB] rounded-[48px] py-3"
+                    : "font-helveticaneue-regular text-[#737373] py-3"
+                }`}
+            >
+              მოსწავლე
+            </div>
+
+            <div
+              onClick={() => setRole("TEACHER")}
+              className={`w-1/2 text-center text-sm leading-5 cursor-pointer 
+                ${
+                  role === "TEACHER"
+                    ? "font-helveticaneue-medium text-[#0C0F21] bg-[#F6F7FB] rounded-[48px] py-3"
+                    : "font-helveticaneue-regular text-[#737373] py-3"
+                }`}
+            >
+              მასწავლებელი
+            </div>
+          </div>
+
+          <LoginRegisterContentInput
+            placeholder="სახელი და გვარი"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            type="text"
+          />
+          <LoginRegisterContentInput
+            placeholder="ელ.ფოსტა"
+            type="email"
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
+          />
+          <LoginRegisterContentInput
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="ტელეფონის ნომერი"
+          />
+          <LoginRegisterContentInputPassword
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="პაროლი"
+          />
+          <LoginRegisterContentInputPassword
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="გაიმეორეთ პაროლი"
+          />
+          <LoginRegisterContentTermsAndPrivacy
+            checked={acceptedTerms}
+            onChange={(e) => setAcceptedTerms(e.target.checked)}
+            text="წესებს და პირობებს"
+          />
+          <LoginRegisterContentTermsAndPrivacy
+            checked={acceptedPrivacy}
+            onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+            text="კონფიდენციალურობის პოლიტიკას"
+          />
+          <button
+            type="submit"
+            className="bg-[#FFD52A] py-4 w-full rounded-[40px] text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium"
+          >
+            რეგისტრაცია
+          </button>
+        </form>
         {/* Social login buttons */}
         <LoginRegisterContentSocial authType="ავტორიზაცია" />
       </div>
@@ -81,98 +156,6 @@ const RegistrationForm = () => {
     //   {error && <p className="text-red-500 mb-4">{error}</p>}
     //   <form onSubmit={handleSubmit} className="space-y-4">
     //     {/* Role */}
-    //     <div>
-    //       <label className="block mb-1 font-medium">როლი</label>
-    //       <select
-    //         value={role}
-    //         onChange={(e) => setRole(e.target.value as Role)}
-    //         className="w-full border rounded px-3 py-2"
-    //       >
-    //         <option value="STUDENT">მოსწავლე</option>
-    //         <option value="TEACHER">მასწავლებელი</option>
-    //       </select>
-    //     </div>
-
-    //     {/* Full Name */}
-    //     <div>
-    //       <label className="block mb-1 font-medium">სახელი და გვარი</label>
-    //       <input
-    //         type="text"
-    //         value={fullName}
-    //         onChange={(e) => setFullName(e.target.value)}
-    //         placeholder="მაგ: ნუგზარი ბიბილაშვილი"
-    //         className="w-full border rounded px-3 py-2"
-    //         required
-    //       />
-    //     </div>
-
-    //     {/* Email */}
-    //     <div>
-    //       <label className="block mb-1 font-medium">ელფოსტა</label>
-    //       <input
-    //         type="email"
-    //         value={email}
-    //         onChange={(e) => setEmail(e.target.value)}
-    //         className="w-full border rounded px-3 py-2"
-    //         required
-    //       />
-    //     </div>
-
-    //     {/* Phone */}
-    //     <div>
-    //       <label className="block mb-1 font-medium">ტელეფონის ნომერი</label>
-    //       <input
-    //         type="tel"
-    //         value={phone}
-    //         onChange={(e) => setPhone(e.target.value)}
-    //         className="w-full border rounded px-3 py-2"
-    //         required
-    //       />
-    //     </div>
-
-    //     {/* Password */}
-    //     <div>
-    //       <label className="block mb-1 font-medium">პაროლი</label>
-    //       <input
-    //         type="password"
-    //         value={password}
-    //         onChange={(e) => setPassword(e.target.value)}
-    //         className="w-full border rounded px-3 py-2"
-    //         required
-    //       />
-    //     </div>
-
-    //     {/* Confirm Password */}
-    //     <div>
-    //       <label className="block mb-1 font-medium">გაიმეორე პაროლი</label>
-    //       <input
-    //         type="password"
-    //         value={confirmPassword}
-    //         onChange={(e) => setConfirmPassword(e.target.value)}
-    //         className="w-full border rounded px-3 py-2"
-    //         required
-    //       />
-    //     </div>
-
-    //     {/* Terms */}
-    //     <div className="flex items-center space-x-2">
-    //       <input
-    //         type="checkbox"
-    //         checked={acceptedTerms}
-    //         onChange={(e) => setAcceptedTerms(e.target.checked)}
-    //       />
-    //       <label>ვეთანხმები წესებს და პირობებს</label>
-    //     </div>
-
-    //     {/* Privacy */}
-    //     <div className="flex items-center space-x-2">
-    //       <input
-    //         type="checkbox"
-    //         checked={acceptedPrivacy}
-    //         onChange={(e) => setAcceptedPrivacy(e.target.checked)}
-    //       />
-    //       <label>ვეთანხმები კონფიდენციალურობის პოლიტიკას</label>
-    //     </div>
 
     //     {/* Submit */}
     //     <button

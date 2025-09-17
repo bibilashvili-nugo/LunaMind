@@ -1,5 +1,7 @@
 import Link from "next/link";
 import LanguageDropDown from "./LanguageDropDown";
+import { useState } from "react";
+import { Hide, Show } from "react-coolicons";
 
 export const LoginRegisterContentHeader = () => {
   return (
@@ -58,5 +60,90 @@ export const LoginRegisterContentSocial = ({
         </Link>
       </div>
     </>
+  );
+};
+
+export const LoginRegisterContentInput = ({
+  placeholder,
+  value,
+  onChange,
+  type,
+}: {
+  placeholder: string;
+  value: string;
+  type?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) => {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none text-sm leading-5 font-helveticaneue-regular
+        placeholder:font-helveticaneue-regular placeholder:text-[#737373] placeholder:text-sm placeholder:leading-5
+        xl:text-base xl:leading-6"
+      required
+    />
+  );
+};
+
+export const LoginRegisterContentInputPassword = ({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+}) => {
+  const [showPassword, setShowPassword] = useState(false);
+  return (
+    <div className="relative w-full">
+      <input
+        type={showPassword ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none text-sm leading-5 font-helveticaneue-regular
+            placeholder:font-helveticaneue-regular placeholder:text-[#737373] placeholder:text-sm placeholder:leading-5
+            xl:text-base xl:leading-6"
+        required
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#737373]"
+      >
+        {showPassword ? <Hide /> : <Show />}
+      </button>
+    </div>
+  );
+};
+
+export const LoginRegisterContentTermsAndPrivacy = ({
+  checked,
+  onChange,
+  text,
+}: {
+  checked: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  text: string;
+}) => {
+  return (
+    <div className="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="w-[18px] h-[18px] rounded-[4px] border border-[#EBEBEB]"
+      />
+      <label className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
+        ვეთანხმები{" "}
+        <span className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF]">
+          {text}
+        </span>
+      </label>
+    </div>
   );
 };
