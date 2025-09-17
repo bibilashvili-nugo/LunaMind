@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SpinContent from "../../../../components/ui/SpinContent";
 import {
   LoginRegisterContentHeader,
@@ -10,7 +10,7 @@ import {
   LoginRegisterContentTermsAndPrivacy,
   LoginRegisterContentTitle,
 } from "../../../../components/ui/LoginRegisterContent";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Role = "STUDENT" | "TEACHER";
 
@@ -24,6 +24,8 @@ const RegistrationForm = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [error, setError] = useState("");
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,9 +61,8 @@ const RegistrationForm = () => {
       return;
     }
 
-    console.log("Registered user:", data.user);
     setError("");
-    // Optionally redirect or clear form
+    router.push("/login");
   };
 
   return (
@@ -144,7 +145,7 @@ const RegistrationForm = () => {
           <button
             type="submit"
             className="bg-[#FFD52A] py-4 w-full rounded-[40px] text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium
-            mt-6 xl:text-base xl:leading-6"
+            mt-6 xl:text-base xl:leading-6 cursor-pointer"
           >
             რეგისტრაცია
           </button>
@@ -155,21 +156,6 @@ const RegistrationForm = () => {
       <hr className="hidden lg:block w-px h-full bg-[#E5E5E5]" />
       <SpinContent />
     </div>
-    // <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-    //   <h2 className="text-2xl font-bold mb-6 text-center">რეგისტრაცია</h2>
-    //   {error && <p className="text-red-500 mb-4">{error}</p>}
-    //   <form onSubmit={handleSubmit} className="space-y-4">
-    //     {/* Role */}
-
-    //     {/* Submit */}
-    //     <button
-    //       type="submit"
-    //       className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-    //     >
-    //       რეგისტრაცია
-    //     </button>
-    //   </form>
-    // </div>
   );
 };
 
