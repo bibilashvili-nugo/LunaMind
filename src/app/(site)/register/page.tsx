@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SpinContent from "../../../../components/ui/SpinContent";
 import {
   LoginRegisterContentHeader,
@@ -10,18 +10,20 @@ import {
   LoginRegisterContentTermsAndPrivacy,
   LoginRegisterContentTitle,
 } from "../../../../components/ui/LoginRegisterContent";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type Role = "STUDENT" | "TEACHER";
 
 const RegistrationForm = () => {
-  const searchParams = useSearchParams();
-  const initialRole = searchParams.get("role") as Role | null;
+  const [role, setRole] = useState<Role>("STUDENT");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roleParam = params.get("role");
+    if (roleParam === "TEACHER") setRole("TEACHER");
+  }, []);
 
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<Role>(
-    initialRole === "TEACHER" ? "TEACHER" : "STUDENT"
-  );
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
