@@ -5,10 +5,22 @@ import { headerData } from "../../constants/data";
 import { AccountCircle } from "../ui/Icons";
 import Link from "next/link";
 import LanguageDropDown from "../ui/LanguageDropDown";
+import { useTranslations } from "next-intl";
 
 const NAV_OFFSET = 80;
 
 const NavBar = () => {
+  const t = useTranslations();
+
+  // Only store keys and hrefs
+  const headerLinks = [
+    { key: "home", href: "#home" },
+    { key: "why", href: "#why" },
+    { key: "tutors", href: "#tutors" },
+    { key: "reviews", href: "#reviews" },
+    { key: "packages", href: "#packages" },
+  ];
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeId, setActiveId] = useState<string>(headerData[0]?.href || "");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -86,7 +98,7 @@ const NavBar = () => {
           </div>
 
           <ul className="flex bg-[#F6F7FB] rounded-[50px] p-1">
-            {headerData.map((item) => {
+            {headerLinks.map((item) => {
               const isHovered = hoveredId === item.href;
               const isActive = activeId === item.href;
               const liClass = `font-helveticaneue-regular text-sm leading-5 px-5 py-3 cursor-pointer rounded-[50px] 3xl:text-base 3xl:leading-6 transition-all duration-300 ${
@@ -104,7 +116,7 @@ const NavBar = () => {
                   onMouseEnter={() => setHoveredId(item.href)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
-                  {item.title}
+                  {t(`header.${item.key}`)}
                 </li>
               );
             })}
