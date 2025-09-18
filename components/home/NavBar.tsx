@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { headerData } from "../../constants/data";
+// import { headerData } from "../../constants/data";
 import { AccountCircle } from "../ui/Icons";
 import Link from "next/link";
 import LanguageDropDown from "../ui/LanguageDropDown";
@@ -9,11 +9,12 @@ import { useTranslations } from "next-intl";
 
 const NAV_OFFSET = 80;
 
+type HeaderKey = "home" | "why" | "tutors" | "reviews" | "packages";
+
 const NavBar = () => {
   const t = useTranslations();
 
-  // Only store keys and hrefs
-  const headerLinks = [
+  const headerLinks: { key: HeaderKey; href: string }[] = [
     { key: "home", href: "#home" },
     { key: "why", href: "#why" },
     { key: "tutors", href: "#tutors" },
@@ -22,7 +23,7 @@ const NavBar = () => {
   ];
 
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeId, setActiveId] = useState<string>(headerData[0]?.href || "");
+  const [activeId, setActiveId] = useState<string>(headerLinks[0]?.href || "");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
 
@@ -33,11 +34,11 @@ const NavBar = () => {
       setIsScrolled(window.scrollY > 300);
 
       if (window.scrollY === 0) {
-        setActiveId(headerData[0].href);
+        setActiveId(headerLinks[0].href);
         return;
       }
 
-      for (const item of headerData) {
+      for (const item of headerLinks) {
         const el = document.getElementById(item.href.replace("#", ""));
         if (el) {
           const rect = el.getBoundingClientRect();
@@ -116,7 +117,7 @@ const NavBar = () => {
                   onMouseEnter={() => setHoveredId(item.href)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
-                  {t(`header.${item.key}`)}
+                  {t(`header.${item.key}`, { fallback: item.key })}
                 </li>
               );
             })}

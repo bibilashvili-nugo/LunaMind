@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { IntlProvider as NextIntlProvider } from "next-intl"; // rename import
+import { ReactNode, createContext, useContext, useState } from "react";
+import { IntlProvider as NextIntlProvider } from "next-intl";
 
 type Locale = "ka" | "en";
 
@@ -29,17 +23,19 @@ type Props = {
   children: ReactNode;
 };
 
+// import all locale messages
+import kaMessages from "../locales/ka.json";
+import enMessages from "../locales/en.json";
+
+const messagesMap = {
+  ka: kaMessages,
+  en: enMessages,
+};
+
 export const IntlProvider = ({ children }: Props) => {
   const [locale, setLocale] = useState<Locale>("ka");
-  const [messages, setMessages] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    const loadMessages = async () => {
-      const msgs = await import(`../locales/${locale}.json`);
-      setMessages(msgs.default);
-    };
-    loadMessages();
-  }, [locale]);
+  const messages = messagesMap[locale] || kaMessages;
 
   return (
     <IntlContext.Provider value={{ locale, setLocale }}>

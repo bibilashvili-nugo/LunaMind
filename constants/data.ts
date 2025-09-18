@@ -28,14 +28,6 @@ interface WhyOurPlatform {
   description: string;
 }
 
-export const headerData = [
-  { title: "მთავარი", href: "#home" },
-  { title: "რატომ ჩვენ", href: "#why" },
-  { title: "რეპეტიტორები", href: "#tutors" },
-  { title: "შეფასებები", href: "#reviews" },
-  { title: "პაკეტები", href: "#packages" },
-];
-
 export const subjectsData: SubjectType[] = [
   { title: "ბიოლოგიის", icon: Biology, id: 1 },
   { title: "ქართული ენის", icon: GeorgianLanguage, id: 2 },
