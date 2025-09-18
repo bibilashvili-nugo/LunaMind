@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { headerData } from "../../constants/data";
 import { AccountCircle } from "../ui/Icons";
 import Link from "next/link";
 import LanguageDropDown from "../ui/LanguageDropDown";
@@ -12,8 +11,6 @@ const NAV_OFFSET = 80;
 type HeaderKey = "home" | "why" | "tutors" | "reviews" | "packages";
 
 const NavBar = () => {
-  const t = useTranslations();
-
   const headerLinks: { key: HeaderKey; href: string }[] = [
     { key: "home", href: "#home" },
     { key: "why", href: "#why" },
@@ -26,6 +23,12 @@ const NavBar = () => {
   const [activeId, setActiveId] = useState<string>(headerLinks[0]?.href || "");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const t = useTranslations();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,7 +120,9 @@ const NavBar = () => {
                   onMouseEnter={() => setHoveredId(item.href)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
-                  {t(`header.${item.key}`, { fallback: item.key })}
+                  {mounted
+                    ? t(`header.${item.key}`, { fallback: item.key })
+                    : item.key}
                 </li>
               );
             })}
