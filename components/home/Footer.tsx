@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -35,12 +36,16 @@ const Footer = () => {
         </p>
       </div>
       <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center z-10">
-        <span className="text-white text-[36px] leading-[100%] font-lgvanastasia-regular underline lg:text-[44px]">
-          გახდი მოსწავლე
-        </span>
-        <span className="text-white text-[36px] leading-[100%] font-lgvanastasia-regular underline lg:text-[44px]">
-          გახდი რეპეტიტორი
-        </span>
+        <Link href="/register?role=STUDENT">
+          <span className="text-white text-[36px] leading-[100%] font-lgvanastasia-regular underline lg:text-[44px]">
+            გახდი მოსწავლე
+          </span>
+        </Link>
+        <Link href="/register?role=TEACHER">
+          <span className="text-white text-[36px] leading-[100%] font-lgvanastasia-regular underline lg:text-[44px]">
+            გახდი რეპეტიტორი
+          </span>
+        </Link>
       </div>
       <div className="px-4 pb-[32px] lg:px-[44px] lg:mt-[20px] 2xl:px-[80px] 3xl:px-[160px] 3xl:pt-[64px] z-10">
         <hr className="text-white/10 pb-6" />

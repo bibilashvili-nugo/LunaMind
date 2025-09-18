@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const Hero = ({ id }: { id: string }) => {
@@ -49,20 +50,22 @@ const Hero = ({ id }: { id: string }) => {
         ყველა საგანში
       </span>
       <div className="flex justify-center items-center gap-4 lg:gap-[14px]">
-        <button
+        <Link
+          href="/register?role=STUDENT"
           className="font-helveticaneue-medium text-xs leading-4 px-[34px] py-[14px] rounded-[40px] bg-[#FFD52A] cursor-pointer
         sm:text-sm sm:leading-5 lg:px-[44px] lg:py-[19px] text-[#0C0F21]"
         >
           <span className="hidden sm:inline">გახდი მოსწავლე</span>
           <span className="inline sm:hidden">მოსწავლე</span>
-        </button>
-        <button
+        </Link>
+        <Link
+          href="/register?role=TEACHER"
           className="font-helveticaneue-medium text-xs leading-4 px-[34px] py-[14px] rounded-[40px] bg-[#F6F7FB] cursor-pointer
         sm:text-sm sm:leading-5 lg:px-[44px] lg:py-[19px] text-[#0C0F21]"
         >
           <span className="hidden sm:inline">გახდი რეპეტიტორი</span>
           <span className="inline sm:hidden">რეპეტიტორი</span>
-        </button>
+        </Link>
       </div>
     </div>
   );

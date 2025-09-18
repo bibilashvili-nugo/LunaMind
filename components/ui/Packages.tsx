@@ -1,4 +1,5 @@
 import { PackageText } from "./Text";
+import Link from "next/link";
 
 const Packages = ({
   forWho,
@@ -31,9 +32,16 @@ const Packages = ({
         />
         <PackageText desc="შეთავაზების ტექსტი ასევე ესეც შეიძლება იყოს უფრო დიდი" />
       </div>
-      <button className="text-sm leading-5 font-helveticaneue-medium py-4 px-8 rounded-[26px] bg-[#0C0F21] text-white cursor-pointer self-start">
+      <Link
+        className="text-sm leading-5 font-helveticaneue-medium py-4 px-8 rounded-[26px] bg-[#0C0F21] text-white cursor-pointer self-start"
+        href={
+          forWho === "მოსწავლეებისთვის"
+            ? "/register?role=STUDENT"
+            : "/register?role=TEACHER"
+        }
+      >
         {buttonText}
-      </button>
+      </Link>
     </div>
   );
 };

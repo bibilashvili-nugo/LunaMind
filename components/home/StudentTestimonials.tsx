@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { SectionHeader } from "../ui/Text";
 import { Star } from "../ui/Icons";
+import Link from "next/link";
 
 const StudentTestimonials = ({ id }: { id: string }) => {
   return (
@@ -23,12 +24,18 @@ const StudentTestimonials = ({ id }: { id: string }) => {
               გაიმყარე ცოდნა შეოუერთდი ჩვენს სტუდენტებს და დაიწყწე დღესვე
             </span>
             <div className="flex flex-col gap-3 items-center sm:flex-row">
-              <button className="text-sm leading-5 font-helveticaneue-medium text-white bg-[#0C0F21] py-4 px-8 rounded-[40px]">
+              <Link
+                href="/register?role=STUDENT"
+                className="text-sm leading-5 font-helveticaneue-medium text-white bg-[#0C0F21] py-4 px-8 rounded-[40px]"
+              >
                 გახდი მოსწავლე
-              </button>
-              <button className="text-sm leading-5 font-helveticaneue-medium text-[#0C0F21] bg-white py-4 px-8 rounded-[40px]">
+              </Link>
+              <Link
+                href="/register?role=TEACHER"
+                className="text-sm leading-5 font-helveticaneue-medium text-[#0C0F21] bg-white py-4 px-8 rounded-[40px]"
+              >
                 გახდი რეპეტიტორი
-              </button>
+              </Link>
             </div>
           </div>
           <div
