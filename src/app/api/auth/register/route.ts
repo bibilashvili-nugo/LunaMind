@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import type { Role } from "@prisma/client";
+import { emailRegex, isValidPassword, isValidPhone } from "@/utils/validation";
 
 interface RegisterRequest {
   fullName: string;
@@ -18,17 +19,16 @@ export async function POST(req: Request) {
   try {
     const body: RegisterRequest = await req.json();
 
-    const {
-      fullName,
-      role,
-      email,
-      phoneNumber,
-      password,
-      acceptedTerms,
-      acceptedPrivacy,
-    } = body;
+    // Trim inputs
+    const fullName = body.fullName.trim();
+    const email = body.email.trim().toLowerCase();
+    const phoneNumber = body.phoneNumber.trim();
+    const password = body.password;
+    const role = body.role;
+    const acceptedTerms = body.acceptedTerms;
+    const acceptedPrivacy = body.acceptedPrivacy;
 
-    // Validate required fields
+    // 1️⃣ Required fields
     if (!fullName || !role || !email || !phoneNumber || !password) {
       return NextResponse.json(
         { message: "ყველა ველი სავალდებულოა" },
@@ -36,6 +36,44 @@ export async function POST(req: Request) {
       );
     }
 
+    // 2️⃣ Full name validation (at least 2 characters each)
+    const [firstName, ...lastNameParts] = fullName.split(" ");
+    const lastName = lastNameParts.join(" ") || "";
+    if (firstName.length < 2 || lastName.length < 2) {
+      return NextResponse.json(
+        { message: "სახელი და გვარი უნდა იყოს მინიმუმ 2 ასო" },
+        { status: 400 }
+      );
+    }
+
+    // 3️⃣ Email validation
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { message: "ელფოსტა არასწორია" },
+        { status: 400 }
+      );
+    }
+
+    // 4️⃣ Password strength
+    if (!isValidPassword(password)) {
+      return NextResponse.json(
+        {
+          message:
+            "პაროლი უნდა შეიცავდეს მინიმუმ 8 სიმბოლოს, ერთ დიდ ასოს და ერთ ციფრს",
+        },
+        { status: 400 }
+      );
+    }
+
+    // 5️⃣ Phone validation (digits only, 9-15 digits)
+    if (!isValidPhone(phoneNumber)) {
+      return NextResponse.json(
+        { message: "ტელეფონი არასწორია" },
+        { status: 400 }
+      );
+    }
+
+    // 6️⃣ Terms & Privacy
     if (!acceptedTerms || !acceptedPrivacy) {
       return NextResponse.json(
         { message: "უნდა დაეთანხმო წესებს და პოლიტიკას" },
@@ -43,11 +81,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Split full name
-    const [firstName, ...lastNameParts] = fullName.trim().split(" ");
-    const lastName = lastNameParts.join(" ") || "";
-
-    // Check if user already exists
+    // 7️⃣ Check if email already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
@@ -56,10 +90,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash password
+    // 8️⃣ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    // 9️⃣ Create user
     const user = await prisma.user.create({
       data: {
         role,
@@ -73,7 +107,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Remove sensitive info before sending to client
+    //  🔒 Remove sensitive info before sending to client
     const safeUser = {
       id: user.id,
       firstName: user.firstName,

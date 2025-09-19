@@ -11,6 +11,7 @@ import {
   LoginRegisterContentTitle,
 } from "../../../../components/ui/LoginRegisterContent";
 import { useRouter } from "next/navigation";
+import { emailRegex, isValidPassword, isValidPhone } from "@/utils/validation";
 
 type Role = "STUDENT" | "TEACHER";
 
@@ -36,6 +37,25 @@ const RegistrationForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!fullName.trim()) {
+      setError("გთხოვთ შეიყვანოთ სახელი და გვარი.");
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      setError("ელ.ფოსტა არასწორია.");
+      return;
+    }
+    if (!isValidPhone(phone)) {
+      setError("ტელეფონი არასწორია, გამოიყენეთ მხოლოდ ციფრები (9-15 სიმბოლო).");
+      return;
+    }
+    if (!isValidPassword(password)) {
+      setError(
+        "პაროლი უნდა შეიცავდეს მინიმუმ 8 სიმბოლოს, ერთ დიდ ასოს და ერთ ციფრს."
+      );
+      return;
+    }
 
     if (!acceptedTerms || !acceptedPrivacy) {
       setError("გთხოვთ მონიშნეთ წესები და კონფიდენციალურობა.");
