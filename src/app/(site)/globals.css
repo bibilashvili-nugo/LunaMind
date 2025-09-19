@@ -117,23 +117,28 @@
   scrollbar-width: none; /* Firefox */
 }
 
-/* Shake animation for flags */
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-3px);
-  }
-  50% {
-    transform: translateX(3px);
-  }
-  75% {
-    transform: translateX(-3px);
-  }
+/* Slot machine container */
+.slot-machine {
+  width: 32px; /* same size as your flag SVG */
+  height: 32px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.animate-shake {
-  animation: shake 0.5s infinite;
+/* Inner reel with duplicated flags for seamless loop */
+.slot-machine-inner {
+  display: flex;
+  flex-direction: column;
+  animation: slotSpin 2s linear infinite; /* slower, smooth loop */
+}
+
+@keyframes slotSpin {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
 }
