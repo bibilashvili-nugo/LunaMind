@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown, GeorgianFlag, RussiaLangugage, UsaLanguage } from "./Icons";
 import { useIntlContext } from "@/providers/IntlProvider";
+import { useClickOutside } from "@/hooks/useClickOutside";
 
 const LanguageDropDown = () => {
   const { locale, setLocale } = useIntlContext();
@@ -14,27 +15,7 @@ const LanguageDropDown = () => {
     setMounted(true);
   }, []);
 
-  // ✅ Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
+  useClickOutside(dropdownRef, () => setIsOpen(false));
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
