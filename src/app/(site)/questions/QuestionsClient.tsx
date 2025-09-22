@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import LanguageDropDown from "../../../../components/ui/LanguageDropDown";
 
 type QuestionType = "text" | "number" | "textarea" | "select";
@@ -10,15 +11,13 @@ interface Question {
   type: QuestionType;
   options?: string[];
 }
-
 interface Profile {
   [key: string]: string | number | undefined;
-  currentStep?: number;
 }
-
 interface QuestionsClientProps {
   userId: string;
   role: "STUDENT" | "TEACHER";
+  initialStep: number;
 }
 
 const studentQuestions: Question[] = [
@@ -75,34 +74,18 @@ const teacherQuestions: Question[] = [
   },
 ];
 
-const QuestionsClient: React.FC<QuestionsClientProps> = ({ userId, role }) => {
+const QuestionsClient: React.FC<QuestionsClientProps> = ({
+  userId,
+  role,
+  initialStep,
+}) => {
+  const router = useRouter();
   const questions = role === "STUDENT" ? studentQuestions : teacherQuestions;
-  const [step, setStep] = useState<number>(0);
+  const [step, setStep] = useState<number>(initialStep);
   const [answers, setAnswers] = useState<Profile>({});
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const apiRole = role.toLowerCase(); // student or teacher
-        const res = await fetch(`/api/${apiRole}s/profile?userId=${userId}`);
-        if (!res.ok) throw new Error("Failed to fetch profile");
-
-        const data: { profile?: Profile } = await res.json();
-        if (data.profile) {
-          setAnswers(data.profile);
-          setStep(data.profile.currentStep ?? 0);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchProfile();
-  }, [userId, role]);
-
-  const handleChange = (key: string, value: string | number | undefined) => {
+  const handleChange = (key: string, value: string | number | undefined) =>
     setAnswers((prev) => ({ ...prev, [key]: value }));
-  };
 
   const handleNext = async () => {
     const current = questions[step];
@@ -115,8 +98,8 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({ userId, role }) => {
         body: JSON.stringify({ userId, key: current.key, value, step }),
       });
 
-      if (step < questions.length - 1) setStep(step + 1);
-      else alert("🎉 კითხვარი დასრულდა!");
+      if (step + 1 >= questions.length) router.push("/dashboard");
+      else setStep(step + 1);
     } catch (err) {
       console.error(err);
     }
@@ -124,6 +107,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({ userId, role }) => {
 
   const current = questions[step];
   const totalSteps = questions.length;
+
   return (
     <>
       <div
@@ -162,7 +146,10 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({ userId, role }) => {
             საფუძველზე
           </p>
         </div>
-        <h2 className="mt-[42px] pb-3 font-helveticaneue-regular text-[#0C0F21] text-sm leading-4">
+        <h2
+          className="mt-[42px] pb-3 font-helveticaneue-regular text-[#0C0F21] text-sm leading-4 sm:mt-8 
+        xl:text-base "
+        >
           {current.label}
         </h2>
 
@@ -171,7 +158,10 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({ userId, role }) => {
             type="text"
             value={answers[current.key] ?? ""}
             onChange={(e) => handleChange(current.key, e.target.value)}
-            className="w-full p-3 border rounded-lg"
+            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+            text-sm leading-5 font-helveticaneue-regular
+          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+          xl:text-base"
           />
         )}
         {current.type === "number" && (
@@ -184,22 +174,30 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({ userId, role }) => {
                 e.target.value === "" ? undefined : Number(e.target.value)
               )
             }
-            className="w-full py-[18px] px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] text-sm leading-5 font-helveticaneue-regular
-          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+            text-sm leading-5 font-helveticaneue-regular
+          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+          xl:text-base"
           />
         )}
         {current.type === "textarea" && (
           <textarea
             value={answers[current.key] ?? ""}
             onChange={(e) => handleChange(current.key, e.target.value)}
-            className="w-full p-3 border rounded-lg"
+            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+            text-sm leading-5 font-helveticaneue-regular
+          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+          xl:text-base"
           />
         )}
         {current.type === "select" && (
           <select
             value={answers[current.key] ?? ""}
             onChange={(e) => handleChange(current.key, e.target.value)}
-            className="w-full p-3 border rounded-lg"
+            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+            text-sm leading-5 font-helveticaneue-regular
+          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+          xl:text-base"
           >
             <option value="">აირჩიეთ...</option>
             {current.options?.map((opt) => (
@@ -212,7 +210,8 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({ userId, role }) => {
 
         <button
           onClick={handleNext}
-          className="mt-6 bg-[#FFD52A] cursor-pointer py-4 text-center w-full rounded-[40px] text-[#0C0F21] text-sm leading-5 font-helveticaneue-medium"
+          className="mt-6 bg-[#FFD52A] cursor-pointer py-4 text-center w-full rounded-[40px] 
+          text-[#0C0F21] text-sm leading-5 font-helveticaneue-medium xl:text-base"
         >
           {step < questions.length - 1 ? "შემდეგი" : "დასრულება"}
         </button>
