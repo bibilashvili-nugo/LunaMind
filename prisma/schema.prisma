@@ -23,8 +23,10 @@ model User {
   otpCode      String?
   otpExpiresAt DateTime?
 
-  accounts Account[]
-  sessions Session[]
+  accounts       Account[]
+  sessions       Session[]
+  StudentProfile StudentProfile?
+  TeacherProfile TeacherProfile?
 }
 
 model Account {
@@ -66,4 +68,58 @@ model VerificationToken {
 enum Role {
   STUDENT
   TEACHER
+}
+
+model StudentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  age             Int?
+  country         String?
+  city            String?
+  address         String?
+  educationLevel  EducationLevel?
+  subjectInterest String?
+  reason          String?
+  availability    Availability?
+
+  currentStep Int      @default(0) // აქ შენახავს, რომელი კითხვაზეა სტუდენტი
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum EducationLevel {
+  SCHOOL
+  UNIVERSITY
+  OTHER
+}
+
+enum Availability {
+  FLEXIBLE
+  FIXED
+}
+
+model TeacherProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  age        Int?
+  country    String?
+  city       String?
+  address    String?
+  profession String? // პროფესიული ინფორმაცია
+  education  TeacherEducation? // უმაღლესი განათლება
+
+  currentStep Int      @default(0) // რომელ კითხვაზეა
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum TeacherEducation {
+  BACHELOR
+  MASTER
+  DOCTORATE
+  OTHER
 }

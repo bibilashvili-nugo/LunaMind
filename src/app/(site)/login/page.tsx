@@ -33,7 +33,7 @@ const LoginPage = () => {
 
       if (res.ok) {
         // ✅ აღარ გვჭირდება localStorage, middleware ინახავს cookie-ს
-        router.replace("/dashboard");
+        router.replace("/questions");
       } else {
         setError(data.message || "Login failed");
       }
