@@ -55,7 +55,7 @@ export const IntlProvider = ({ children }: Props) => {
 
   return (
     <IntlContext.Provider value={{ locale, setLocale }}>
-      <NextIntlProvider locale={locale} messages={messages}>
+      <NextIntlProvider locale={locale} messages={messages} timeZone="UTC">
         {children}
       </NextIntlProvider>
     </IntlContext.Provider>
