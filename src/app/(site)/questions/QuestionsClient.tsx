@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import LanguageDropDown from "../../../../components/ui/LanguageDropDown";
 
@@ -11,9 +11,11 @@ interface Question {
   type: QuestionType;
   options?: string[];
 }
+
 interface Profile {
   [key: string]: string | number | undefined;
 }
+
 interface QuestionsClientProps {
   userId: string;
   role: "STUDENT" | "TEACHER";
@@ -81,14 +83,36 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 }) => {
   const router = useRouter();
   const questions = role === "STUDENT" ? studentQuestions : teacherQuestions;
-  const [step, setStep] = useState<number>(initialStep);
+
+  // ✅ ვალიდაცია initialStep-ისთვის
+  const validatedInitialStep = Math.max(
+    0,
+    Math.min(initialStep, questions.length - 1)
+  );
+  const [step, setStep] = useState<number>(validatedInitialStep);
   const [answers, setAnswers] = useState<Profile>({});
+
+  // ✅ ვალიდაცია current-ისთვის
+  const current = questions[step];
+
+  // ✅ თუ current არ არსებობს, redirect
+  if (!current) {
+    console.error("❌ Invalid step or questions array:", {
+      step,
+      questionsLength: questions.length,
+      initialStep,
+      validatedInitialStep,
+    });
+    router.push("/dashboard");
+    return (
+      <div className="flex justify-center items-center h-64">Loading...</div>
+    );
+  }
 
   const handleChange = (key: string, value: string | number | undefined) =>
     setAnswers((prev) => ({ ...prev, [key]: value }));
 
   const handleNext = async () => {
-    const current = questions[step];
     const value = answers[current.key];
     const isLastQuestion = step >= questions.length - 1;
 
@@ -96,6 +120,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       step,
       isLastQuestion,
       currentKey: current.key,
+      questionsLength: questions.length,
     });
 
     try {
@@ -111,28 +136,32 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
       const data = await response.json();
       console.log("✅ API response:", data);
 
-      // ✅ ცვლილება აქ: ამოწმებთ data.completed-ს API-დან
       if (data.completed) {
         console.log("🚀 Profile completed - redirecting to dashboard");
         router.push("/dashboard");
-        router.refresh();
-        return; // ✅ მნიშვნელოვანი: დაამატეთ return
+        return;
       }
 
-      // ✅ თუ არ არის completed, გადადით შემდეგ კითხვაზე
       if (step < questions.length - 1) {
         setStep(step + 1);
+      } else {
+        console.warn("⚠️ Already at last step");
+        router.push("/dashboard");
       }
     } catch (err) {
       console.error("❌ Error:", err);
     }
   };
 
-  const current = questions[step];
   const totalSteps = questions.length;
+  const isNextDisabled = !answers[current.key] || answers[current.key] === "";
 
   return (
     <>
@@ -236,6 +265,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
         <button
           onClick={handleNext}
+          disabled={isNextDisabled}
           className="mt-6 bg-[#FFD52A] cursor-pointer py-4 text-center w-full rounded-[40px] 
           text-[#0C0F21] text-sm leading-5 font-helveticaneue-medium xl:text-base"
         >
