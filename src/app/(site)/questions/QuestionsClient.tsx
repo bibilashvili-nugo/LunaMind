@@ -92,28 +92,37 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     const value = answers[current.key];
     const isLastQuestion = step >= questions.length - 1;
 
+    console.log("🔍 handleNext:", {
+      step,
+      isLastQuestion,
+      currentKey: current.key,
+    });
+
     try {
-      await fetch(`/api/${role.toLowerCase()}s/profile`, {
+      const response = await fetch(`/api/${role.toLowerCase()}s/profile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, key: current.key, value, step }),
+        body: JSON.stringify({
+          userId,
+          key: current.key,
+          value,
+          step: step, // მიმდინარე step
+          isLastQuestion,
+        }),
       });
 
-      if (isLastQuestion) {
-        // ✅ განაახლეთ პროფილი როგორც დასრულებული
-        await fetch(`/api/${role.toLowerCase()}s/profile/complete`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        });
+      const data = await response.json();
+      console.log("✅ API response:", data);
 
+      if (isLastQuestion) {
+        console.log("🚀 Last question completed - redirecting to dashboard");
         router.push("/dashboard");
         router.refresh();
       } else {
         setStep(step + 1);
       }
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error:", err);
     }
   };
 

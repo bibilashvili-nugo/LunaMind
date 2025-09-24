@@ -85,6 +85,7 @@ model StudentProfile {
   availability    Availability?
 
   currentStep Int      @default(0) // აქ შენახავს, რომელი კითხვაზეა სტუდენტი
+  completed   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -113,6 +114,7 @@ model TeacherProfile {
   education  TeacherEducation? // უმაღლესი განათლება
 
   currentStep Int      @default(0) // რომელ კითხვაზეა
+  completed   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
