@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import LanguageDropDown from "../../../../components/ui/LanguageDropDown";
 
@@ -143,17 +143,25 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       const data = await response.json();
       console.log("✅ API response:", data);
 
-      if (data.completed) {
+      if (data.completed || isLastQuestion) {
         console.log("🚀 Profile completed - redirecting to dashboard");
+
+        // ✅ ცდილობს router.push()-ს, თუ არ იმუშავებს, გადადის window.location.href-ზე
         router.push("/dashboard");
+
+        // ✅ უზრუნველყოფს რედირექციას 2 წამში ნებისმიერ შემთხვევაში
+        setTimeout(() => {
+          if (window.location.pathname !== "/dashboard") {
+            console.log("🔄 Falling back to window.location.href");
+            window.location.href = "/dashboard";
+          }
+        }, 2000);
+
         return;
       }
 
       if (step < questions.length - 1) {
         setStep(step + 1);
-      } else {
-        console.warn("⚠️ Already at last step");
-        router.push("/dashboard");
       }
     } catch (err) {
       console.error("❌ Error:", err);
