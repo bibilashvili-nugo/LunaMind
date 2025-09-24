@@ -1,33 +1,16 @@
-import { redirect } from "next/navigation";
+// app/login/page.tsx
 import { getCurrentUser } from "@/lib/session";
 import LoginPageClient from "./LoginPageClient";
-import { prisma } from "@/lib/prisma";
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
 
+  // ✅ მხოლოდ ერთი მარტივი შემოწმება
   if (user) {
-    const totalQuestions = user.role === "STUDENT" ? 8 : 6;
-    let currentStep = 0;
-
-    if (user.role === "STUDENT") {
-      const profile = await prisma.studentProfile.findUnique({
-        where: { userId: user.id },
-      });
-      currentStep = profile?.currentStep ?? 0;
-    } else if (user.role === "TEACHER") {
-      const profile = await prisma.teacherProfile.findUnique({
-        where: { userId: user.id },
-      });
-      currentStep = profile?.currentStep ?? 0;
-    }
-
-    if (currentStep >= totalQuestions - 1) {
-      return redirect("/dashboard"); // ✅ აქვე გადავრჩებით
-    }
-
-    // თუ ჯერ კითხვები დასრულებული არაა, მაშინ გავუშვათ QuestionsPage
-    return redirect("/questions");
+    // ❌ აღარ არის პროფილის შემოწმება აქ
+    // ❌ აღარ არის რედირექტები აქ
+    // Middleware ავტომატურად იზრუნებს გადამისამართებაზე
+    return null; // ან loading state
   }
 
   return <LoginPageClient />;
