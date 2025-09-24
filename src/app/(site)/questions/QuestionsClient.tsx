@@ -90,6 +90,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
   const handleNext = async () => {
     const current = questions[step];
     const value = answers[current.key];
+    const isLastQuestion = step >= questions.length - 1;
 
     try {
       await fetch(`/api/${role.toLowerCase()}s/profile`, {
@@ -98,8 +99,19 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         body: JSON.stringify({ userId, key: current.key, value, step }),
       });
 
-      if (step + 1 >= questions.length) router.push("/dashboard");
-      else setStep(step + 1);
+      if (isLastQuestion) {
+        // ✅ განაახლეთ პროფილი როგორც დასრულებული
+        await fetch(`/api/${role.toLowerCase()}s/profile/complete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        setStep(step + 1);
+      }
     } catch (err) {
       console.error(err);
     }
