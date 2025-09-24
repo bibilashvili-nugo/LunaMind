@@ -116,13 +116,6 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     const value = answers[current.key];
     const isLastQuestion = step >= questions.length - 1;
 
-    console.log("🔍 handleNext:", {
-      step,
-      isLastQuestion,
-      currentKey: current.key,
-      questionsLength: questions.length,
-    });
-
     try {
       const response = await fetch(`/api/${role.toLowerCase()}s/profile`, {
         method: "POST",
@@ -136,27 +129,12 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
       const data = await response.json();
-      console.log("✅ API response:", data);
 
-      if (data.completed || isLastQuestion) {
+      if (data.completed) {
         console.log("🚀 Profile completed - redirecting to dashboard");
-
-        // ✅ ცდილობს router.push()-ს, თუ არ იმუშავებს, გადადის window.location.href-ზე
-        router.push("/dashboard");
-
-        // ✅ უზრუნველყოფს რედირექციას 2 წამში ნებისმიერ შემთხვევაში
-        setTimeout(() => {
-          if (window.location.pathname !== "/dashboard") {
-            console.log("🔄 Falling back to window.location.href");
-            window.location.href = "/dashboard";
-          }
-        }, 2000);
-
+        // ✅ გამოიყენეთ window.location როუტერის ნაცვლად
+        window.location.href = "/dashboard";
         return;
       }
 
