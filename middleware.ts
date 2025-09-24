@@ -1,6 +1,7 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
@@ -9,7 +10,6 @@ export async function middleware(req: NextRequest) {
   console.log("🔍 Middleware triggered:", {
     pathname: url.pathname,
     hasToken: !!token,
-    token: token ? "exists" : "missing",
   });
 
   // 1️⃣ თუ token არ არის → login
@@ -25,18 +25,19 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2️⃣ decode JWT
+  // 2️⃣ decode JWT (jose-ით)
   let userId: string | undefined;
   let role: "STUDENT" | "TEACHER" | undefined;
 
   try {
-    console.log("🔐 Verifying JWT...");
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      id: string;
-      role: "STUDENT" | "TEACHER";
-    };
-    userId = decoded.id;
-    role = decoded.role;
+    console.log("🔐 Verifying JWT with jose...");
+
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+    const { payload } = await jwtVerify(token, secret);
+
+    userId = payload.id as string;
+    role = payload.role as "STUDENT" | "TEACHER";
+
     console.log("✅ JWT verified:", { userId, role });
   } catch (error) {
     console.log("❌ JWT verification failed:", error);
@@ -45,10 +46,10 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
-  // 3️⃣ Questions page - პროფილის შემოწმება
-  if (url.pathname.startsWith("/questions")) {
-    console.log("📋 Checking profile completion...");
+  // 3️⃣ დარჩენილი ლოგიკა იგივე რჩება...
+  if (url.pathname.startsWith("/questions") && userId && role) {
     try {
+      console.log("📋 Checking profile completion...");
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/check-profile?userId=${userId}&role=${role}`,
         {
@@ -77,6 +78,16 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // 4️⃣ Dashboard access
+  if (url.pathname.startsWith("/dashboard") && !userId) {
+    console.log("❌ No user ID for dashboard");
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
   console.log("✅ All checks passed - allowing access");
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/questions/:path*"],
+};
