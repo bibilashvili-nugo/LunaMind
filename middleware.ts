@@ -28,12 +28,22 @@ export async function middleware(req: NextRequest) {
     };
     userId = decoded.id;
     role = decoded.role;
-  } catch {
-    return NextResponse.redirect(new URL("/login", req.url));
+  } catch (error) {
+    // ❗️წავშალოთ არასწორი ტოკენი
+    const response = NextResponse.redirect(new URL("/login", req.url));
+    response.cookies.delete("token");
+    return response;
   }
 
-  // 3️⃣ თუ Questions page → შევამოწმოთ profile დასრულებულია თუ არა
-  if (url.pathname.startsWith("/questions") && userId && role) {
+  // 3️⃣ თუ არ არის userId ან role → არასწორი ტოკენი
+  if (!userId || !role) {
+    const response = NextResponse.redirect(new URL("/login", req.url));
+    response.cookies.delete("token");
+    return response;
+  }
+
+  // 4️⃣ Questions page - პროფილის შემოწმება
+  if (url.pathname.startsWith("/questions")) {
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/check-profile?userId=${userId}&role=${role}`,
@@ -41,21 +51,27 @@ export async function middleware(req: NextRequest) {
           headers: { Cookie: req.cookies.toString() },
         }
       );
+
+      if (!res.ok) throw new Error("Profile check failed");
+
       const data = await res.json();
 
       if (data.completed) {
-        // ✅ უკვე დასრულებულია → user Questions page-ს ვერ ნახავს
+        // ✅ პროფილი დასრულებულია → Questions page-ზე წვდომა აკრძალული
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     } catch (e) {
       console.error("Middleware check failed:", e);
-      return NextResponse.redirect(new URL("/login", req.url));
+      const response = NextResponse.redirect(new URL("/login", req.url));
+      response.cookies.delete("token");
+      return response;
     }
   }
 
-  // 4️⃣ Dashboard → უბრალოდ შემოვუშვა, თუ token არსებობს
-  if (url.pathname.startsWith("/dashboard") && !userId) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  // 5️⃣ Dashboard - როლის ბაზირებული წვდომა
+  if (url.pathname.startsWith("/dashboard")) {
+    // აქ შეგიძლიათ დაამატოთ როლის შემოწმებები საჭიროებისამებრ
+    // მაგ: if (role !== "TEACHER" && url.pathname.startsWith("/dashboard/admin"))
   }
 
   return NextResponse.next();
