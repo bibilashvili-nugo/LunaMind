@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+// app/questions/page.tsx
 import { getCurrentUser } from "@/lib/session";
 import QuestionsClient from "./QuestionsClient";
 import { prisma } from "@/lib/prisma";
@@ -6,10 +6,12 @@ import { prisma } from "@/lib/prisma";
 export default async function QuestionsPage() {
   const user = await getCurrentUser();
 
-  // 1️⃣ თუ მომხმარებელი არ არსებობს → login
-  if (!user) return redirect("/login");
+  // ✅ მხოლოდ ძირითადი ავთენტიფიკაცია (რედირექტები მხოლოდ middleware-ში)
+  if (!user) {
+    return null; // ან loading spinner, middleware ავტომატურად გადამისამართებს
+  }
 
-  // 2️⃣ მიიღე profile პირდაპირ server-side
+  // ✅ პროფილის მონაცემები მხოლოდ რენდერისთვის (არა რედირექტებისთვის)
   let currentStep = 0;
   if (user.role === "STUDENT") {
     const profile = await prisma.studentProfile.findUnique({
@@ -23,13 +25,8 @@ export default async function QuestionsPage() {
     currentStep = profile?.currentStep ?? 0;
   }
 
-  // 3️⃣ თუ უკვე დასრულებულია → dashboard
-  const totalQuestions = user.role === "STUDENT" ? 8 : 6;
-  if (currentStep >= totalQuestions - 1) {
-    return redirect("/dashboard"); // ✅ პირდაპირ dashboard
-  }
+  // ❌ აღარ არის რედირექტები აქ - ეს ლოგიკა მხოლოდ middleware-შია
 
-  // 4️⃣ თუ ჯერ დასრულებული არ არის → render client-side component
   return (
     <QuestionsClient
       userId={user.id}

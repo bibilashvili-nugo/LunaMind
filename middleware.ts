@@ -25,7 +25,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2️⃣ decode JWT (jose-ით)
+  // 2️⃣ decode JWT
   let userId: string | undefined;
   let role: "STUDENT" | "TEACHER" | undefined;
 
@@ -46,7 +46,13 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
-  // 3️⃣ დარჩენილი ლოგიკა იგივე რჩება...
+  // 3️⃣ თუ მომხმარებელი უკვე ავთენტიფიცირებულია და არის /login-ზე → გადამისამართება dashboard-ზე
+  if (url.pathname === "/login" && userId) {
+    console.log("✅ User already authenticated, redirecting to dashboard");
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // 4️⃣ Questions page - პროფილის შემოწმება (მხოლოდ აქ!)
   if (url.pathname.startsWith("/questions") && userId && role) {
     try {
       console.log("📋 Checking profile completion...");
@@ -78,16 +84,10 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // 4️⃣ Dashboard access
-  if (url.pathname.startsWith("/dashboard") && !userId) {
-    console.log("❌ No user ID for dashboard");
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
-
   console.log("✅ All checks passed - allowing access");
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/questions/:path*"],
+  matcher: ["/dashboard/:path*", "/questions/:path*", "/login"],
 };
