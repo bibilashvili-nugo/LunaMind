@@ -106,7 +106,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
           userId,
           key: current.key,
           value,
-          step: step, // მიმდინარე step
+          step: step,
           isLastQuestion,
         }),
       });
@@ -114,11 +114,16 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       const data = await response.json();
       console.log("✅ API response:", data);
 
-      if (isLastQuestion) {
-        console.log("🚀 Last question completed - redirecting to dashboard");
+      // ✅ ცვლილება აქ: ამოწმებთ data.completed-ს API-დან
+      if (data.completed) {
+        console.log("🚀 Profile completed - redirecting to dashboard");
         router.push("/dashboard");
         router.refresh();
-      } else {
+        return; // ✅ მნიშვნელოვანი: დაამატეთ return
+      }
+
+      // ✅ თუ არ არის completed, გადადით შემდეგ კითხვაზე
+      if (step < questions.length - 1) {
         setStep(step + 1);
       }
     } catch (err) {
