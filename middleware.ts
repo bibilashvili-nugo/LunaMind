@@ -46,16 +46,39 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
-  // 3️⃣ თუ მომხმარებელი უკვე ავთენტიფიცირებულია და არის /login-ზე → გადამისამართება dashboard-ზე
+  // 3️⃣ თუ მომხმარებელი უკვე ავთენტიფიცირებულია და არის /login-ზე
   if (url.pathname === "/login" && userId) {
-    console.log("✅ User already authenticated, redirecting to dashboard");
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    console.log("✅ User already authenticated, checking profile status...");
+
+    try {
+      const profileCheck = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/check-profile?userId=${userId}&role=${role}`,
+        {
+          headers: { Cookie: req.cookies.toString() },
+        }
+      );
+
+      if (profileCheck.ok) {
+        const data = await profileCheck.json();
+
+        if (data.completed) {
+          console.log("✅ Profile completed - redirecting to dashboard");
+          return NextResponse.redirect(new URL("/dashboard", req.url));
+        } else {
+          console.log("📝 Profile not completed - redirecting to questions");
+          return NextResponse.redirect(new URL("/questions", req.url));
+        }
+      }
+    } catch (e) {
+      console.error("❌ Profile check failed, defaulting to questions:", e);
+      return NextResponse.redirect(new URL("/questions", req.url));
+    }
   }
 
-  // 4️⃣ Questions page - პროფილის შემოწმება (მხოლოდ აქ!)
-  if (url.pathname.startsWith("/questions") && userId && role) {
+  // 4️⃣ Dashboard - შევამოწმოთ რომ მხოლოდ დასრულებული პროფილით შეუდის
+  if (url.pathname.startsWith("/dashboard") && userId && role) {
     try {
-      console.log("📋 Checking profile completion...");
+      console.log("📋 Checking profile completion for dashboard...");
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/check-profile?userId=${userId}&role=${role}`,
         {
@@ -63,26 +86,23 @@ export async function middleware(req: NextRequest) {
         }
       );
 
-      console.log("📊 Profile check response status:", res.status);
+      if (res.ok) {
+        const data = await res.json();
 
-      if (!res.ok) throw new Error("Profile check failed");
-
-      const data = await res.json();
-      console.log("📋 Profile completion data:", data);
-
-      if (data.completed) {
-        console.log("✅ Profile completed - redirecting to dashboard");
-        return NextResponse.redirect(new URL("/dashboard", req.url));
+        if (!data.completed) {
+          console.log("❌ Profile not completed - redirecting to questions");
+          return NextResponse.redirect(new URL("/questions", req.url));
+        }
+        console.log("✅ Profile completed - allowing dashboard access");
       }
-
-      console.log("📝 Profile not completed - allowing access");
     } catch (e) {
       console.error("❌ Profile check failed:", e);
-      const response = NextResponse.redirect(new URL("/login", req.url));
-      response.cookies.delete("token");
-      return response;
+      return NextResponse.redirect(new URL("/questions", req.url));
     }
   }
+
+  // 5️⃣ Questions - ყოველთვის უშვებთ, თუ ავთენტიფიცირებულია
+  // (აქ არ არის საჭირო პროფილის შემოწმება, რადგან questions გვერდი არის პროფილის შესავსებად)
 
   console.log("✅ All checks passed - allowing access");
   return NextResponse.next();
