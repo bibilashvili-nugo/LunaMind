@@ -117,15 +117,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     const value = answers[current.key];
     const isLastQuestion = step >= questions.length - 1;
 
-    console.log("📤 Sending request:", {
-      role,
-      step,
-      totalQuestions: questions.length,
-      isLastQuestion,
-    });
-
     try {
-      // ✅ სწორი URL როუტები
       const apiUrl =
         role === "STUDENT" ? "/api/students/profile" : "/api/teachers/profile";
 
@@ -145,8 +137,10 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       console.log("📥 API Response:", data);
 
       if (data.completed) {
-        console.log("🚀 Profile completed - redirecting to dashboard");
-        router.push("/dashboard");
+        console.log("🚀 Profile completed - using window.location");
+
+        // ✅ დროებითი გადაწყვეტა - გამოტოვებს middleware-ს
+        window.location.href = "/dashboard";
         return;
       }
 

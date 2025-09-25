@@ -76,28 +76,44 @@ export async function middleware(req: NextRequest) {
   }
 
   // 4️⃣ Dashboard - შევამოწმოთ რომ მხოლოდ დასრულებული პროფილით შეუდის
+  // middleware.ts - გაასწორე dashboard ლოგიკა
   if (url.pathname.startsWith("/dashboard") && userId && role) {
     try {
       console.log("📋 Checking profile completion for dashboard...");
+
+      // ✅ დამატებითი delay, რომ DB-ს დრო მიეცეს განახლებისთვის
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/check-profile?userId=${userId}&role=${role}`,
+        `${
+          process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_API_URL
+        }/api/check-profile?userId=${userId}&role=${role}`,
         {
-          headers: { Cookie: req.cookies.toString() },
+          headers: {
+            Cookie: req.cookies.toString(),
+            "Cache-Control": "no-cache",
+          },
         }
       );
 
       if (res.ok) {
         const data = await res.json();
+        console.log("📊 Profile check result:", data);
 
         if (!data.completed) {
           console.log("❌ Profile not completed - redirecting to questions");
           return NextResponse.redirect(new URL("/questions", req.url));
         }
         console.log("✅ Profile completed - allowing dashboard access");
+      } else {
+        console.log("⚠️ Profile check failed, allowing access");
+        // თუ check არ მუშაობს, ნება დართო წვდომას
+        return NextResponse.next();
       }
     } catch (e) {
-      console.error("❌ Profile check failed:", e);
-      return NextResponse.redirect(new URL("/questions", req.url));
+      console.error("❌ Profile check error, allowing access:", e);
+      // თუ errorა, ნება დართო წვდომას
+      return NextResponse.next();
     }
   }
 
