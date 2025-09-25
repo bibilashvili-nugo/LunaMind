@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// app/api/check-profile/route.ts
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
-  const role = searchParams.get("role"); // STUDENT ან TEACHER
+  const role = searchParams.get("role");
 
   if (!userId || !role) {
     return NextResponse.json({ error: "Missing params" }, { status: 400 });
@@ -26,9 +27,12 @@ export async function GET(req: Request) {
     return NextResponse.json({ exists: false, completed: false });
   }
 
+  // ✅ სწორი ლოგიკა: თუ completed: true არის DB-ში, მაშინ პროფილი დასრულებულია
+  const completed = profile.completed === true;
+
   return NextResponse.json({
     exists: true,
-    completed: profile.currentStep >= 7, // მაგ: თუ STUDENT-ის 8 კითხვა გაქვს
+    completed: completed,
     currentStep: profile.currentStep,
   });
 }

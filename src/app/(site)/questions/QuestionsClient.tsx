@@ -113,6 +113,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     setAnswers((prev) => ({ ...prev, [key]: value }));
 
   // QuestionsClient.tsx
+  // QuestionsClient.tsx - დარწმუნდი, რომ ბოლო კითხვის დასრულების შემდეგ სწორად ინახება
   const handleNext = async () => {
     const value = answers[current.key];
     const isLastQuestion = step >= questions.length - 1;
@@ -137,9 +138,9 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       console.log("📥 API Response:", data);
 
       if (data.completed) {
-        console.log("🚀 Profile completed - using window.location");
+        console.log("🚀 Profile completed - redirecting to dashboard");
 
-        // ✅ დროებითი გადაწყვეტა - გამოტოვებს middleware-ს
+        // ✅ გამოიყენე window.location რათა გამოტოვო middleware-ის შემოწმება
         window.location.href = "/dashboard";
         return;
       }
