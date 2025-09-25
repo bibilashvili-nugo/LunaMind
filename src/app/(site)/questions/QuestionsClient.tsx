@@ -112,12 +112,24 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
   const handleChange = (key: string, value: string | number | undefined) =>
     setAnswers((prev) => ({ ...prev, [key]: value }));
 
+  // QuestionsClient.tsx
   const handleNext = async () => {
     const value = answers[current.key];
     const isLastQuestion = step >= questions.length - 1;
 
+    console.log("📤 Sending request:", {
+      role,
+      step,
+      totalQuestions: questions.length,
+      isLastQuestion,
+    });
+
     try {
-      const response = await fetch(`/api/${role.toLowerCase()}s/profile`, {
+      // ✅ სწორი URL როუტები
+      const apiUrl =
+        role === "STUDENT" ? "/api/students/profile" : "/api/teachers/profile";
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -130,11 +142,11 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       });
 
       const data = await response.json();
+      console.log("📥 API Response:", data);
 
       if (data.completed) {
         console.log("🚀 Profile completed - redirecting to dashboard");
-        // ✅ გამოიყენეთ window.location როუტერის ნაცვლად
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
         return;
       }
 
@@ -142,7 +154,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         setStep(step + 1);
       }
     } catch (err) {
-      console.error("❌ Error:", err);
+      console.error("❌ Error saving profile:", err);
     }
   };
 
