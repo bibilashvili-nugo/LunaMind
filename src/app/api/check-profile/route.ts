@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 // app/api/check-profile/route.ts
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

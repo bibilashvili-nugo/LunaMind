@@ -3,15 +3,16 @@ import { getCurrentUser } from "@/lib/session";
 import QuestionsClient from "./QuestionsClient";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export default async function QuestionsPage() {
   const user = await getCurrentUser();
 
-  // ✅ მხოლოდ ძირითადი ავთენტიფიკაცია (რედირექტები მხოლოდ middleware-ში)
   if (!user) {
-    return null; // ან loading spinner, middleware ავტომატურად გადამისამართებს
+    return null;
   }
 
-  // ✅ პროფილის მონაცემები მხოლოდ რენდერისთვის (არა რედირექტებისთვის)
   let currentStep = 0;
   if (user.role === "STUDENT") {
     const profile = await prisma.studentProfile.findUnique({
@@ -24,8 +25,6 @@ export default async function QuestionsPage() {
     });
     currentStep = profile?.currentStep ?? 0;
   }
-
-  // ❌ აღარ არის რედირექტები აქ - ეს ლოგიკა მხოლოდ middleware-შია
 
   return (
     <QuestionsClient

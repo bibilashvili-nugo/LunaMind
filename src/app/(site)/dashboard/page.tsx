@@ -4,6 +4,9 @@ import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import DashboardClient from "./DashboardClient";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export default async function DashboardPage() {
   const user = await getCurrentUser();
 
@@ -11,7 +14,6 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // ✅ შეამოწმეთ არის თუ არა პროფილი დასრულებული
   let profile;
 
   if (user.role === "STUDENT") {
@@ -24,7 +26,6 @@ export default async function DashboardPage() {
     });
   }
 
-  // ✅ თუ პროფილი არ არსებობს ან არ არის დასრულებული, გადაამისამართეთ ონბორდინგზე
   if (!profile || !profile.completed) {
     redirect("/onboarding");
   }

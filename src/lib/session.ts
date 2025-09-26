@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 export async function getCurrentUser() {
   try {
+    // ✅ დარწმუნდი, რომ cookies() არის dynamic
     const cookieStore = await cookies();
     const tokenCookie = cookieStore.get("token");
 
@@ -16,7 +17,6 @@ export async function getCurrentUser() {
 
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
-    // თუ მომხმარებელი არ არსებობს, წავშალოთ კუკი
     if (!user) {
       cookieStore.delete("token");
       return null;
@@ -26,9 +26,11 @@ export async function getCurrentUser() {
   } catch (err) {
     console.error("Invalid JWT:", err);
 
-    // JWT ვალიდაციის შეცდომის შემთხვევაში წავშალოთ კუკი
     const cookieStore = await cookies();
     cookieStore.delete("token");
     return null;
   }
 }
+
+// ✅ დაამატე ეს ხაზი
+export const dynamic = "force-dynamic";

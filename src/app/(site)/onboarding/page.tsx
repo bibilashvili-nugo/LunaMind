@@ -4,6 +4,9 @@ import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import QuestionsClient from "../questions/QuestionsClient";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export default async function OnboardingPage() {
   const user = await getCurrentUser();
 
@@ -11,7 +14,6 @@ export default async function OnboardingPage() {
     redirect("/login");
   }
 
-  // ✅ მიმდინარე პროგრესის მიღება
   let profile;
   let currentStep = 0;
 
@@ -25,12 +27,10 @@ export default async function OnboardingPage() {
     });
   }
 
-  // ✅ თუ პროფილი უკვე დასრულებულია, გადაამისამართეთ დაშბორდზე
   if (profile?.completed) {
     redirect("/dashboard");
   }
 
-  // ✅ მიმდინარე სტეპის დაყენება
   if (profile?.currentStep) {
     currentStep = profile.currentStep;
   }
