@@ -9,7 +9,7 @@ import { tutorSwiper } from "../../constants/data";
 const RepetitorSwiper = () => {
   return (
     <div
-      className="mt-4 bg-white rounded-2xl"
+      className="mt-4 bg-white rounded-2xl lg:mt-0"
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
       {/* Header with title + custom nav buttons */}
@@ -66,42 +66,42 @@ const RepetitorSwiper = () => {
               slidesOffsetAfter: 16,
             },
             1024: {
-              slidesPerView: 2,
+              slidesPerView: 3.5,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1124: {
-              slidesPerView: 2.2,
+              slidesPerView: 3.5,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1280: {
-              slidesPerView: 2.4,
+              slidesPerView: 3.5,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1380: {
-              slidesPerView: 2.6,
+              slidesPerView: 3.5,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1480: {
-              slidesPerView: 2.8,
+              slidesPerView: 3.5,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1536: {
-              slidesPerView: 2.9,
+              slidesPerView: 3.5,
               spaceBetween: 24,
               slidesOffsetBefore: 48,
               slidesOffsetAfter: 48,
             },
-            1920: { slidesPerView: 3, spaceBetween: 24 },
+            1920: { slidesPerView: 3.5, spaceBetween: 24 },
           }}
         >
           {tutorSwiper?.map((item, index) => (

@@ -59,40 +59,42 @@ const AddNewLessons = () => {
 const OurLessons = () => {
   return (
     <div
-      className="mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4"
+      className="mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4 lg:mt-0 lg:h-[596px] lg:py-6"
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
       <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
         ჩემი გაკვეთილები
       </span>
-      <div className="flex flex-col gap-2">
-        <OurLessonsBox
-          subject="ისტორიის საფუძვლები"
-          teacher="მანანა კახიძე"
-          svgColor="#7D3FFF"
-        />
-        <OurLessonsBox
-          subject="მათემატიკა"
-          teacher="გურამ ალთუნაშვილი"
-          svgColor="#52CE91"
-        />
-        <OurLessonsBox
-          subject="ზოგადი უნარები"
-          teacher="მერაბ კაცაძე"
-          svgColor="#F0C514"
-        />
-        <OurLessonsBox
-          subject="ინგლისური ენა"
-          teacher="თეიმურაზ ბოჭორიშვილი"
-          svgColor="#3E74FF"
-        />
-        <OurLessonsBox
-          subject="ბუნების მეტყველება"
-          teacher="მერაბ კაცაძე"
-          svgColor="#F04F14"
-        />
+      <div className="flex flex-col justify-between h-full gap-2">
+        <div className="flex flex-col gap-2">
+          <OurLessonsBox
+            subject="ისტორიის საფუძვლები"
+            teacher="მანანა კახიძე"
+            svgColor="#7D3FFF"
+          />
+          <OurLessonsBox
+            subject="მათემატიკა"
+            teacher="გურამ ალთუნაშვილი"
+            svgColor="#52CE91"
+          />
+          <OurLessonsBox
+            subject="ზოგადი უნარები"
+            teacher="მერაბ კაცაძე"
+            svgColor="#F0C514"
+          />
+          <OurLessonsBox
+            subject="ინგლისური ენა"
+            teacher="თეიმურაზ ბოჭორიშვილი"
+            svgColor="#3E74FF"
+          />
+          <OurLessonsBox
+            subject="ბუნების მეტყველება"
+            teacher="მერაბ კაცაძე"
+            svgColor="#F04F14"
+          />
+        </div>
+        <AddNewLessons />
       </div>
-      <AddNewLessons />
     </div>
   );
 };

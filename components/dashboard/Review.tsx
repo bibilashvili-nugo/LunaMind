@@ -6,7 +6,7 @@ const Review = () => {
   const [value, setValue] = useState("");
   return (
     <div
-      className="mt-4 bg-white rounded-2xl p-5 flex flex-col"
+      className="mt-4 bg-white rounded-2xl p-5 flex flex-col lg:mt-0 lg:h-[680px]"
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
       <span className="text-[#737373] text-sm leading-5 font-helveticaneue-regular">
