@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Camera } from "react-coolicons";
 import StudentInfo from "./StudentInfo";
 
@@ -15,14 +17,17 @@ interface PersonalInfoProps {
 }
 
 const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
+  const [fullName, setFullName] = useState(
+    user.firstName + " " + user.lastName
+  );
   return (
     <div className="bg-white p-4 rounded-2xl mt-8">
-      <div>
+      <div className="sm:flex sm:justify-between">
         <div className="flex gap-2 items-center">
           <div className="w-[84px] h-[84px] bg-black rounded-full"></div>
           <div className="flex flex-col">
             <span className="font-helveticaneue-medium !font-bold text-base leading-6 text-[#080808]">
-              {user?.firstName + " " + user?.lastName}
+              {fullName}
             </span>
             <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular mt-1">
               მოსწავლე
@@ -32,8 +37,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
             </span>
           </div>
         </div>
-        <div className="flex items-center justify-center mt-3 gap-[10px] bg-[#EBECF0] py-3 rounded-xl cursor-pointer">
-          <Camera className="text-[#737373]" />
+        <div className="flex items-center justify-center mt-3 gap-[10px] bg-[#EBECF0] py-3 rounded-xl cursor-pointer sm:px-[20px] sm:h-[48px]">
+          <Camera className="text-[#737373] " />
           <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
             ფოტოს შეცვლა
           </span>
@@ -54,7 +59,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
         </div>
         <hr className="text-[#F1F1F1]" />
       </div>
-      <StudentInfo user={user} />
+      <StudentInfo user={user} fullName={fullName} setFullName={setFullName} />
     </div>
   );
 };
