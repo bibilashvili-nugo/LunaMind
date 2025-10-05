@@ -13,10 +13,12 @@ export default async function StudentProfilePage() {
   }
 
   return (
-    <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
-      {/* 🔹 Reuse your existing NavBar with the same user */}
-      <NavBar user={user} />
-      <PersonalInfo user={user} />
+    <div className="bg-[#F6F5FA]">
+      <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
+        {/* 🔹 Reuse your existing NavBar with the same user */}
+        <NavBar user={user} />
+        <PersonalInfo user={user} />
+      </div>
     </div>
   );
 }

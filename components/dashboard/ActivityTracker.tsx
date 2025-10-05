@@ -46,11 +46,7 @@ const AtcivityTrackerBox = ({
   );
 };
 
-const ActivityTracker = ({
-  profilePage = false,
-}: {
-  profilePage?: boolean;
-}) => {
+const ActivityTracker = ({ profilePage }: { profilePage?: boolean }) => {
   return (
     <div
       className={` rounded-[20px] flex flex-col gap-3 xl:flex-row xl:items-center

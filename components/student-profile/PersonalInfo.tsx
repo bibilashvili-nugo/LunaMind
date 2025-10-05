@@ -37,9 +37,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
       </div>
       <div className="flex flex-col lg:order-2">
         <div className="bg-white p-4 rounded-2xl mt-8 lg:mt-6 ">
-          <div className="sm:flex sm:justify-between">
+          <div className="sm:flex sm:justify-between sm:items-center">
             <div className="flex gap-2 items-center">
-              <div className="w-[84px] h-[84px] bg-black rounded-full"></div>
+              <div className="w-[84px] h-[84px] bg-black rounded-full xl:w-[124px] xl:h-[124px]"></div>
               <div className="flex flex-col">
                 <span className="font-helveticaneue-medium !font-bold text-base leading-6 text-[#080808]">
                   {fullName}
