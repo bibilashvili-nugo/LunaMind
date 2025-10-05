@@ -20,12 +20,16 @@ const ColorMeansEverything = ({
   );
 };
 
-const PremiumStats = () => {
+const PremiumStats = ({ profilePage = false }: { profilePage: boolean }) => {
   return (
     <div className="mt-4 flex flex-col gap-4 sm:flex-row xl:mt-0 xl:flex-col">
       <div
-        className="bg-white rounded-2xl p-5 gap-4 flex flex-col sm:w-1/2 xl:w-full"
-        style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
+        className={`bg-white rounded-2xl p-5 gap-4 flex flex-col xl:w-full ${
+          profilePage ? "sm:w-full md:justify-between md:h-[428px]" : "sm:w-1/2"
+        }`}
+        style={
+          profilePage ? {} : { boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }
+        }
       >
         <div className="flex flex-col gap-3 2xl:gap-4">
           <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
@@ -102,7 +106,7 @@ const PremiumStats = () => {
             <ColorMeansEverything color="#F76825" text="ჯერ არ დაწყებულა" />
           </div>
         </div>
-        <div className="hidden xl:flex flex-col gap-4">
+        <div className={`hidden xl:flex flex-col gap-4`}>
           <hr className=" text-[#EBECF0]" />
           <div className="flex justify-between items-center gap-4">
             <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
@@ -117,7 +121,9 @@ const PremiumStats = () => {
       </div>
       <div
         style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
-        className="bg-[#7D3FFF] rounded-2xl p-5 flex flex-col gap-4 sm:w-1/2 xl:w-full xl:max-h-[188px]"
+        className={`bg-[#7D3FFF] rounded-2xl p-5 flex flex-col gap-4 sm:w-1/2 xl:w-full xl:max-h-[188px] ${
+          profilePage && "hidden"
+        }`}
       >
         <span className="text-sm leading-5 font-helveticaneue-medium !font-bold text-white">
           გახდი პრემიუმი

@@ -46,18 +46,12 @@ const AtcivityTrackerBox = ({
   );
 };
 
-const ActivityTracker = ({
-  profilePage = false,
-}: {
-  profilePage?: boolean;
-}) => {
+const ActivityTracker = ({ profilePage }: { profilePage: boolean }) => {
   return (
     <div
       className={` rounded-[20px] flex flex-col gap-3 xl:flex-row xl:items-center
         ${profilePage ? "bg-white" : "bg-[#EBECF0] p-3 "}`}
-      style={
-        profilePage ? {} : { boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }
-      }
+      style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
       <div className="flex flex-col gap-3 sm:flex-row xl:flex-1">
         <AtcivityTrackerBox
