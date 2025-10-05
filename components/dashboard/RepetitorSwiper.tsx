@@ -78,30 +78,30 @@ const RepetitorSwiper = () => {
               slidesOffsetAfter: 44,
             },
             1280: {
-              slidesPerView: 3.5,
+              slidesPerView: 2.8,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1380: {
-              slidesPerView: 3.5,
+              slidesPerView: 2.9,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1480: {
-              slidesPerView: 3.5,
+              slidesPerView: 3,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1536: {
-              slidesPerView: 3.5,
+              slidesPerView: 3.1,
               spaceBetween: 24,
               slidesOffsetBefore: 48,
               slidesOffsetAfter: 48,
             },
-            1920: { slidesPerView: 3.5, spaceBetween: 24 },
+            1920: { slidesPerView: 3.2, spaceBetween: 24 },
           }}
         >
           {tutorSwiper?.map((item, index) => (

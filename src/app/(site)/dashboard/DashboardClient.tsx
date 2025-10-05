@@ -25,7 +25,11 @@ const DashboardClient: React.FC<DashboardClientProps> = ({ user }) => {
   // };
 
   if (user.role === "STUDENT") {
-    return <StudentPage user={user} />;
+    return (
+      <div className="bg-[#F6F5FA]">
+        <StudentPage user={user} />
+      </div>
+    );
   } else if (user.role === "TEACHER") {
     return <div>nugo maswi</div>;
   } else {

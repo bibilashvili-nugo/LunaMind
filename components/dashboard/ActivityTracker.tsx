@@ -14,16 +14,21 @@ const AtcivityTrackerBox = ({
   seeAllText,
 }: AtcivityTrackerBoxProps) => {
   return (
-    <div className="flex flex-col p-4 bg-[#FFFFFF] border border-[#EFEEF4] rounded-2xl sm:w-1/2">
-      <span
-        style={{ backgroundColor: color, color: textColor }}
-        className="inline-block w-fit text-[10px] leading-3 px-3 py-2 rounded-[40px] font-helveticaneue-regular"
-      >
-        {text}
-      </span>
-      <span className="pt-3 text-xs leading-4 text-[#737373] font-helveticaneue-regular md:text-sm md:leading-5">
-        {description}
-      </span>
+    <div className="flex flex-col p-4 bg-[#FFFFFF] border border-[#EFEEF4] rounded-2xl sm:w-1/2 xl:justify-between xl:max-h-[152px]">
+      <div className="flex flex-col">
+        <span
+          style={{ backgroundColor: color, color: textColor }}
+          className="inline-block w-fit text-[10px] leading-3 px-3 py-2 rounded-[40px] font-helveticaneue-regular"
+        >
+          {text}
+        </span>
+        <span
+          className="pt-3 text-xs leading-4 text-[#737373] font-helveticaneue-regular md:text-sm md:leading-5
+        xl:text-xs xl:leading-4 2xl:text-sm 2xl:leading-5"
+        >
+          {description}
+        </span>
+      </div>
       <div className="pt-3 flex justify-between items-center md:pt-5">
         <span className="text-2xl leading-[28px] text-black font-spacegrotesk-bold md:text-[32px]">
           3
@@ -39,10 +44,10 @@ const AtcivityTrackerBox = ({
 const ActivityTracker = () => {
   return (
     <div
-      className="bg-[#EBECF0] rounded-[20px] p-3 flex flex-col gap-3"
+      className="bg-[#EBECF0] rounded-[20px] p-3 flex flex-col gap-3 xl:flex-row xl:items-center"
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row xl:flex-1">
         <AtcivityTrackerBox
           text="ისწავლე მეტი"
           color="rgba(255, 213, 42, 0.1)"
@@ -58,7 +63,7 @@ const ActivityTracker = () => {
           seeAllText="ყველას ნახვა"
         />
       </div>
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row xl:flex-1 xl:items-center">
         <AtcivityTrackerBox
           text="საუკეთესო შედეგი"
           color="rgba(82, 206, 145, 0.1)"
