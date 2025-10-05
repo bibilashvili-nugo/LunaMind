@@ -1,0 +1,62 @@
+import React from "react";
+import { Camera } from "react-coolicons";
+import StudentInfo from "./StudentInfo";
+
+type User = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  role: "STUDENT" | "TEACHER";
+};
+
+interface PersonalInfoProps {
+  user: User;
+}
+
+const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
+  return (
+    <div className="bg-white p-4 rounded-2xl mt-8">
+      <div>
+        <div className="flex gap-2 items-center">
+          <div className="w-[84px] h-[84px] bg-black rounded-full"></div>
+          <div className="flex flex-col">
+            <span className="font-helveticaneue-medium !font-bold text-base leading-6 text-[#080808]">
+              {user?.firstName + " " + user?.lastName}
+            </span>
+            <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular mt-1">
+              მოსწავლე
+            </span>
+            <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular mt-4">
+              რეგისტრაციის თარიღი: 25 აგვისტო, 2025
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-center mt-3 gap-[10px] bg-[#EBECF0] py-3 rounded-xl cursor-pointer">
+          <Camera className="text-[#737373]" />
+          <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+            ფოტოს შეცვლა
+          </span>
+        </div>
+      </div>
+      <hr className="text-[#F1F1F1] my-4" />
+      <div className="scroll-wrapper">
+        <div className="flex w-full overflow-x-auto custom-scroll gap-6 py-2">
+          <span className="shrink-0 text-sm leading-5 text-[#080808] font-helveticaneue-medium cursor-pointer px-2 py-4">
+            პირადი ინფორმაცია
+          </span>
+          <span className="shrink-0 text-sm leading-5 text-[#737373] font-helveticaneue-regular cursor-pointer hover:text-[#080808] transition-colors px-2 py-4">
+            ბარათები
+          </span>
+          <span className="shrink-0 text-sm leading-5 text-[#737373] font-helveticaneue-regular cursor-pointer hover:text-[#080808] transition-colors px-2 py-4">
+            გაკვეთილების ისტორია
+          </span>
+        </div>
+        <hr className="text-[#F1F1F1]" />
+      </div>
+      <StudentInfo user={user} />
+    </div>
+  );
+};
+
+export default PersonalInfo;
