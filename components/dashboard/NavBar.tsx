@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { FC } from "react";
 import { CaretDownMd, House01 } from "react-coolicons";
 
@@ -78,7 +79,10 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
           </li>
         ))}
       </ul>
-      <div className="hidden lg:flex bg-[#EBECF0] rounded-[50px] px-4 py-3 items-center gap-2">
+      <Link
+        href="/dashboard/student-profile"
+        className="hidden lg:flex bg-[#EBECF0] rounded-[50px] px-4 py-3 items-center gap-2"
+      >
         <div className="w-10 h-10 bg-black rounded-full"></div>
         <div className="flex flex-col">
           <span className="text-sm leading-5 text-[#000000] font-helveticaneue-medium">
@@ -91,7 +95,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
         <div>
           <CaretDownMd color="#737373" />
         </div>
-      </div>
+      </Link>
     </div>
   );
 };
