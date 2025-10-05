@@ -4,7 +4,7 @@ interface AtcivityTrackerBoxProps {
   description: string;
   text: string;
   seeAllText: string;
-  profilePage: boolean;
+  profilePage?: boolean;
 }
 
 const AtcivityTrackerBox = ({
@@ -46,7 +46,11 @@ const AtcivityTrackerBox = ({
   );
 };
 
-const ActivityTracker = ({ profilePage }: { profilePage: boolean }) => {
+const ActivityTracker = ({
+  profilePage = false,
+}: {
+  profilePage?: boolean;
+}) => {
   return (
     <div
       className={` rounded-[20px] flex flex-col gap-3 xl:flex-row xl:items-center

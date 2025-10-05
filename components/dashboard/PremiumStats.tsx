@@ -20,7 +20,7 @@ const ColorMeansEverything = ({
   );
 };
 
-const PremiumStats = ({ profilePage = false }: { profilePage: boolean }) => {
+const PremiumStats = ({ profilePage = false }: { profilePage?: boolean }) => {
   return (
     <div className="mt-4 flex flex-col gap-4 sm:flex-row xl:mt-0 xl:flex-col">
       <div
