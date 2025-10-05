@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Camera } from "react-coolicons";
 import StudentInfo from "./StudentInfo";
+import ActivityTackSecond from "./ActivityTackSecond";
+import ActivityTracker from "../dashboard/ActivityTracker";
 
 type User = {
   id: string;
@@ -60,6 +62,12 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
         <hr className="text-[#F1F1F1]" />
       </div>
       <StudentInfo user={user} fullName={fullName} setFullName={setFullName} />
+      <div className="sm:hidden">
+        <ActivityTackSecond />
+      </div>
+      <div className="hidden sm:block mt-4">
+        <ActivityTracker profilePage={true} />
+      </div>
     </div>
   );
 };

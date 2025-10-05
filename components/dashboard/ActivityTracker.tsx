@@ -4,6 +4,7 @@ interface AtcivityTrackerBoxProps {
   description: string;
   text: string;
   seeAllText: string;
+  profilePage: boolean;
 }
 
 const AtcivityTrackerBox = ({
@@ -12,9 +13,13 @@ const AtcivityTrackerBox = ({
   description,
   text,
   seeAllText,
+  profilePage,
 }: AtcivityTrackerBoxProps) => {
   return (
-    <div className="flex flex-col p-4 bg-[#FFFFFF] border border-[#EFEEF4] rounded-2xl sm:w-1/2 xl:justify-between xl:max-h-[152px]">
+    <div
+      className={`flex flex-col p-4  border border-[#EFEEF4] rounded-2xl sm:w-1/2 xl:justify-between xl:max-h-[152px]
+        ${profilePage ? "bg-[#EBECF0]" : "bg-[#FFFFFF]"}`}
+    >
       <div className="flex flex-col">
         <span
           style={{ backgroundColor: color, color: textColor }}
@@ -41,11 +46,14 @@ const AtcivityTrackerBox = ({
   );
 };
 
-const ActivityTracker = () => {
+const ActivityTracker = ({ profilePage }: { profilePage: boolean }) => {
   return (
     <div
-      className="bg-[#EBECF0] rounded-[20px] p-3 flex flex-col gap-3 xl:flex-row xl:items-center"
-      style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
+      className={` rounded-[20px] flex flex-col gap-3 xl:flex-row xl:items-center
+        ${profilePage ? "bg-white" : "bg-[#EBECF0] p-3 "}`}
+      style={
+        profilePage ? {} : { boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }
+      }
     >
       <div className="flex flex-col gap-3 sm:flex-row xl:flex-1">
         <AtcivityTrackerBox
@@ -54,6 +62,7 @@ const ActivityTracker = () => {
           textColor="#F0C514"
           description="აქტიური გაკვეთილი"
           seeAllText="ყველას ნახვა"
+          profilePage={profilePage}
         />
         <AtcivityTrackerBox
           text="ისწავლე მეტი"
@@ -61,6 +70,7 @@ const ActivityTracker = () => {
           textColor="rgba(125, 63, 255, 0.973)"
           description="არჩეული რეპეტიტორი"
           seeAllText="ყველას ნახვა"
+          profilePage={profilePage}
         />
       </div>
       <div className="flex flex-col gap-3 sm:flex-row xl:flex-1 xl:items-center">
@@ -70,8 +80,12 @@ const ActivityTracker = () => {
           textColor="#52CE91"
           description="დასრულებული გაკვეთილი"
           seeAllText="ისტორიის ნახვა"
+          profilePage={profilePage}
         />
-        <div className="p-4 bg-[#FFFFFF] border border-[#EFEEF4] rounded-2xl flex flex-col gap-3 md:gap-5 sm:w-1/2">
+        <div
+          className={`p-4  border border-[#EFEEF4] rounded-2xl flex flex-col gap-3 md:gap-5 sm:w-1/2
+            ${profilePage ? "bg-[#EBECF0]" : "bg-[#FFFFFF]"}`}
+        >
           <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular md:text-sm md:leading-5">
             დღიურად დახარჯული დრო
           </span>
