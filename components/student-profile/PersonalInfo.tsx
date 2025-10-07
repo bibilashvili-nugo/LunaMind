@@ -8,6 +8,7 @@ import ActivityTracker from "../dashboard/ActivityTracker";
 import OurLessons from "../dashboard/OurLessons";
 import PremiumStats from "../dashboard/PremiumStats";
 import LastActivity from "./LastActivity";
+import Card from "./Card";
 
 type User = {
   id: string;
@@ -21,10 +22,13 @@ interface PersonalInfoProps {
   user: User;
 }
 
+type Tab = "personal" | "cards" | "lessons";
+
 const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
   const [fullName, setFullName] = useState(
     user.firstName + " " + user.lastName
   );
+  const [activeTab, setActiveTab] = useState<Tab>("personal");
   return (
     <div className="lg:grid lg:grid-cols-[1fr_2fr] xl:grid-cols-[1fr_3fr] lg:gap-4 relative">
       <div className="hidden lg:flex flex-col lg:order-1 order-2 sticky top-6 h-fit self-start">
@@ -62,29 +66,60 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
           <hr className="text-[#F1F1F1] my-4" />
           <div className="scroll-wrapper">
             <div className="flex w-full overflow-x-auto custom-scroll gap-6 py-2">
-              <span className="shrink-0 text-sm leading-5 text-[#080808] font-helveticaneue-medium cursor-pointer px-2 py-4">
+              <span
+                onClick={() => setActiveTab("personal")}
+                className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
+                  activeTab === "personal"
+                    ? "text-[#080808] font-helveticaneue-medium"
+                    : "text-[#737373] font-helveticaneue-regular hover:text-[#080808] transition-colors"
+                }`}
+              >
                 პირადი ინფორმაცია
               </span>
-              <span className="shrink-0 text-sm leading-5 text-[#737373] font-helveticaneue-regular cursor-pointer hover:text-[#080808] transition-colors px-2 py-4">
+
+              <span
+                onClick={() => setActiveTab("cards")}
+                className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
+                  activeTab === "cards"
+                    ? "text-[#080808] font-helveticaneue-medium"
+                    : "text-[#737373] font-helveticaneue-regular hover:text-[#080808] transition-colors"
+                }`}
+              >
                 ბარათები
               </span>
-              <span className="shrink-0 text-sm leading-5 text-[#737373] font-helveticaneue-regular cursor-pointer hover:text-[#080808] transition-colors px-2 py-4">
+
+              <span
+                onClick={() => setActiveTab("lessons")}
+                className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
+                  activeTab === "lessons"
+                    ? "text-[#080808] font-helveticaneue-medium"
+                    : "text-[#737373] font-helveticaneue-regular hover:text-[#080808] transition-colors"
+                }`}
+              >
                 გაკვეთილების ისტორია
               </span>
             </div>
             <hr className="text-[#F1F1F1]" />
           </div>
-          <StudentInfo
-            user={user}
-            fullName={fullName}
-            setFullName={setFullName}
-          />
-          <div className="sm:hidden">
-            <ActivityTackSecond />
-          </div>
-          <div className="hidden sm:block mt-4">
-            <ActivityTracker profilePage={true} />
-          </div>
+          {activeTab === "personal" && (
+            <StudentInfo
+              user={user}
+              fullName={fullName}
+              setFullName={setFullName}
+            />
+          )}
+          {activeTab === "cards" && <Card />}
+          {activeTab === "lessons" && <ActivityTracker profilePage={true} />}
+          {activeTab === "personal" && (
+            <div className="sm:hidden">
+              <ActivityTackSecond />
+            </div>
+          )}
+          {activeTab === "personal" && (
+            <div className="hidden sm:block mt-4">
+              <ActivityTracker profilePage={true} />
+            </div>
+          )}
         </div>
 
         <LastActivity />
