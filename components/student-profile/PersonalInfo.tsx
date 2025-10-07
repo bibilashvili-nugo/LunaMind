@@ -9,6 +9,7 @@ import OurLessons from "../dashboard/OurLessons";
 import PremiumStats from "../dashboard/PremiumStats";
 import LastActivity from "./LastActivity";
 import Card from "./Card";
+import LessonsHistory from "./LessonsHistory";
 
 type User = {
   id: string;
@@ -109,7 +110,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
             />
           )}
           {activeTab === "cards" && <Card />}
-          {activeTab === "lessons" && <ActivityTracker profilePage={true} />}
+          {activeTab === "lessons" && <LessonsHistory />}
           {activeTab === "personal" && (
             <div className="sm:hidden">
               <ActivityTackSecond />
