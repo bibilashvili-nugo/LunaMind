@@ -5,14 +5,20 @@ import { CaretDownMd, House01 } from "react-coolicons";
 type NavigationItem = {
   id: number;
   title: string;
-  path?: string;
+  path: string;
   icon?: string | FC<{ color?: string; fill?: string; size: number }>;
   active?: boolean;
 };
 
 const navigation: NavigationItem[] = [
-  { id: 1, title: "მიმოხილვა", path: "/overview", icon: House01, active: true },
-  { id: 2, title: "რეპეტიტორები", path: "/tutors", icon: House01 },
+  {
+    id: 1,
+    title: "მიმოხილვა",
+    path: "/dashboard",
+    icon: House01,
+    active: true,
+  },
+  { id: 2, title: "რეპეტიტორები", path: "/dashboard/tutors", icon: House01 },
   { id: 3, title: "გაკვეთილები", path: "/lessons", icon: House01 },
   { id: 4, title: "შეფასებები", path: "/reviews", icon: House01 },
   { id: 5, title: "პაკეტები", path: "/packages", icon: House01 },
@@ -40,7 +46,8 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
       </span>
       <ul className="hidden lg:flex bg-[#EBECF0] p-3 rounded-[60px] xl:p-2 xl:gap-1 xl:rounded-[50px]">
         {navigation.map((item) => (
-          <li
+          <Link
+            href={item?.path}
             key={item.id}
             className={`text-xs leading-4 flex items-center gap-1 ${
               item?.active
@@ -57,7 +64,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
                 </div>
                 <span
                   className="xl:!font-helveticaneue-regular text-xs leading-4 text-[#080A0D] !font-helveticaneue-medium xl:text-white
-               xl:text-sm xl:leading-5 xl:px-5 xl:py-[14px]"
+                  xl:text-sm xl:leading-5 xl:px-5 xl:py-[14px]"
                 >
                   {item.title}
                 </span>
@@ -76,7 +83,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
                 </div>
               </div>
             )}
-          </li>
+          </Link>
         ))}
       </ul>
       <Link
