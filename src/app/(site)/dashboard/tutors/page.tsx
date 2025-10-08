@@ -22,7 +22,7 @@ export default async function TutorsStudent() {
       <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         {/* 🔹 Reuse your existing NavBar with the same user */}
         <NavBar user={user} />
-        <div className="grid grid-cols-1  gap-4">
+        <div className="grid grid-cols-1  gap-4 mt-8 md:mt-[52px] lg:mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {teachers.map((item) => (
             <div
               className="border border-[#EBECF0] rounded-xl p-4"
@@ -32,10 +32,10 @@ export default async function TutorsStudent() {
                 <div className="flex justify-between items-center">
                   <div className="w-[64px] h-[64px] bg-black"></div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-base leading-6 text-black font-helveticaneue-medium">
+                    <span className="text-base leading-6 text-black font-helveticaneue-medium md:text-sm md:leading-5 xl:text-base xl:leading-6">
                       39 ლარი
                     </span>
-                    <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
+                    <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular sm:text-sm sm:leading-5">
                       4.9 შეფასება
                     </span>
                   </div>
@@ -44,11 +44,11 @@ export default async function TutorsStudent() {
                   <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
                     {item?.profession}
                   </span>
-                  <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
+                  <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold 2xl:text-base 2xl:leading-6">
                     {item?.user?.firstName + " " + item?.user?.lastName}
                   </span>
                 </div>
-                <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+                <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular lg:text-xs lg:leading-4 2xl:text-sm 2xl:leading-5">
                   შედეგად, ტექსტი ჩვეულებრივ ინგლისურს გავს, მისი წაითხვა კი
                   შეუძლებელია. დღეს უამრავი პერსონალური საგამომცემლო
                 </span>
