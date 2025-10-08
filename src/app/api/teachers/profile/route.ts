@@ -16,41 +16,16 @@ export async function POST(req: Request) {
 }
 
 // GET: წამოიღებს profile + currentStep
-// export async function GET(req: Request) {
-//   const { searchParams } = new URL(req.url);
-//   const userId = searchParams.get("userId");
-//   if (!userId)
-//     return NextResponse.json(
-//       { message: "UserId აუცილებელია" },
-//       { status: 400 }
-//     );
-
-//   const profile = await prisma.teacherProfile.findUnique({ where: { userId } });
-
-//   return NextResponse.json({ profile });
-// }
-
-// GET: წამოიღებს profile + currentStep ან ყველა მასწავლებელს
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
+  if (!userId)
+    return NextResponse.json(
+      { message: "UserId აუცილებელია" },
+      { status: 400 }
+    );
 
-  if (userId) {
-    const profile = await prisma.teacherProfile.findUnique({
-      where: { userId },
-      include: {
-        user: true, // ✅ Include user info
-      },
-    });
-    return NextResponse.json({ profile });
-  }
+  const profile = await prisma.teacherProfile.findUnique({ where: { userId } });
 
-  const allTeachers = await prisma.teacherProfile.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: true, // ✅ Include user info for all teachers
-    },
-  });
-
-  return NextResponse.json({ teachers: allTeachers });
+  return NextResponse.json({ profile });
 }
