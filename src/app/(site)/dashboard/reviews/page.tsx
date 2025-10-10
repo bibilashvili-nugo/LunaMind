@@ -9,11 +9,16 @@ export default async function TutorsStudent() {
     redirect("/login");
   }
 
+  const safeUser = {
+    ...user,
+    image: user.image || undefined, // fix null → undefined
+  };
+
   return (
     <div className="bg-[#F6F5FA]">
       <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         {/* 🔹 Reuse your existing NavBar with the same user */}
-        <NavBar user={user} />
+        <NavBar user={safeUser} />
         <div className="flex flex-col gap-4 mt-8 sm:flex-row sm:items-center sm:justify-between ">
           <div className="flex flex-col gap-2">
             <span
