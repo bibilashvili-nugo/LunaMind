@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { FC } from "react";
 import { CaretDownMd, House01 } from "react-coolicons";
@@ -29,6 +30,7 @@ type StudentUser = {
   firstName: string;
   lastName: string;
   role: "STUDENT" | "TEACHER";
+  image?: string;
 };
 
 type NavBarProps = {
@@ -90,7 +92,14 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
         href="/dashboard/student-profile"
         className="hidden lg:flex bg-[#EBECF0] rounded-[50px] px-4 py-3 items-center gap-2"
       >
-        <div className="w-10 h-10 bg-black rounded-full"></div>
+        <div className="w-10 h-10 bg-black rounded-full relative overflow-hidden">
+          <Image
+            src={user?.image || "/images/default-profile.png"}
+            alt="user"
+            fill
+            className="object-cover"
+          />
+        </div>
         <div className="flex flex-col">
           <span className="text-sm leading-5 text-[#000000] font-helveticaneue-medium">
             {user?.firstName + " " + user?.lastName}

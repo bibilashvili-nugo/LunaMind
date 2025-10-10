@@ -2,12 +2,18 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import NavBar from "../../../../../components/dashboard/NavBar";
 import { prisma } from "@/lib/prisma";
+import Image from "next/image";
 
 export default async function TutorsStudent() {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
   }
+
+  const safeUser = {
+    ...user,
+    image: user.image || undefined,
+  };
 
   const teachers = await prisma.teacherProfile.findMany({
     orderBy: { createdAt: "desc" },
@@ -16,12 +22,11 @@ export default async function TutorsStudent() {
     },
   });
 
-  console.log(teachers);
   return (
     <div className="bg-[#F6F5FA]">
       <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         {/* 🔹 Reuse your existing NavBar with the same user */}
-        <NavBar user={user} />
+        <NavBar user={safeUser} />
         <div className="grid grid-cols-1  gap-4 mt-8 md:mt-[52px] lg:mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {teachers.map((item) => (
             <div
@@ -30,7 +35,14 @@ export default async function TutorsStudent() {
             >
               <div className="flex flex-col">
                 <div className="flex justify-between items-center">
-                  <div className="w-[64px] h-[64px] bg-black"></div>
+                  <div className="w-[64px] h-[64px] relative overflow-hidden">
+                    <Image
+                      src={item.user?.image || "/images/default-profile.png"}
+                      alt="user"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-base leading-6 text-black font-helveticaneue-medium md:text-sm md:leading-5 xl:text-base xl:leading-6">
                       39 ლარი

@@ -80,7 +80,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
             <div className="flex gap-2 items-center">
               <div className="w-[84px] h-[84px] rounded-full xl:w-[124px] xl:h-[124px] relative overflow-hidden">
                 <Image
-                  src={profileImage || user.image || "/default-profile.png"}
+                  src={
+                    profileImage || user.image || "/images/default-profile.png"
+                  }
                   alt="user"
                   fill
                   className="object-cover"
