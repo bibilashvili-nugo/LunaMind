@@ -12,12 +12,17 @@ export default async function StudentProfilePage() {
     redirect("/login");
   }
 
+  const safeUser = {
+    ...user,
+    image: user.image || undefined,
+  };
+
   return (
     <div className="bg-[#F6F5FA]">
       <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         {/* 🔹 Reuse your existing NavBar with the same user */}
-        <NavBar user={user} />
-        <PersonalInfo user={user} />
+        <NavBar user={safeUser} />
+        <PersonalInfo user={safeUser} />
       </div>
     </div>
   );
