@@ -20,7 +20,7 @@ const navigation: NavigationItem[] = [
   },
   { id: 2, title: "რეპეტიტორები", path: "/dashboard/tutors", icon: House01 },
   { id: 3, title: "გაკვეთილები", path: "/lessons", icon: House01 },
-  { id: 4, title: "შეფასებები", path: "/reviews", icon: House01 },
+  { id: 4, title: "შეფასებები", path: "/dashboard/reviews", icon: House01 },
   { id: 5, title: "პაკეტები", path: "/packages", icon: House01 },
 ];
 
