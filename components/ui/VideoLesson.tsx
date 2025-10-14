@@ -3,6 +3,7 @@
 import "@mux/mux-player";
 import React, { useRef, useState, useEffect } from "react";
 import { NoteBook, Star, VolumeOff, VolumeOn } from "./Icons";
+import { useTranslations } from "next-intl";
 
 interface MuxPlayerElement extends HTMLElement {
   muted: boolean;
@@ -14,6 +15,8 @@ const VideoLesson = () => {
   const playbackId = "Ys01rL65mPmdWKj4qhfC244SeBCd2Kl9ixVWtZ1WnteU";
   const playerRef = useRef<MuxPlayerElement>(null);
   const [muted, setMuted] = useState(true);
+
+  const t = useTranslations("videoLesson");
 
   useEffect(() => {
     if (playerRef.current) {
@@ -49,7 +52,7 @@ const VideoLesson = () => {
       <div className="flex items-center gap-2 absolute z-30 bg-[#000000]/20 top-4 left-4 sm:top-6 sm:left-6 backdrop-blur-[24px] py-[10px] rounded-[40px] px-[12px]">
         <div className="w-3 h-3 rounded-full bg-[#52CE91]"></div>
         <span className="text-xs leading-4 font-helveticaneue-regular text-white">
-          კარგი კავშირი
+          {t("goodConnection")}
         </span>
       </div>
 
@@ -63,14 +66,14 @@ const VideoLesson = () => {
       <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 bg-[#000000]/20 backdrop-blur-[24px] flex items-center gap-2 px-3 py-2 rounded-[40px]">
         <NoteBook />
         <span className="text-xs leading-4 text-white font-helveticaneue-regular">
-          ჩვენი რეპეტიტორი
+          {t("ourTutor")}
         </span>
       </div>
 
       <div className="hidden sm:flex absolute top-6 right-6 items-center bg-[#FFFFFF] backdrop-blur-[24px] gap-2 px-3 py-2 rounded-[40px]">
         <Star />
         <span className="text-[#0C0F21] text-xs leading-4">
-          მაღალი შეფასება
+          {t("highRating")}
         </span>
       </div>
     </div>

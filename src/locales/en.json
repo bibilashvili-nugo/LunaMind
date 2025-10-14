@@ -4,6 +4,27 @@
     "why": "Why Us",
     "tutors": "Tutors",
     "reviews": "Reviews",
-    "packages": "Packages"
+    "packages": "Packages",
+    "login": "Login"
+  },
+  "hero": {
+    "learnOnlineBest": "Learn online with the best",
+    "learnOnline": "Learn online",
+    "withTutors": "with tutors",
+    "withBestTutors": "with the best tutors",
+    "platformDescription": "Our platform connects Georgian students with qualified tutors in every subject.",
+    "becomeStudent": "Become a student",
+    "student": "Student",
+    "becomeTutor": "Become a tutor",
+    "tutor": "Tutor"
+  },
+  "videoLesson": {
+    "goodConnection": "Good Connection",
+    "ourTutor": "Our Tutor",
+    "highRating": "High Rating"
+  },
+  "tutors": {
+    "tutorsCount": "Tutors",
+    "chooseSubject": "Choose a subject and start online preparation"
   }
 }

@@ -133,7 +133,7 @@ const NavBar = () => {
               <div className="bg-[#FFD52A] py-[14px] px-[24px] rounded-[40px] xl:flex xl:items-center xl:gap-2">
                 <AccountCircle />
                 <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-[24px] font-helveticaneue-medium">
-                  შესვლა
+                  {mounted ? t("header.login") : <span></span>}
                 </span>
               </div>
             </Link>
