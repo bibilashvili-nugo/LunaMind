@@ -225,3 +225,10 @@
 .custom-scroll {
   scroll-behavior: smooth;
 }
+
+input,
+textarea,
+select {
+  font-size: 16px; /* Minimum 16px prevents zoom */
+  -webkit-text-size-adjust: 100%; /* Stops auto zoom */
+}
