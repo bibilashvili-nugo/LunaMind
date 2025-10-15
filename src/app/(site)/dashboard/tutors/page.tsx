@@ -24,7 +24,7 @@ export default async function TutorsStudent() {
 
   return (
     <div className="bg-[#F6F5FA]">
-      <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
+      <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
         {/* 🔹 Reuse your existing NavBar with the same user */}
         <NavBar user={safeUser} />
         <div className="grid grid-cols-1  gap-4 mt-8 md:mt-[52px] lg:mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

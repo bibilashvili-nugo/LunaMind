@@ -19,7 +19,7 @@ type StudentPageProps = {
 
 const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
   return (
-    <div className="px-4 lg:px-6 bg-[#F6F5FA] 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
+    <div className="px-4 lg:px-6 bg-[#F6F5FA] 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
       <NavBar user={user} />
       <div className="grid grid-cols-1 pt-8 lg:hidden">
         <ActivityTracker />
