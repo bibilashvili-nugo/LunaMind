@@ -1,31 +1,78 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// POST: Step-by-step პასუხის შენახვა
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { userId, key, value, step } = body;
+  try {
+    const body = await req.json();
+    const { userId, key, value, step, isLastQuestion } = body;
 
-  const profile = await prisma.teacherProfile.upsert({
-    where: { userId },
-    update: { [key]: value, currentStep: step },
-    create: { userId, [key]: value, currentStep: step },
-  });
+    if (!userId || !key)
+      return NextResponse.json(
+        { error: "მონაცემები არასწორია" },
+        { status: 400 }
+      );
 
-  return NextResponse.json({ message: "შენახულია", profile });
+    const totalQuestions = 6; // შეგიძლია შეცვალო საჭიროებისამებრ
+
+    // ✅ Transaction – თავიდან აიცილებს race condition-ს
+    const result = await prisma.$transaction(async (tx) => {
+      const newStep = isLastQuestion ? totalQuestions : step + 1;
+      const completed = !!isLastQuestion;
+
+      const profile = await tx.teacherProfile.upsert({
+        where: { userId },
+        update: {
+          [key]: value,
+          currentStep: newStep,
+          completed,
+          updatedAt: new Date(),
+        },
+        create: {
+          userId,
+          [key]: value,
+          currentStep: newStep,
+          completed,
+        },
+      });
+
+      return { profile, completed };
+    });
+
+    console.log("✅ Teacher profile transaction completed:", result.completed);
+
+    return NextResponse.json({
+      message: "შენახულია",
+      profile: result.profile,
+      completed: result.completed,
+    });
+  } catch (error) {
+    console.error("❌ Teacher transaction error:", error);
+    return NextResponse.json({ error: "დაფიქსირდა შეცდომა" }, { status: 500 });
+  }
 }
 
-// GET: წამოიღებს profile + currentStep
+// ✅ GET — წამოიღებს profile-ს userId-ით
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
-  if (!userId)
-    return NextResponse.json(
-      { message: "UserId აუცილებელია" },
-      { status: 400 }
-    );
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
 
-  const profile = await prisma.teacherProfile.findUnique({ where: { userId } });
+    if (!userId)
+      return NextResponse.json(
+        { message: "UserId აუცილებელია" },
+        { status: 400 }
+      );
 
-  return NextResponse.json({ profile });
+    const profile = await prisma.teacherProfile.findUnique({
+      where: { userId },
+    });
+
+    return NextResponse.json({ profile });
+  } catch (error) {
+    console.error("❌ Teacher GET error:", error);
+    return NextResponse.json({ error: "დაფიქსირდა შეცდომა" }, { status: 500 });
+  }
 }
