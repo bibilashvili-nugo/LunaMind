@@ -41,6 +41,11 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
   const navigation =
     user.role === "TEACHER" ? teacherNavigation : studentNavigation;
 
+  const profileLink =
+    user.role === "TEACHER"
+      ? "/dashboard/teacher-profile"
+      : "/dashboard/student-profile";
+
   return (
     <div
       className="pt-8 text-center sm:text-start 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto lg:pt-[28px] lg:flex lg:justify-between lg:items-center
@@ -98,7 +103,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
             </Link>
           );
         })}
-        <Link href="/dashboard/student-profile">
+        <Link href={profileLink}>
           <div className="w-11 h-11 rounded-full relative overflow-hidden lg:hidden ml-2">
             <Image
               src={user?.image || "/images/default-profile.png"}
@@ -111,7 +116,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
       </ul>
 
       <Link
-        href="/dashboard/student-profile"
+        href={profileLink}
         className="hidden lg:flex bg-[#EBECF0] rounded-[50px] px-4 py-3 items-center gap-2"
       >
         <div className="w-10 h-10 rounded-full relative overflow-hidden">
