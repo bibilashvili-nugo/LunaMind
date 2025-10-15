@@ -97,7 +97,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
           );
         })}
         <Link href="/dashboard/student-profile">
-          <div className="w-11 h-11 rounded-full relative overflow-hidden lg:hidden">
+          <div className="w-11 h-11 rounded-full relative overflow-hidden lg:hidden ml-2">
             <Image
               src={user?.image || "/images/default-profile.png"}
               alt="user"
