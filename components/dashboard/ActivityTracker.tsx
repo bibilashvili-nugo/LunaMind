@@ -57,8 +57,10 @@ const AtcivityTrackerBox = ({
 
 const ActivityTracker = ({
   profilePage = false,
+  teacher = false,
 }: {
   profilePage?: boolean;
+  teacher?: boolean;
 }) => {
   const [showModal, setShowModal] = useState(false);
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -84,7 +86,7 @@ const ActivityTracker = ({
           text="ისწავლე მეტი"
           color="rgba(125, 63, 255, 0.1)"
           textColor="rgba(125, 63, 255, 0.973)"
-          description="არჩეული რეპეტიტორი"
+          description={teacher ? "ჩემი მოსწავლეები" : "არჩეული რეპეტიტორი"}
           seeAllText="ყველას ნახვა"
           profilePage={profilePage}
         />

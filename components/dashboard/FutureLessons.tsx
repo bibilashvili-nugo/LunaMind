@@ -18,7 +18,11 @@ const FutureLessonsBoxTime = ({ timeLine }: { timeLine: string }) => {
   );
 };
 
-const FutureLessonsBoxContent = () => {
+const FutureLessonsBoxContent = ({
+  teacher = false,
+}: {
+  teacher?: boolean;
+}) => {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:gap-0 sm:justify-between">
       <div className="flex items-center gap-3">
@@ -32,14 +36,27 @@ const FutureLessonsBoxContent = () => {
           </span>
         </div>
       </div>
-      <button className="text-sm leading-5 font-helveticaneue-regular py-3 rounded-[50px] bg-white cursor-pointer sm:px-[34px]">
-        დასწრება
-      </button>
+      {teacher ? (
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+          <button className="text-sm leading-5 font-helveticaneue-regular py-3 rounded-[50px] bg-white text-[#080808] cursor-pointer sm:px-[34px] order-2 sm:order-1">
+            შეხვედრის ლინკი
+          </button>
+          <button className="text-sm leading-5 font-helveticaneue-regular py-3 rounded-[50px] bg-[#F0C514] text-[#080808] cursor-pointer sm:px-[34px] order-1 sm:order-2">
+            დასწრება
+          </button>
+        </div>
+      ) : (
+        <>
+          <button className="text-sm leading-5 font-helveticaneue-regular py-3 rounded-[50px] bg-white cursor-pointer sm:px-[34px]">
+            დასწრება
+          </button>
+        </>
+      )}
     </div>
   );
 };
 
-const FutureLessonsBox = () => {
+const FutureLessonsBox = ({ teacher = false }: { teacher?: boolean }) => {
   return (
     <div className="flex flex-col bg-[#ECF1FF] rounded-2xl p-4 gap-3 ">
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
@@ -56,12 +73,12 @@ const FutureLessonsBox = () => {
           <FutureLessonsBoxTime timeLine="2 საათი" />
         </div>
       </div>
-      <FutureLessonsBoxContent />
+      <FutureLessonsBoxContent teacher={teacher} />
     </div>
   );
 };
 
-const FutureLessons = () => {
+const FutureLessons = ({ teacher = false }: { teacher?: boolean }) => {
   const [formattedDate, setFormattedDate] = useState("");
 
   useEffect(() => {
@@ -90,12 +107,12 @@ const FutureLessons = () => {
       </div>
       <hr className="text-[#EBECF0]" />
       <div className="flex flex-col gap-2">
-        <FutureLessonsBox />
-        <FutureLessonsBox />
-        <FutureLessonsBox />
-        <FutureLessonsBox />
-        <FutureLessonsBox />
-        <FutureLessonsBox />
+        <FutureLessonsBox teacher={teacher} />
+        <FutureLessonsBox teacher={teacher} />
+        <FutureLessonsBox teacher={teacher} />
+        <FutureLessonsBox teacher={teacher} />
+        <FutureLessonsBox teacher={teacher} />
+        <FutureLessonsBox teacher={teacher} />
       </div>
     </div>
   );

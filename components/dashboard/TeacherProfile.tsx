@@ -20,19 +20,19 @@ const TeacherProfile: React.FC<TeacherPageProps> = ({ user }) => {
     <div className="px-4 lg:px-6 bg-[#F6F5FA] 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
       <NavBar user={user} />
       <div className="grid grid-cols-1 pt-8 lg:hidden">
-        <ActivityTracker />
-        <OurLessons />
-        <FutureLessons />
+        <ActivityTracker teacher={true} />
+        <OurLessons teacher={true} />
+        <FutureLessons teacher={true} />
         <PremiumStats />
       </div>
       <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <OurLessons />
+          <OurLessons teacher={true} />
         </div>
         <div className="lg:col-span-2 flex flex-col gap-4">
-          <ActivityTracker />
+          <ActivityTracker teacher={true} />
           <div className="xl:grid xl:grid-cols-3 gap-4">
-            <FutureLessons />
+            <FutureLessons teacher={true} />
             <PremiumStats />
           </div>
         </div>

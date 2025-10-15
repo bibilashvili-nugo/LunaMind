@@ -127,7 +127,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
             {user?.firstName + " " + user?.lastName}
           </span>
           <p className="text-xs leading-[18px] text-[#767676] font-helveticaneue-regular">
-            მოსწავლის პროფილი
+            {user.role === "TEACHER" ? "რეპეტიტორი" : "მოსწავლის პროფილი"}
           </p>
         </div>
         <div>

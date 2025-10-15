@@ -1,4 +1,4 @@
-import { CalendarAdd, CaretCircleRight } from "react-coolicons";
+import { CalendarAdd } from "react-coolicons";
 
 interface OurLessonsProps {
   subject: string;
@@ -39,8 +39,6 @@ const OurLessonsBox = ({ subject, teacher, svgColor }: OurLessonsProps) => {
           </span>
         </div>
       </div>
-
-      <CaretCircleRight className="text-[#737373]" />
     </div>
   );
 };
@@ -56,7 +54,13 @@ const AddNewLessons = () => {
   );
 };
 
-const OurLessons = ({ profilePage = false }: { profilePage?: boolean }) => {
+const OurLessons = ({
+  profilePage = false,
+  teacher = false,
+}: {
+  profilePage?: boolean;
+  teacher?: boolean;
+}) => {
   return (
     <div
       className={` bg-white rounded-2xl p-5 flex flex-col gap-4  lg:h-[596px] lg:py-6
@@ -68,7 +72,7 @@ const OurLessons = ({ profilePage = false }: { profilePage?: boolean }) => {
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
       <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-        ჩემი გაკვეთილები
+        {teacher ? "ჩემი მოსწავლეები" : "ჩემი გაკვეთილები"}
       </span>
       <div className="flex flex-col justify-between h-full gap-2">
         <div className="flex flex-col gap-2">
@@ -98,7 +102,7 @@ const OurLessons = ({ profilePage = false }: { profilePage?: boolean }) => {
             svgColor="#F04F14"
           />
         </div>
-        <AddNewLessons />
+        {!teacher && <AddNewLessons />}
       </div>
     </div>
   );
