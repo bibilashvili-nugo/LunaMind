@@ -26,5 +26,12 @@
   "tutors": {
     "tutorsCount": "Репетиторы",
     "chooseSubject": "Выберите предмет и начните онлайн-подготовку"
+  },
+  "tutorsType": {
+    "tutorLabel": "Репетитор",
+    "bestExperience": "Получите лучший опыт"
+  },
+  "chooseAnyTime": {
+    "pickDay": "Вы можете выбрать любой день недели для занятий"
   }
 }

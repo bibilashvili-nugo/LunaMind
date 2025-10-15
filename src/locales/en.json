@@ -26,5 +26,12 @@
   "tutors": {
     "tutorsCount": "Tutors",
     "chooseSubject": "Choose a subject and start online preparation"
+  },
+  "tutorsType": {
+    "tutorLabel": "Tutor",
+    "bestExperience": "Get the best experience"
+  },
+  "chooseAnyTime": {
+    "pickDay": "You can choose any day of the week for your lessons"
   }
 }

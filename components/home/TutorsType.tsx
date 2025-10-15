@@ -1,6 +1,11 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { subjectsData } from "../../constants/data";
 
 const TutorsType = () => {
+  const t = useTranslations("tutorsType");
+
   const firstColumn = subjectsData.slice(0, 3);
   const secondColumn = subjectsData.slice(3, 6);
   const thirdColumn = subjectsData.slice(0, 2);
@@ -28,7 +33,7 @@ const TutorsType = () => {
                     {item?.title}
                   </span>
                   <span className="text-[#939393] text-[10px] leading-3.5 font-helveticaneue-regular">
-                    რეპეტიტორი
+                    {t("tutorLabel")}
                   </span>
                 </div>
               </div>
@@ -55,7 +60,7 @@ const TutorsType = () => {
                     {item?.title}
                   </span>
                   <span className="text-[#939393] text-[10px] leading-3.5 font-helveticaneue-regular">
-                    რეპეტიტორი
+                    {t("tutorLabel")}
                   </span>
                 </div>
               </div>
@@ -82,7 +87,7 @@ const TutorsType = () => {
                     {item?.title}
                   </span>
                   <span className="text-[#939393] text-[10px] leading-3.5 font-helveticaneue-regular">
-                    რეპეტიტორი
+                    {t("tutorLabel")}
                   </span>
                 </div>
               </div>
@@ -108,7 +113,7 @@ const TutorsType = () => {
                     {item?.title}
                   </span>
                   <span className="text-[#939393] text-[10px] leading-3.5 font-helveticaneue-regular">
-                    რეპეტიტორი
+                    {t("tutorLabel")}
                   </span>
                 </div>
               </div>
@@ -118,7 +123,7 @@ const TutorsType = () => {
       </div>
 
       <div className="w-full text-center text-xs leading-4 font-helveticaneue-regular text-[#737373] pb-[26px] pt-[18px] lg:hidden xl:block xl:pb-[20px] 3xl:pb-6">
-        მიიღე საუკეთესო გამოცდილება
+        {t("bestExperience")}
       </div>
     </div>
   );
