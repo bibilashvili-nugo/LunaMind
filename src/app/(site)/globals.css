@@ -232,3 +232,13 @@ select {
   font-size: 16px; /* Minimum 16px prevents zoom */
   -webkit-text-size-adjust: 100%; /* Stops auto zoom */
 }
+
+/* Hide scrollbar for all browsers */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}

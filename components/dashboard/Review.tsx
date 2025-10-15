@@ -1,15 +1,25 @@
 import { useState } from "react";
 import { CircleWarning, Star } from "react-coolicons";
 
-const Review = () => {
+interface PropReview {
+  isModal?: boolean;
+}
+
+const Review = ({ isModal = false }: PropReview) => {
   const [rating, setRating] = useState(0);
   const [value, setValue] = useState("");
   return (
     <div
-      className="mt-4 bg-white rounded-2xl p-5 flex flex-col lg:mt-0 lg:h-[680px]"
+      className={` bg-white rounded-2xl p-5 flex flex-col   ${
+        isModal ? "h-[570px] mt-0 lg:h-[592px]" : "lg:h-[680px] mt-4 lg:mt-0"
+      }`}
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
-      <span className="text-[#737373] text-sm leading-5 font-helveticaneue-regular">
+      <span
+        className={
+          " font-helveticaneue-regular text-sm leading-5 text-[#737373]"
+        }
+      >
         შეფასების დაწერა
       </span>
       <div className="flex flex-col gap-3 justify-center items-center mt-5">
@@ -76,9 +86,11 @@ const Review = () => {
           id="review"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="w-full h-[242px] resize-none border border-[#EBECF0] rounded-xl 
+          className={`w-full  resize-none border border-[#EBECF0] rounded-xl 
                    focus:outline-none focus:ring-0 py-[10px] px-3 peer
-                   text-xs sm:text-sm leading-5 text-black font-helveticaneue-medium"
+                   text-xs sm:text-sm leading-5 text-black font-helveticaneue-medium ${
+                     isModal ? "h-[162px]" : "h-[242px]"
+                   }`}
           placeholder=" "
         />
         {value === "" && (

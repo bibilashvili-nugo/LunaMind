@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import NavBar from "../../../../../components/dashboard/NavBar";
 import { TutorsStudentBox } from "./TutorsStudentBox";
+import ReviewButton from "./ReviewModalButton";
 
 export default async function TutorsStudent() {
   const user = await getCurrentUser();
@@ -31,12 +32,13 @@ export default async function TutorsStudent() {
               აქ რამე პატარა დამხმარე საყვარელი ტექსტი დაიწერება შეფასებებზე
             </span>
           </div>
-          <button
+          {/* <button
             className="text-sm leading-5 text-[#080808] font-helveticaneue-medium w-full py-4 bg-[#F0C514] rounded-xl
-          sm:w-fit sm:px-9"
+          sm:w-fit sm:px-9 cursor-pointer"
           >
             შეფასების გაკეთება
-          </button>
+          </button> */}
+          <ReviewButton />
         </div>
         <div className="grid grid-cols-1 gap-4 mt-4 sm:mt-8 md:grid-cols-2 lg:grid-cols-3 lg:mt-7 xl:grid-cols-4 xl:mt-6">
           {[...Array(27)].map((_, i) => (

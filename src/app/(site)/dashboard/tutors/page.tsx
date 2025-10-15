@@ -4,6 +4,25 @@ import NavBar from "../../../../../components/dashboard/NavBar";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 
+const data = [
+  "მათემატიკა",
+  "ქართული ლიტერატურა",
+  "ინგლისური",
+  "ისტორია",
+  "ფიზიკა",
+  "ქიმია",
+  "გეოგრაფია",
+  "ბუნება",
+  "მათემატიკა",
+  "ქართული ლიტერატურა",
+  "ინგლისური",
+  "ისტორია",
+  "ფიზიკა",
+  "ქიმია",
+  "გეოგრაფია",
+  "ბუნება",
+];
+
 export default async function TutorsStudent() {
   const user = await getCurrentUser();
   if (!user) {
@@ -27,7 +46,19 @@ export default async function TutorsStudent() {
       <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
         {/* 🔹 Reuse your existing NavBar with the same user */}
         <NavBar user={safeUser} />
-        <div className="grid grid-cols-1  gap-4 mt-8 md:mt-[52px] lg:mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="flex gap-2 overflow-x-scroll scrollbar-hide mt-[22px] sm:mt-8 lg:mt-[20px] xl:mt-6">
+          {data?.map((item, index) => {
+            return (
+              <span
+                key={index}
+                className="text-sm leading-5 py-3 px-5 bg-[#EBECF0] rounded-[50px] font-helveticaneue-regular  whitespace-nowrap cursor-pointer"
+              >
+                {item}
+              </span>
+            );
+          })}
+        </div>
+        <div className="grid grid-cols-1  gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-6 sm:mt-[26px] md:mt-8 lg:mt-6">
           {teachers.map((item) => (
             <div
               className="border border-[#EBECF0] rounded-xl p-4"
