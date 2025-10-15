@@ -1,3 +1,9 @@
+"use client";
+
+import { useClickOutside } from "@/hooks/useClickOutside";
+import { useRef, useState } from "react";
+import OurLessons from "./OurLessons";
+
 interface AtcivityTrackerBoxProps {
   color: string;
   textColor: string;
@@ -5,6 +11,7 @@ interface AtcivityTrackerBoxProps {
   text: string;
   seeAllText: string;
   profilePage?: boolean;
+  onClick?: () => void;
 }
 
 const AtcivityTrackerBox = ({
@@ -14,11 +21,13 @@ const AtcivityTrackerBox = ({
   text,
   seeAllText,
   profilePage,
+  onClick,
 }: AtcivityTrackerBoxProps) => {
   return (
     <div
       className={`flex flex-col p-4  border border-[#EFEEF4] rounded-2xl sm:w-1/2 xl:justify-between xl:max-h-[152px]
         ${profilePage ? "bg-[#EBECF0]" : "bg-[#FFFFFF]"}`}
+      onClick={onClick}
     >
       <div className="flex flex-col">
         <span
@@ -51,6 +60,10 @@ const ActivityTracker = ({
 }: {
   profilePage?: boolean;
 }) => {
+  const [showModal, setShowModal] = useState(false);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  useClickOutside(modalRef, () => setShowModal(false));
   return (
     <div
       className={` rounded-[20px] flex flex-col gap-3 xl:flex-row xl:items-center
@@ -65,6 +78,7 @@ const ActivityTracker = ({
           description="აქტიური გაკვეთილი"
           seeAllText="ყველას ნახვა"
           profilePage={profilePage}
+          onClick={() => setShowModal(true)}
         />
         <AtcivityTrackerBox
           text="ისწავლე მეტი"
@@ -102,6 +116,22 @@ const ActivityTracker = ({
           </span>
         </div>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-[#00000099]">
+          <div
+            ref={modalRef}
+            className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
+          >
+            <OurLessons />
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-3 right-6 text-black text-lg font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -64,7 +64,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
               className={`text-xs leading-4 flex items-center gap-1 ${
                 isActive
                   ? "pl-3 pr-[20px] py-[10px] bg-black rounded-[100px] xl:bg-[#080808] xl:p-0 "
-                  : ""
+                  : "py-[10px]"
               }`}
             >
               {isActive ? (
