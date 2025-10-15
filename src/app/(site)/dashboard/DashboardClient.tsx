@@ -2,6 +2,7 @@
 "use client";
 
 import StudentPage from "../../../../components/dashboard/StudentPage";
+import TeacherProfile from "../../../../components/dashboard/TeacherProfile";
 
 type Role = "STUDENT" | "TEACHER";
 
@@ -31,7 +32,11 @@ const DashboardClient: React.FC<DashboardClientProps> = ({ user }) => {
       </div>
     );
   } else if (user.role === "TEACHER") {
-    return <div>nugo maswi</div>;
+    return (
+      <div className="bg-[#F6F5FA]">
+        <TeacherProfile user={user} />
+      </div>
+    );
   } else {
     return (
       <div>

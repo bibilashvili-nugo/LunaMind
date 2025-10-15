@@ -13,14 +13,14 @@ type NavigationItem = {
   icon?: string | FC<{ color?: string; fill?: string; size: number }>;
 };
 
-const navigation: NavigationItem[] = [
-  {
-    id: 1,
-    title: "მიმოხილვა",
-    path: "/dashboard",
-    icon: House01,
-  },
+const studentNavigation: NavigationItem[] = [
+  { id: 1, title: "მიმოხილვა", path: "/dashboard", icon: House01 },
   { id: 2, title: "რეპეტიტორები", path: "/dashboard/tutors", icon: UsersGroup },
+  { id: 3, title: "შეფასებები", path: "/dashboard/reviews", icon: Star },
+];
+
+const teacherNavigation: NavigationItem[] = [
+  { id: 1, title: "მიმოხილვა", path: "/dashboard", icon: House01 },
   { id: 3, title: "შეფასებები", path: "/dashboard/reviews", icon: Star },
 ];
 
@@ -38,6 +38,8 @@ type NavBarProps = {
 
 const NavBar: FC<NavBarProps> = ({ user }) => {
   const pathname = usePathname();
+  const navigation =
+    user.role === "TEACHER" ? teacherNavigation : studentNavigation;
 
   return (
     <div

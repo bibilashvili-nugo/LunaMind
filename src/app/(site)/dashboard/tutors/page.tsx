@@ -34,6 +34,10 @@ export default async function TutorsStudent() {
     image: user.image || undefined,
   };
 
+  if (safeUser.role === "TEACHER") {
+    redirect("/dashboard");
+  }
+
   const teachers = await prisma.teacherProfile.findMany({
     orderBy: { createdAt: "desc" },
     include: {
