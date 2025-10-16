@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useClickOutside } from "@/hooks/useClickOutside";
+import LessonCreate from "../teacher-profile/LessonCreate";
 
 const FutureLessonsBoxTitle = ({ title }: { title: string }) => {
   return (
@@ -80,6 +82,9 @@ const FutureLessonsBox = ({ teacher = false }: { teacher?: boolean }) => {
 
 const FutureLessons = ({ teacher = false }: { teacher?: boolean }) => {
   const [formattedDate, setFormattedDate] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  useClickOutside(modalRef, () => setModalOpen(false));
 
   useEffect(() => {
     const today = new Date();
@@ -97,13 +102,23 @@ const FutureLessons = ({ teacher = false }: { teacher?: boolean }) => {
       className="mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4 max-h-[644px] overflow-y-auto lg:mt-0 xl:col-span-2 xl:max-h-[680px]"
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
-      <div className="flex flex-col gap-1">
-        <span className="text-xl leading-7 text-[#0C0F21] font-helveticaneue-medium !font-bold">
-          {formattedDate}
-        </span>
-        <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-          მოახლოებული გაკვეთილები (3)
-        </span>
+      <div className="flex sm:justify-between sm:items-center flex-col items-start sm:flex-row gap-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-xl leading-7 text-[#0C0F21] font-helveticaneue-medium !font-bold">
+            {formattedDate}
+          </span>
+          <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+            მოახლოებული გაკვეთილები (3)
+          </span>
+        </div>
+        {teacher && (
+          <button
+            className="text-sm leading-5 font-helveticaneue-medium py-3 w-full bg-[#FFEDFA] sm:w-fit sm:px-6 rounded-[50px] cursor-pointer text-[#080808]"
+            onClick={() => setModalOpen(true)}
+          >
+            გაკვეთილის ჩანიშვნა
+          </button>
+        )}
       </div>
       <hr className="text-[#EBECF0]" />
       <div className="flex flex-col gap-2">
@@ -114,6 +129,23 @@ const FutureLessons = ({ teacher = false }: { teacher?: boolean }) => {
         <FutureLessonsBox teacher={teacher} />
         <FutureLessonsBox teacher={teacher} />
       </div>
+
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-[#00000099]">
+          <div
+            ref={modalRef}
+            className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
+          >
+            <LessonCreate />
+            <button
+              onClick={() => setModalOpen(false)}
+              className="absolute top-3 right-6 text-black text-lg font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
