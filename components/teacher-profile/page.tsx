@@ -64,21 +64,30 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
     if (!e.target.files?.[0]) return;
 
     const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("userId", user.id);
+    const reader = new FileReader();
 
-    try {
-      const res = await fetch("/api/teachers/updateProfile", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (data.imageUrl) setProfileImage(data.imageUrl);
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed");
-    }
+    reader.readAsDataURL(file); // Convert image to Base64
+
+    reader.onload = async () => {
+      const base64 = reader.result;
+
+      try {
+        const res = await fetch("/api/teachers/updateProfile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            data: { TeacherProfile: { image: base64 } },
+          }),
+        });
+
+        const data = await res.json();
+        if (data.imageUrl) setProfileImage(data.imageUrl); // Update UI
+      } catch (err) {
+        console.error(err);
+        alert("Upload failed");
+      }
+    };
   };
 
   const handleCameraClick = () => {
