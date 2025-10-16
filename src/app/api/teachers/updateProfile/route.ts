@@ -18,10 +18,17 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Update TeacherProfile fields if provided
+    // if (TeacherProfile) {
+    //   await prisma.teacherProfile.update({
+    //     where: { userId },
+    //     data: TeacherProfile,
+    //   });
+    // }
     if (TeacherProfile) {
-      await prisma.teacherProfile.update({
+      await prisma.teacherProfile.upsert({
         where: { userId },
-        data: TeacherProfile,
+        update: TeacherProfile,
+        create: { userId, ...TeacherProfile },
       });
     }
 
