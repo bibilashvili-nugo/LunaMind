@@ -24,14 +24,30 @@ const days = [
   "კვირა",
 ];
 
+interface Lesson {
+  id: string;
+  subject: string;
+  date: string;
+  time: string;
+  duration: number;
+  comment?: string;
+  teacher: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+}
+
 interface LessonCreateProps {
-  teacherId?: string; // ავტორიზებული მასწავლებლის ID
+  teacherId?: string;
   setModalOpen?: (open: boolean) => void;
+  onLessonCreated?: (lesson: Lesson) => void; // NEW
 }
 
 const LessonCreate: React.FC<LessonCreateProps> = ({
   teacherId = undefined,
   setModalOpen,
+  onLessonCreated,
 }) => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -83,7 +99,7 @@ const LessonCreate: React.FC<LessonCreateProps> = ({
         }),
       });
 
-      const data = await res.json();
+      const data: Lesson = await res.json();
 
       if (!res.ok) {
         console.error(data);
@@ -91,8 +107,11 @@ const LessonCreate: React.FC<LessonCreateProps> = ({
         return;
       }
 
+      // Notify parent to update UI
+      if (onLessonCreated) onLessonCreated(data);
+
       toast.success("გაკვეთილი წარმატებით შეიქმნა!");
-      // ფორმის reset
+      // Reset form
       setSelectedSubject(null);
       setSelectedDays([]);
       setTime("");
