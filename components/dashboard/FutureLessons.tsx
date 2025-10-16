@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useClickOutside } from "@/hooks/useClickOutside";
 import LessonCreate from "../teacher-profile/LessonCreate";
+import { useClickOutside } from "@/hooks/useClickOutside";
 
 const FutureLessonsBoxTitle = ({ title }: { title: string }) => {
   return (
@@ -80,7 +80,13 @@ const FutureLessonsBox = ({ teacher = false }: { teacher?: boolean }) => {
   );
 };
 
-const FutureLessons = ({ teacher = false }: { teacher?: boolean }) => {
+const FutureLessons = ({
+  teacher = false,
+  teacherId = undefined,
+}: {
+  teacher?: boolean;
+  teacherId?: string;
+}) => {
   const [formattedDate, setFormattedDate] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -136,7 +142,7 @@ const FutureLessons = ({ teacher = false }: { teacher?: boolean }) => {
             ref={modalRef}
             className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
           >
-            <LessonCreate />
+            <LessonCreate teacherId={teacherId} />
             <button
               onClick={() => setModalOpen(false)}
               className="absolute top-3 right-6 text-black text-lg font-bold"

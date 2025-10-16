@@ -23,7 +23,13 @@ const days = [
   "კვირა",
 ];
 
-const LessonCreate = () => {
+interface LessonCreateProps {
+  teacherId?: string; // ავტორიზებული მასწავლებლის ID
+}
+
+const LessonCreate: React.FC<LessonCreateProps> = ({
+  teacherId = undefined,
+}) => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [time, setTime] = useState<string>("");
@@ -40,11 +46,8 @@ const LessonCreate = () => {
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9:]/g, "");
-    if (value.length === 2 && !value.includes(":")) {
-      setTime(value + ":");
-    } else if (value.length <= 5) {
-      setTime(value);
-    }
+    if (value.length === 2 && !value.includes(":")) setTime(value + ":");
+    else if (value.length <= 5) setTime(value);
   };
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,14 +55,58 @@ const LessonCreate = () => {
     setDuration(value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log({
+      teacherId,
       subject: selectedSubject,
       days: selectedDays,
       time,
       duration,
       comment,
     });
+    if (
+      !selectedSubject ||
+      selectedDays.length === 0 ||
+      !time.match(/^\d{2}:\d{2}$/) ||
+      !duration
+    ) {
+      alert("გთხოვთ შეავსოთ ყველა ველი სწორად");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/teachers/createLesson", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          teacherId,
+          subject: selectedSubject,
+          days: selectedDays,
+          time,
+          duration,
+          comment,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(data);
+        alert("გაკვეთილის შექმნა ვერ მოხერხდა");
+        return;
+      }
+
+      alert("გაკვეთილი წარმატებით შეიქმნა!");
+      // ფორმის reset
+      setSelectedSubject(null);
+      setSelectedDays([]);
+      setTime("");
+      setDuration("");
+      setComment("");
+    } catch (error) {
+      console.error(error);
+      alert("შეცდომა მოხდა");
+    }
   };
 
   return (
@@ -69,7 +116,7 @@ const LessonCreate = () => {
       </span>
       <hr className="mt-4 text-[#EBECF0]" />
 
-      {/* SUBJECT DROPDOWN */}
+      {/* SUBJECT */}
       <div className="relative mt-4 px-4">
         <button
           onClick={() => {
@@ -83,7 +130,6 @@ const LessonCreate = () => {
           </span>
           <span>{openSubject ? <CaretUpSm /> : <CaretDownSm />}</span>
         </button>
-
         {openSubject && (
           <div className="absolute w-full bg-white border border-[#F1F1F1] rounded-xl mt-1 max-h-60 overflow-y-auto z-10">
             {subjects.map((subject) => (
@@ -102,7 +148,7 @@ const LessonCreate = () => {
         )}
       </div>
 
-      {/* DAYS DROPDOWN */}
+      {/* DAYS */}
       <div className="relative mt-4 px-4">
         <button
           onClick={() => {
@@ -118,7 +164,6 @@ const LessonCreate = () => {
           </span>
           <span>{openDay ? <CaretUpSm /> : <CaretDownSm />}</span>
         </button>
-
         {openDay && (
           <div className="absolute w-full bg-white border border-[#F1F1F1] rounded-xl mt-1 max-h-60 overflow-y-auto z-10">
             {days.map((day) => (
@@ -137,10 +182,9 @@ const LessonCreate = () => {
         )}
       </div>
 
-      {/* TIME INPUT */}
+      {/* TIME */}
       <div className="mt-4 px-4">
         <input
-          id="lesson-time"
           type="text"
           placeholder="მიუთითეთ შეხვედრის დრო"
           value={time}
@@ -150,27 +194,23 @@ const LessonCreate = () => {
         />
       </div>
 
-      {/* DURATION INPUT */}
-      <div className="mt-4 px-4">
-        <div className="relative">
-          <input
-            id="lesson-duration"
-            type="text"
-            placeholder="შეიყვანეთ შეხვედრის ხანგრძლივობა"
-            value={duration}
-            onChange={handleDurationChange}
-            className="w-full border border-[#F1F1F1] rounded-xl p-3 pr-12 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-gray-400"
-          />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-            საათი
-          </span>
-        </div>
+      {/* DURATION */}
+      <div className="mt-4 px-4 relative">
+        <input
+          type="text"
+          placeholder="შეიყვანეთ შეხვედრის ხანგრძლივობა"
+          value={duration}
+          onChange={handleDurationChange}
+          className="w-full border border-[#F1F1F1] rounded-xl p-3 pr-12 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-gray-400"
+        />
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+          საათი
+        </span>
       </div>
 
-      {/* COMMENT TEXTAREA */}
+      {/* COMMENT */}
       <div className="mt-4 px-4">
         <textarea
-          id="lesson-comment"
           placeholder="შეიყვანეთ კომენტარი (სურვილისამებრ)"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -178,7 +218,7 @@ const LessonCreate = () => {
         />
       </div>
 
-      {/* SUBMIT BUTTON */}
+      {/* SUBMIT */}
       <div className="px-4">
         <button
           onClick={handleSubmit}

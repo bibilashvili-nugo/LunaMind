@@ -27,6 +27,7 @@ model User {
   sessions       Session[]
   StudentProfile StudentProfile?
   TeacherProfile TeacherProfile?
+  Lesson         Lesson[]
 }
 
 model Account {
@@ -124,4 +125,20 @@ enum TeacherEducation {
   MASTER
   DOCTORATE
   OTHER
+}
+
+model Lesson {
+  id        String   @id @default(cuid())
+  teacherId String
+  subject   String
+  day       String // კვირის დღე (ორშაბათი, სამშაბათი...)
+  date      DateTime // კონკრეტული შეხვედრის თარიღი
+  time      String // 24-საათიანი ფორმატი: 20:00
+  duration  Float // საათებში
+  comment   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teacher User @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 }
