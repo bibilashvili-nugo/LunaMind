@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { CaretDownSm, CaretUpSm, Check } from "react-coolicons";
+import toast from "react-hot-toast";
 
 const subjects = [
   "ინგლისური ენა",
@@ -25,10 +26,12 @@ const days = [
 
 interface LessonCreateProps {
   teacherId?: string; // ავტორიზებული მასწავლებლის ID
+  setModalOpen?: (open: boolean) => void;
 }
 
 const LessonCreate: React.FC<LessonCreateProps> = ({
   teacherId = undefined,
+  setModalOpen,
 }) => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -56,21 +59,13 @@ const LessonCreate: React.FC<LessonCreateProps> = ({
   };
 
   const handleSubmit = async () => {
-    console.log({
-      teacherId,
-      subject: selectedSubject,
-      days: selectedDays,
-      time,
-      duration,
-      comment,
-    });
     if (
       !selectedSubject ||
       selectedDays.length === 0 ||
       !time.match(/^\d{2}:\d{2}$/) ||
       !duration
     ) {
-      alert("გთხოვთ შეავსოთ ყველა ველი სწორად");
+      toast.error("გთხოვთ შეავსოთ ყველა ველი სწორად");
       return;
     }
 
@@ -92,20 +87,21 @@ const LessonCreate: React.FC<LessonCreateProps> = ({
 
       if (!res.ok) {
         console.error(data);
-        alert("გაკვეთილის შექმნა ვერ მოხერხდა");
+        toast.error("გაკვეთილის შექმნა ვერ მოხერხდა");
         return;
       }
 
-      alert("გაკვეთილი წარმატებით შეიქმნა!");
+      toast.success("გაკვეთილი წარმატებით შეიქმნა!");
       // ფორმის reset
       setSelectedSubject(null);
       setSelectedDays([]);
       setTime("");
       setDuration("");
       setComment("");
+      if (setModalOpen) setModalOpen(false);
     } catch (error) {
       console.error(error);
-      alert("შეცდომა მოხდა");
+      toast.error("შეცდომა მოხდა");
     }
   };
 
