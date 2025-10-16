@@ -60,34 +60,27 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
   }, [user.id]);
 
   // Handle profile image upload
+  // inside PersonalInfo component
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
 
     const file = e.target.files[0];
-    const reader = new FileReader();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("userId", user.id);
 
-    reader.readAsDataURL(file); // Convert image to Base64
+    try {
+      const res = await fetch("/api/students/uploadProfileImage", {
+        method: "POST",
+        body: formData,
+      });
 
-    reader.onload = async () => {
-      const base64 = reader.result;
-
-      try {
-        const res = await fetch("/api/teachers/updateProfile", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: user.id,
-            data: { TeacherProfile: { image: base64 } },
-          }),
-        });
-
-        const data = await res.json();
-        if (data.imageUrl) setProfileImage(data.imageUrl); // Update UI
-      } catch (err) {
-        console.error(err);
-        alert("Upload failed");
-      }
-    };
+      const data = await res.json();
+      if (data.imageUrl) setProfileImage(data.imageUrl); // Update UI
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed");
+    }
   };
 
   const handleCameraClick = () => {
