@@ -43,6 +43,13 @@ const FutureLessonsBoxContent = ({
   onOpenMeetingLink: (lesson: Lesson) => void;
 }) => {
   const fullName = `${lesson.teacher.firstName} ${lesson.teacher.lastName}`;
+  const handleAttendanceClick = () => {
+    if (lesson.link) {
+      window.open(lesson.link, "_blank"); // Opens link in a new tab
+    } else {
+      alert("შეხვედრის ლინკი ჯერ არ არის მითითებული");
+    }
+  };
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:gap-0 sm:justify-between">
       <div className="flex items-center gap-3">
@@ -64,12 +71,18 @@ const FutureLessonsBoxContent = ({
           >
             შეხვედრის ლინკი
           </button>
-          <button className="text-sm leading-5 font-helveticaneue-regular py-3 rounded-[50px] bg-[#F0C514] text-[#080808] cursor-pointer sm:px-[34px] order-1 sm:order-2">
+          <button
+            className="text-sm leading-5 font-helveticaneue-regular py-3 rounded-[50px] bg-[#F0C514] text-[#080808] cursor-pointer sm:px-[34px] order-1 sm:order-2"
+            onClick={handleAttendanceClick}
+          >
             დასწრება
           </button>
         </div>
       ) : (
-        <button className="text-sm leading-5 font-helveticaneue-regular py-3 rounded-[50px] bg-white cursor-pointer sm:px-[34px]">
+        <button
+          className="text-sm leading-5 font-helveticaneue-regular py-3 rounded-[50px] bg-white cursor-pointer sm:px-[34px]"
+          onClick={handleAttendanceClick}
+        >
           დასწრება
         </button>
       )}
