@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import LessonCreate from "../teacher-profile/LessonCreate";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import NoContent from "../ui/NoContent";
 import LinkCreate from "../teacher-profile/LinkCreate";
+import { LessonCreate } from "../teacher-profile/LessonCreate";
 
 interface Lesson {
   id: string;

@@ -1,18 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CaretDownSm, CaretUpSm, Check } from "react-coolicons";
 import toast from "react-hot-toast";
-
-const subjects = [
-  "ინგლისური ენა",
-  "ქართული ენა",
-  "მათემატიკა",
-  "ფიზიკა",
-  "ქიმია",
-  "ბიოლოგია",
-  "ძალიან გრძელი საგანი სახელით მაგალითად: ქიმიური ანალიზი",
-];
 
 const days = [
   "ორშაბათი",
@@ -38,24 +28,49 @@ interface Lesson {
   };
 }
 
+interface TeacherSubject {
+  id: string;
+  name: string;
+  price: number;
+}
+
 interface LessonCreateProps {
   teacherId?: string;
   setModalOpen?: (open: boolean) => void;
-  onLessonCreated?: (lesson: Lesson) => void; // NEW
+  onLessonCreated?: (lesson: Lesson) => void;
 }
 
-const LessonCreate: React.FC<LessonCreateProps> = ({
-  teacherId = undefined,
+export const LessonCreate: React.FC<LessonCreateProps> = ({
+  teacherId,
   setModalOpen,
   onLessonCreated,
 }) => {
+  const [subjects, setSubjects] = useState<TeacherSubject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [time, setTime] = useState<string>("");
-  const [duration, setDuration] = useState<string>("");
-  const [comment, setComment] = useState<string>("");
+  const [time, setTime] = useState("");
+  const [duration, setDuration] = useState("");
+  const [comment, setComment] = useState("");
   const [openSubject, setOpenSubject] = useState(false);
   const [openDay, setOpenDay] = useState(false);
+
+  // ✅ Fetch subjects from backend
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const res = await fetch("/api/teachers/subjects");
+        if (!res.ok) throw new Error("Failed to fetch subjects");
+
+        const data: TeacherSubject[] = await res.json();
+        setSubjects(data);
+      } catch (error) {
+        console.error("Error loading subjects:", error);
+        toast.error("საგნების ჩამოტვირთვა ვერ მოხერხდა");
+      }
+    };
+
+    fetchSubjects();
+  }, []);
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
@@ -107,11 +122,9 @@ const LessonCreate: React.FC<LessonCreateProps> = ({
         return;
       }
 
-      // Notify parent to update UI
       if (onLessonCreated) onLessonCreated(data);
 
       toast.success("გაკვეთილი წარმატებით შეიქმნა!");
-      // Reset form
       setSelectedSubject(null);
       setSelectedDays([]);
       setTime("");
@@ -149,14 +162,14 @@ const LessonCreate: React.FC<LessonCreateProps> = ({
           <div className="absolute w-full bg-white border border-[#F1F1F1] rounded-xl mt-1 max-h-60 overflow-y-auto z-10">
             {subjects.map((subject) => (
               <div
-                key={subject}
+                key={subject.id}
                 onClick={() => {
-                  setSelectedSubject(subject);
+                  setSelectedSubject(subject.name);
                   setOpenSubject(false);
                 }}
                 className="p-3 cursor-pointer hover:bg-gray-100 text-sm break-words"
               >
-                {subject}
+                {subject.name}
               </div>
             ))}
           </div>
@@ -258,5 +271,3 @@ const LessonCreate: React.FC<LessonCreateProps> = ({
     </div>
   );
 };
-
-export default LessonCreate;
