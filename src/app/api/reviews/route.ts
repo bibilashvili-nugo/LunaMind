@@ -43,3 +43,41 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "სერვერის შეცდომა" }, { status: 500 });
   }
 }
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const studentId = searchParams.get("studentId");
+
+    if (!studentId) {
+      return NextResponse.json(
+        { error: "studentId აუცილებელია" },
+        { status: 400 }
+      );
+    }
+
+    const reviews = await prisma.review.findMany({
+      where: { studentId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        teacher: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+        student: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ reviews }, { status: 200 });
+  } catch (err) {
+    console.error("Review GET error:", err);
+    return NextResponse.json({ error: "სერვერის შეცდომა" }, { status: 500 });
+  }
+}
