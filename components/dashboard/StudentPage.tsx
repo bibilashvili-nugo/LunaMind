@@ -27,12 +27,12 @@ const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
         <FutureLessons />
         <PremiumStats />
         <RepetitorSwiper />
-        <Review />
+        <Review studentId={user.id} />
       </div>
       <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
         <div className="lg:col-span-1 flex flex-col gap-4">
           <OurLessons />
-          <Review />
+          <Review studentId={user.id} />
         </div>
         <div className="lg:col-span-2 flex flex-col gap-4">
           <ActivityTracker />
