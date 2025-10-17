@@ -1,18 +1,15 @@
-// app/questions/page.tsx
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import QuestionsClient from "./QuestionsClient";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
 export default async function QuestionsPage() {
   const user = await getCurrentUser();
 
-  if (!user) {
-    return null;
-  }
+  // 1️⃣ თუ მომხმარებელი არ არსებობს → login
+  if (!user) return redirect("/login");
 
+  // 2️⃣ მიიღე profile პირდაპირ server-side
   let currentStep = 0;
   if (user.role === "STUDENT") {
     const profile = await prisma.studentProfile.findUnique({
@@ -26,6 +23,13 @@ export default async function QuestionsPage() {
     currentStep = profile?.currentStep ?? 0;
   }
 
+  // 3️⃣ თუ უკვე დასრულებულია → dashboard
+  const totalQuestions = user.role === "STUDENT" ? 8 : 6;
+  if (currentStep >= totalQuestions - 1) {
+    return redirect("/dashboard"); // ✅ პირდაპირ dashboard
+  }
+
+  // 4️⃣ თუ ჯერ დასრულებული არ არის → render client-side component
   return (
     <QuestionsClient
       userId={user.id}

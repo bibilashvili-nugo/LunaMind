@@ -3,17 +3,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import LanguageDropDown from "../../../../components/ui/LanguageDropDown";
 
-type QuestionType = "text" | "number" | "textarea" | "select";
+type QuestionType = "text" | "number" | "textarea" | "select" | "subjects";
+
+interface Subject {
+  name: string;
+  price: number;
+}
+
+interface Profile {
+  [key: string]: string | number | undefined | Subject[];
+}
 
 interface Question {
   key: string;
   label: string;
   type: QuestionType;
   options?: string[];
-}
-
-interface Profile {
-  [key: string]: string | number | undefined;
 }
 
 interface QuestionsClientProps {
@@ -74,6 +79,24 @@ const teacherQuestions: Question[] = [
     type: "select",
     options: ["BACHELOR", "MASTER", "DOCTORATE", "OTHER"],
   },
+  { key: "subjects", label: "აირჩიეთ საგნები და ფასები", type: "subjects" },
+];
+
+const subjectOptions = [
+  "მათემატიკა",
+  "ქართული",
+  "ისტორია",
+  "გეოგრაფია",
+  "ქიმია",
+  "ფიზიკა",
+  "ბიოლოგია",
+  "ხელოვნება",
+  "ინგლისური",
+  "რუსული",
+  "გერმანული",
+  "ესპანური",
+  "ფრანგული",
+  "დაწყებითი კლასები",
 ];
 
 const QuestionsClient: React.FC<QuestionsClientProps> = ({
@@ -90,7 +113,38 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     Math.min(initialStep, questions.length - 1)
   );
   const [step, setStep] = useState<number>(validatedInitialStep);
-  const [answers, setAnswers] = useState<Profile>({});
+  const [answers, setAnswers] = useState<Profile>({
+    subjects: [],
+  });
+
+  // ✅ ვალიდაციის ფუნქციები
+  const isValidNumber = (
+    value: string | number | undefined | Subject[]
+  ): boolean => {
+    if (value === "" || value === undefined || Array.isArray(value))
+      return false;
+    const num = Number(value);
+    return !isNaN(num) && num > 0;
+  };
+
+  const isNonEmptyString = (
+    value: string | number | undefined | Subject[]
+  ): boolean => {
+    return typeof value === "string" && value.trim() !== "";
+  };
+
+  const hasValidSubjects = (): boolean => {
+    const subjects = answers.subjects as Subject[];
+    return (
+      Array.isArray(subjects) &&
+      subjects.length > 0 &&
+      subjects.every((s) => s.price > 0)
+    );
+  };
+
+  const getCurrentValue = (): string | number | undefined | Subject[] => {
+    return answers[current.key];
+  };
 
   // ✅ ვალიდაცია current-ისთვის
   const current = questions[step];
@@ -109,14 +163,61 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     );
   }
 
-  const handleChange = (key: string, value: string | number | undefined) =>
+  const handleChange = (
+    key: string,
+    value: string | number | undefined | Subject[]
+  ) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
+  };
 
-  // QuestionsClient.tsx
-  // QuestionsClient.tsx - დარწმუნდი, რომ ბოლო კითხვის დასრულების შემდეგ სწორად ინახება
+  const handleSubjectChange = (name: string, price: number) => {
+    setAnswers((prev) => {
+      const subjects = [...((prev.subjects as Subject[]) || [])];
+      const index = subjects.findIndex((s) => s.name === name);
+
+      if (index >= 0) {
+        if (price === 0) {
+          // Remove subject if price is 0
+          subjects.splice(index, 1);
+        } else {
+          // Update price
+          subjects[index].price = price;
+        }
+      } else {
+        // Add new subject
+        subjects.push({ name, price });
+      }
+
+      return { ...prev, subjects };
+    });
+  };
+
+  const isNextDisabled = (): boolean => {
+    const value = getCurrentValue();
+
+    switch (current.type) {
+      case "number":
+        return !isValidNumber(value);
+      case "text":
+      case "textarea":
+      case "select":
+        return !isNonEmptyString(value);
+      case "subjects":
+        return !hasValidSubjects();
+      default:
+        return !value;
+    }
+  };
+
   const handleNext = async () => {
-    const value = answers[current.key];
-    const isLastQuestion = step >= questions.length - 1;
+    const value = getCurrentValue();
+    const isLastQuestion = step === questions.length - 1;
+
+    // თუ ბოლო ნაბიჯი არაა, ვალიდაცია ჯერ გავაკეთოთ
+    if (!isLastQuestion && isNextDisabled()) {
+      alert("გთხოვთ შეავსოთ ველი სწორად");
+      return;
+    }
 
     try {
       const apiUrl =
@@ -137,24 +238,20 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       const data = await response.json();
       console.log("📥 API Response:", data);
 
-      if (data.completed) {
-        console.log("🚀 Profile completed - redirecting to dashboard");
-
-        // ✅ გამოიყენე window.location რათა გამოტოვო middleware-ის შემოწმება
-        window.location.href = "/dashboard";
+      if (isLastQuestion) {
+        // ბოლო ნაბიჯზე პირდაპირ dashboard–ზე გადაგვყავს
+        router.push("/dashboard");
         return;
       }
 
-      if (step < questions.length - 1) {
-        setStep(step + 1);
-      }
+      // შემდეგი ნაბიჯი
+      setStep((prev) => prev + 1);
     } catch (err) {
       console.error("❌ Error saving profile:", err);
     }
   };
 
   const totalSteps = questions.length;
-  const isNextDisabled = !answers[current.key] || answers[current.key] === "";
 
   return (
     <>
@@ -204,7 +301,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         {current.type === "text" && (
           <input
             type="text"
-            value={answers[current.key] ?? ""}
+            value={(answers[current.key] as string) ?? ""}
             onChange={(e) => handleChange(current.key, e.target.value)}
             className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
             text-sm leading-5 font-helveticaneue-regular
@@ -215,7 +312,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         {current.type === "number" && (
           <input
             type="number"
-            value={answers[current.key] ?? ""}
+            value={(answers[current.key] as number | string) ?? ""}
             onChange={(e) =>
               handleChange(
                 current.key,
@@ -230,7 +327,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         )}
         {current.type === "textarea" && (
           <textarea
-            value={answers[current.key] ?? ""}
+            value={(answers[current.key] as string) ?? ""}
             onChange={(e) => handleChange(current.key, e.target.value)}
             className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
             text-sm leading-5 font-helveticaneue-regular
@@ -240,7 +337,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         )}
         {current.type === "select" && (
           <select
-            value={answers[current.key] ?? ""}
+            value={(answers[current.key] as string) ?? ""}
             onChange={(e) => handleChange(current.key, e.target.value)}
             className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
             text-sm leading-5 font-helveticaneue-regular
@@ -255,12 +352,89 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
             ))}
           </select>
         )}
+        {current.type === "subjects" && (
+          <div className="space-y-4">
+            <select
+              onChange={(e) => {
+                const name = e.target.value;
+                if (
+                  name &&
+                  !(answers.subjects as Subject[]).find((s) => s.name === name)
+                ) {
+                  handleSubjectChange(name, 0);
+                }
+                e.target.value = ""; // Reset select
+              }}
+              className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+                text-sm leading-5 font-helveticaneue-regular
+                focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+                xl:text-base"
+            >
+              <option value="">აირჩიეთ საგანი...</option>
+              {subjectOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+
+            <div className="space-y-3">
+              {((answers.subjects as Subject[]) || []).map((subject, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 p-3 border border-[#EBEBEB] rounded-[12px]"
+                >
+                  <span className="flex-1 text-[#0C0F21] font-helveticaneue-regular">
+                    {subject.name}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={subject.price}
+                      onChange={(e) =>
+                        handleSubjectChange(
+                          subject.name,
+                          Number(e.target.value)
+                        )
+                      }
+                      placeholder="ფასი"
+                      className="w-24 py-2 px-3 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
+                        text-sm leading-5 font-helveticaneue-regular
+                        focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                    />
+                    <span className="text-[#737373] text-sm">₾</span>
+                    <button
+                      onClick={() => handleSubjectChange(subject.name, 0)}
+                      className="text-red-500 hover:text-red-700 p-1"
+                      type="button"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {((answers.subjects as Subject[]) || []).length === 0 && (
+              <p className="text-[#737373] text-center py-4">
+                არ არის არჩეული საგანი. გთხოვთ აირჩიოთ საგანი ზემოთ მოცემული
+                სიიდან.
+              </p>
+            )}
+          </div>
+        )}
 
         <button
           onClick={handleNext}
-          disabled={isNextDisabled}
-          className="mt-6 bg-[#FFD52A] cursor-pointer py-4 text-center w-full rounded-[40px] 
-          text-[#0C0F21] text-sm leading-5 font-helveticaneue-medium xl:text-base"
+          disabled={isNextDisabled()}
+          className={`mt-6 cursor-pointer py-4 text-center w-full rounded-[40px] 
+          text-[#0C0F21] text-sm leading-5 font-helveticaneue-medium xl:text-base
+          transition-all duration-300 ease-in-out
+          ${
+            isNextDisabled()
+              ? "bg-gray-300 cursor-not-allowed opacity-50"
+              : "bg-[#FFD52A] hover:bg-[#FFC107]"
+          }`}
         >
           {step < questions.length - 1 ? "შემდეგი" : "დასრულება"}
         </button>
