@@ -38,7 +38,14 @@ export default async function TutorsStudent() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 mt-4 sm:mt-8 md:grid-cols-2 lg:grid-cols-3 lg:mt-7 xl:grid-cols-4 xl:mt-6">
-              <TutorsStudentBox studentId={safeUser.id} />
+              <TutorsStudentBox
+                studentId={
+                  safeUser.role === "STUDENT" ? safeUser.id : undefined
+                }
+                teacherId={
+                  safeUser.role === "TEACHER" ? safeUser.id : undefined
+                }
+              />
             </div>
           </>
         ) : (
@@ -58,7 +65,14 @@ export default async function TutorsStudent() {
               <ReviewButton studentId={safeUser.id} />
             </div>
             <div className="grid grid-cols-1 gap-4 mt-4 sm:mt-8 md:grid-cols-2 lg:grid-cols-3 lg:mt-7 xl:grid-cols-4 xl:mt-6">
-              <TutorsStudentBox studentId={safeUser.id} />
+              <TutorsStudentBox
+                studentId={
+                  safeUser.role === "STUDENT" ? safeUser.id : undefined
+                }
+                teacherId={
+                  safeUser.role === "TEACHER" ? safeUser.id : undefined
+                }
+              />
             </div>
           </>
         )}

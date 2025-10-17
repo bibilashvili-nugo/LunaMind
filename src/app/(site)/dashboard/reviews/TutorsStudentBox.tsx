@@ -8,29 +8,29 @@ interface ReviewType {
   rating: number;
   comment: string;
   createdAt: string;
-  teacher: {
-    firstName: string;
-    lastName: string;
-  };
-  student: {
-    firstName: string;
-    lastName: string;
-  };
+  teacher: { firstName: string; lastName: string };
+  student: { firstName: string; lastName: string };
 }
 
 interface TutorsStudentBoxProps {
-  studentId: string;
+  studentId?: string;
+  teacherId?: string;
 }
 
 export const TutorsStudentBox: React.FC<TutorsStudentBoxProps> = ({
   studentId,
+  teacherId,
 }) => {
   const [reviews, setReviews] = useState<ReviewType[]>([]);
 
   useEffect(() => {
     async function fetchReviews() {
       try {
-        const res = await fetch(`/api/reviews?studentId=${studentId}`);
+        const query = new URLSearchParams();
+        if (studentId) query.append("studentId", studentId);
+        if (teacherId) query.append("teacherId", teacherId);
+
+        const res = await fetch(`/api/reviews?${query.toString()}`);
         const data = await res.json();
         setReviews(data.reviews || []);
       } catch (err) {
@@ -38,7 +38,7 @@ export const TutorsStudentBox: React.FC<TutorsStudentBoxProps> = ({
       }
     }
     fetchReviews();
-  }, [studentId]);
+  }, [studentId, teacherId]);
 
   if (reviews.length === 0) {
     return <p className="text-sm text-gray-500">შეფასებები არ არის</p>;

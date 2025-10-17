@@ -48,30 +48,28 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const studentId = searchParams.get("studentId");
+    const teacherId = searchParams.get("teacherId");
 
-    if (!studentId) {
+    if (!studentId && !teacherId) {
       return NextResponse.json(
-        { error: "studentId აუცილებელია" },
+        { error: "studentId ან teacherId აუცილებელია" },
         { status: 400 }
       );
     }
 
+    const where: {
+      studentId?: string;
+      teacherId?: string;
+    } = {};
+    if (studentId) where.studentId = studentId;
+    if (teacherId) where.teacherId = teacherId;
+
     const reviews = await prisma.review.findMany({
-      where: { studentId },
+      where,
       orderBy: { createdAt: "desc" },
       include: {
-        teacher: {
-          select: {
-            firstName: true,
-            lastName: true,
-          },
-        },
-        student: {
-          select: {
-            firstName: true,
-            lastName: true,
-          },
-        },
+        teacher: { select: { firstName: true, lastName: true } },
+        student: { select: { firstName: true, lastName: true } },
       },
     });
 
