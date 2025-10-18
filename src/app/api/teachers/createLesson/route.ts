@@ -1,4 +1,3 @@
-// app/api/teachers/createLesson/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma"; // შენი prisma client
 
@@ -11,6 +10,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "მონაცემები არასრულია" },
         { status: 400 }
+      );
+    }
+
+    // ვიღებთ teacherProfileId-ს
+    const teacherProfile = await prisma.teacherProfile.findUnique({
+      where: { userId: teacherId },
+    });
+
+    if (!teacherProfile) {
+      return NextResponse.json(
+        { error: "TeacherProfile არ მოიძებნა" },
+        { status: 404 }
       );
     }
 
@@ -34,6 +45,7 @@ export async function POST(req: NextRequest) {
       return prisma.lesson.create({
         data: {
           teacherId,
+          teacherProfileId: teacherProfile.id, // ✅ ეს იყო საჭირო
           subject,
           day,
           date: lessonDate,

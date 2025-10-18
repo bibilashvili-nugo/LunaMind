@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, CaretDownSm, CaretUpSm } from "react-coolicons";
 
 const subjectsData = [
@@ -30,14 +31,48 @@ const daysData = [
   "კვირა",
 ];
 
-export const FilterPanel = () => {
+interface FilterPanelProps {
+  initialSubjects?: string[];
+  initialDays?: string[];
+  initialTime?: string;
+  initialMinPrice?: string;
+  initialMaxPrice?: string;
+}
+
+export const FilterPanel = ({
+  initialSubjects = [],
+  initialDays = [],
+  initialTime = "",
+  initialMinPrice = "",
+  initialMaxPrice = "",
+}: FilterPanelProps) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [openSubjects, setOpenSubjects] = useState(false);
   const [openDays, setOpenDays] = useState(false);
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [time, setTime] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  const [selectedSubjects, setSelectedSubjects] =
+    useState<string[]>(initialSubjects);
+  const [selectedDays, setSelectedDays] = useState<string[]>(initialDays);
+  const [time, setTime] = useState(initialTime);
+  const [minPrice, setMinPrice] = useState(initialMinPrice);
+  const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // URL-დან პარამეტრების დასეტვა
+  useEffect(() => {
+    setSelectedSubjects(initialSubjects);
+    setSelectedDays(initialDays);
+    setTime(initialTime);
+    setMinPrice(initialMinPrice);
+    setMaxPrice(initialMaxPrice);
+  }, [
+    initialSubjects,
+    initialDays,
+    initialTime,
+    initialMinPrice,
+    initialMaxPrice,
+  ]);
 
   const toggleSubject = (subject: string) => {
     setSelectedSubjects((prev) =>
@@ -53,14 +88,65 @@ export const FilterPanel = () => {
     );
   };
 
-  const handleFilter = () => {
-    console.log({
-      selectedSubjects,
-      selectedDays,
-      time,
-      minPrice,
-      maxPrice,
-    });
+  const handleFilter = async () => {
+    setIsLoading(true);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (selectedSubjects.length > 0) {
+      params.set("subjects", selectedSubjects.join(","));
+    } else {
+      params.delete("subjects");
+    }
+
+    if (selectedDays.length > 0) {
+      params.set("days", selectedDays.join(","));
+    } else {
+      params.delete("days");
+    }
+
+    if (time) {
+      params.set("time", time);
+    } else {
+      params.delete("time");
+    }
+
+    if (minPrice) {
+      params.set("minPrice", minPrice);
+    } else {
+      params.delete("minPrice");
+    }
+
+    if (maxPrice) {
+      params.set("maxPrice", maxPrice);
+    } else {
+      params.delete("maxPrice");
+    }
+
+    try {
+      // ახალი მონაცემების ჩატვირთვა current URL-ზე
+      router.replace(`?${params.toString()}`, { scroll: false });
+    } catch (error) {
+      console.error("Filter error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const hasActiveFilters =
+    selectedSubjects.length > 0 ||
+    selectedDays.length > 0 ||
+    time ||
+    minPrice ||
+    maxPrice;
+
+  const clearFilters = () => {
+    setSelectedSubjects([]);
+    setSelectedDays([]);
+    setTime("");
+    setMinPrice("");
+    setMaxPrice("");
+    router.replace("/dashboard/tutors", { scroll: false });
   };
 
   return (
@@ -82,7 +168,7 @@ export const FilterPanel = () => {
             }`}
           >
             {selectedSubjects.length > 0
-              ? selectedSubjects.join(", ")
+              ? `${selectedSubjects.length} საგანი არჩეულია`
               : "აირჩიეთ საგნები"}
           </span>
 
@@ -124,7 +210,7 @@ export const FilterPanel = () => {
             }`}
           >
             {selectedDays.length > 0
-              ? selectedDays.join(", ")
+              ? `${selectedDays.length} დღე არჩეულია`
               : "სასურველი დღე"}
           </span>
 
@@ -149,7 +235,7 @@ export const FilterPanel = () => {
         )}
       </div>
 
-      {/* ✅ TIME (24-hour input) */}
+      {/* TIME */}
       <div className="relative">
         <input
           type="text"
@@ -161,8 +247,8 @@ export const FilterPanel = () => {
               setTime(value + ":");
             else if (value.length <= 5) setTime(value);
           }}
-          className="w-full border border-[#F1F1F1] rounded-xl p-3 text-sm font-helveticaneue-medium 
-          text-[#080808] bg-white focus:outline-none placeholder-[#737373] 
+          className="w-full border border-[#F1F1F1] rounded-xl p-3 text-sm font-helveticaneue-medium
+          text-[#080808] bg-white focus:outline-none placeholder-[#737373]
           placeholder:font-helveticaneue-regular placeholder:text-xs"
           maxLength={5}
         />
@@ -189,28 +275,29 @@ export const FilterPanel = () => {
       {/* FILTER BUTTON */}
       <button
         onClick={handleFilter}
-        disabled={
-          selectedSubjects.length === 0 &&
-          selectedDays.length === 0 &&
-          !time &&
-          !minPrice &&
-          !maxPrice
-        }
-        className={`
-    py-4 w-full text-sm leading-5 font-helveticaneue-medium rounded-[50px] 
-    ${
-      selectedSubjects.length === 0 &&
-      selectedDays.length === 0 &&
-      !time &&
-      !minPrice &&
-      !maxPrice
-        ? "bg-[#DEDDE2] text-[#8B8B8B] cursor-not-allowed"
-        : "bg-[#F0C514] text-[#080808] hover:bg-[#e6b800] cursor-pointer transition"
-    }
-  `}
+        disabled={isLoading}
+        className="py-4 w-full text-sm leading-5 font-helveticaneue-medium rounded-[50px] bg-[#F0C514] text-[#080808] hover:bg-[#e6b800] cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
-        გაფილტვრა
+        {isLoading ? (
+          <>
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            მოძებნა...
+          </>
+        ) : (
+          "გაფილტვრა"
+        )}
       </button>
+
+      {/* CLEAR FILTERS BUTTON */}
+      {hasActiveFilters && (
+        <button
+          onClick={clearFilters}
+          disabled={isLoading}
+          className="py-3 w-full text-sm leading-5 font-helveticaneue-medium rounded-[50px] border border-[#F0C514] text-[#080808] hover:bg-[#fffae6] cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ფილტრების გასუფთავება
+        </button>
+      )}
     </div>
   );
 };
