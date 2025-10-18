@@ -3,8 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { FC } from "react";
-import { CaretDownMd, House01, Star, UsersGroup } from "react-coolicons";
+import {
+  CaretDownMd,
+  House01,
+  LogOut,
+  Star,
+  UsersGroup,
+} from "react-coolicons";
 import { usePathname } from "next/navigation";
+import { useLogout } from "@/hooks/useLogout";
 
 type NavigationItem = {
   id: number;
@@ -38,6 +45,7 @@ type NavBarProps = {
 
 const NavBar: FC<NavBarProps> = ({ user }) => {
   const pathname = usePathname();
+  const { logout } = useLogout();
   const navigation =
     user.role === "TEACHER" ? teacherNavigation : studentNavigation;
 
@@ -113,6 +121,9 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
             />
           </div>
         </Link>
+        <div className="lg:hidden ml-2 pr-2" onClick={logout}>
+          <LogOut />
+        </div>
       </ul>
 
       <Link

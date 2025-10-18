@@ -16,15 +16,6 @@ interface DashboardClientProps {
 }
 
 const DashboardClient: React.FC<DashboardClientProps> = ({ user }) => {
-  // const handleLogout = async () => {
-  //   try {
-  //     await fetch("/api/auth/logout", { method: "POST" });
-  //     window.location.href = "/login";
-  //   } catch (err) {
-  //     console.error("Logout failed:", err);
-  //   }
-  // };
-
   if (user.role === "STUDENT") {
     return (
       <div className="bg-[#F6F5FA]">
@@ -47,12 +38,3 @@ const DashboardClient: React.FC<DashboardClientProps> = ({ user }) => {
 };
 
 export default DashboardClient;
-
-{
-  /* <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors"
-          >
-            Logout
-          </button> */
-}
