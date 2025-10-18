@@ -2,16 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { FC } from "react";
+import { useRef, useState, type FC } from "react";
 import {
   CaretDownMd,
+  CreditCard01,
+  Folders,
   House01,
   LogOut,
   Star,
+  UserCircle,
   UsersGroup,
 } from "react-coolicons";
 import { usePathname } from "next/navigation";
 import { useLogout } from "@/hooks/useLogout";
+import { useClickOutside } from "@/hooks/useClickOutside";
 
 type NavigationItem = {
   id: number;
@@ -46,6 +50,11 @@ type NavBarProps = {
 const NavBar: FC<NavBarProps> = ({ user }) => {
   const pathname = usePathname();
   const { logout } = useLogout();
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(dropdownRef, () => setOpen(false));
+
   const navigation =
     user.role === "TEACHER" ? teacherNavigation : studentNavigation;
 
@@ -126,30 +135,84 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
         </div>
       </ul>
 
-      <Link
-        href={profileLink}
-        className="hidden lg:flex bg-[#EBECF0] rounded-[50px] px-4 py-3 items-center gap-2"
+      <div
+        className="relative hidden lg:block cursor-pointer"
+        ref={dropdownRef}
       >
-        <div className="w-10 h-10 rounded-full relative overflow-hidden">
-          <Image
-            src={user?.image || "/images/default-profile.png"}
-            alt="user"
-            fill
-            className="object-cover"
-          />
+        <div
+          className={`hidden lg:flex bg-[#EBECF0]  px-4 py-3 items-center gap-2  ${
+            open ? "rounded-t-2xl" : "rounded-[50px]"
+          }`}
+          onClick={() => setOpen((prev) => !prev)}
+        >
+          <div className="w-10 h-10 rounded-full relative overflow-hidden">
+            <Image
+              src={user?.image || "/images/default-profile.png"}
+              alt="user"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm leading-5 text-[#000000] font-helveticaneue-medium">
+              {user?.firstName + " " + user?.lastName}
+            </span>
+            <p className="text-xs leading-[18px] text-[#767676] font-helveticaneue-regular">
+              {user.role === "TEACHER" ? "რეპეტიტორი" : "მოსწავლის პროფილი"}
+            </p>
+          </div>
+          <div>
+            <CaretDownMd color="#737373" />
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm leading-5 text-[#000000] font-helveticaneue-medium">
-            {user?.firstName + " " + user?.lastName}
-          </span>
-          <p className="text-xs leading-[18px] text-[#767676] font-helveticaneue-regular">
-            {user.role === "TEACHER" ? "რეპეტიტორი" : "მოსწავლის პროფილი"}
-          </p>
-        </div>
-        <div>
-          <CaretDownMd color="#737373" />
-        </div>
-      </Link>
+
+        {open && (
+          <div className="absolute w-full bg-[#EBECF0] rounded-b-xl overflow-hidden z-50">
+            <Link
+              href={profileLink}
+              className="px-4 py-4 w-full  hover:bg-[#DCDCDC] border-t border-[#D2D2D2] flex items-center gap-2"
+              onClick={() => setOpen(false)}
+            >
+              <UserCircle width={20} height={20} />
+              <span className="text-sm leading-5 text-black font-helveticaneue-medium">
+                პირადი მონაცემები
+              </span>
+            </Link>
+            <Link
+              href={profileLink}
+              className="px-4 py-4 w-full  hover:bg-[#DCDCDC] border-t border-[#D2D2D2] flex items-center gap-2"
+              onClick={() => setOpen(false)}
+            >
+              <CreditCard01 width={20} height={20} />
+              <span className="text-sm leading-5 text-black font-helveticaneue-medium">
+                ჩემი ბარათები
+              </span>
+            </Link>
+            <Link
+              href={profileLink}
+              className="px-4 py-4 w-full  hover:bg-[#DCDCDC] border-t border-[#D2D2D2] flex items-center gap-2"
+              onClick={() => setOpen(false)}
+            >
+              <Folders width={20} height={20} />
+              <span className="text-sm leading-5 text-black font-helveticaneue-medium">
+                გაკვეთილების ისტორია
+              </span>
+            </Link>
+            <button
+              onClick={() => {
+                logout();
+                setOpen(false);
+              }}
+              className="px-4 py-4 w-full  hover:bg-[#DCDCDC] border-t border-[#D2D2D2] flex items-center gap-2"
+            >
+              <LogOut width={20} height={20} />
+              <span className="text-sm leading-5 text-black font-helveticaneue-medium">
+                გასვლა
+              </span>
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
