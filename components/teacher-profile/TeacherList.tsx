@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface Teacher {
   id: string;
@@ -35,6 +36,7 @@ interface TeacherListProps {
 }
 
 export const TeacherList = ({ teachers, filterParams }: TeacherListProps) => {
+  const router = useRouter();
   // თუ არ არის მასწავლებლები
   if (teachers.length === 0) {
     // შევამოწმოთ არის თუ არა აქტიური ფილტრები
@@ -109,7 +111,10 @@ export const TeacherList = ({ teachers, filterParams }: TeacherListProps) => {
                 თავისუფალი გრაფიკი
               </span>
             </div>
-            <button className="py-4 w-full rounded-[50px] bg-[#F0C514] cursor-pointer mt-3 text-sm leading-5 text-[#080808] font-helveticaneue-medium hover:bg-[#e6b800] transition">
+            <button
+              className="py-4 w-full rounded-[50px] bg-[#F0C514] cursor-pointer mt-3 text-sm leading-5 text-[#080808] font-helveticaneue-medium hover:bg-[#e6b800] transition"
+              onClick={() => router.push(`/dashboard/tutors/${item.id}`)}
+            >
               არჩევა
             </button>
           </div>
