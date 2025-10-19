@@ -37,6 +37,7 @@ interface FilterPanelProps {
   initialTime?: string;
   initialMinPrice?: string;
   initialMaxPrice?: string;
+  onFiltered?: () => void;
 }
 
 export const FilterPanel = ({
@@ -45,6 +46,7 @@ export const FilterPanel = ({
   initialTime = "",
   initialMinPrice = "",
   initialMaxPrice = "",
+  onFiltered,
 }: FilterPanelProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -126,6 +128,7 @@ export const FilterPanel = ({
     try {
       // ახალი მონაცემების ჩატვირთვა current URL-ზე
       router.replace(`?${params.toString()}`, { scroll: false });
+      onFiltered?.();
     } catch (error) {
       console.error("Filter error:", error);
     } finally {

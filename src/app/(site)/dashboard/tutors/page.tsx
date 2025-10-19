@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import NavBar from "../../../../../components/dashboard/NavBar";
 import { prisma } from "@/lib/prisma";
-import { Slider01 } from "react-coolicons";
 import { FilterPanel } from "../../../../../components/ui/FilterPanel";
-import { Prisma } from "@prisma/client";
 import { TeacherList } from "../../../../../components/teacher-profile/TeacherList";
+import { Prisma } from "@prisma/client";
+import { FilterMobileModal } from "../../../../../components/ui/FilterMobileModal";
 
 interface SearchParams {
   subjects?: string;
@@ -35,12 +35,6 @@ export default async function TutorsStudent({
   const minPrice = params.minPrice ? parseFloat(params.minPrice) : undefined;
   const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : undefined;
 
-  // დებაგინგი
-  const allLessons = await prisma.lesson.findMany({
-    select: { day: true, time: true, teacherProfileId: true },
-  });
-  console.log("All lessons in database:", allLessons);
-
   const where: Prisma.TeacherProfileWhereInput = {};
 
   // საგნების და ფასის ფილტრი
@@ -67,8 +61,6 @@ export default async function TutorsStudent({
     where.lessons = { some: lessonsFilter };
   }
 
-  console.log("Final where clause:", JSON.stringify(where, null, 2));
-
   const teachers = await prisma.teacherProfile.findMany({
     where: Object.keys(where).length > 0 ? where : undefined,
     orderBy: { createdAt: "desc" },
@@ -78,15 +70,6 @@ export default async function TutorsStudent({
       lessons: true,
     },
   });
-
-  console.log(
-    "Found teachers with lessons:",
-    teachers.map((t) => ({
-      name: `${t.user.firstName} ${t.user.lastName}`,
-      lessonCount: t.lessons.length,
-      lessons: t.lessons.map((l) => ({ day: l.day, time: l.time })),
-    }))
-  );
 
   const teachersWithSafeImages = teachers.map((teacher) => ({
     ...teacher,
@@ -102,10 +85,13 @@ export default async function TutorsStudent({
         <NavBar user={safeUser} />
         <div className="grid grid-cols-1 mt-[22px] sm:mt-8 lg:mt-[20px] xl:mt-6 lg:grid-cols-3 lg:gap-4 xl:grid-cols-4">
           <div className="cursor-pointer lg:grid lg:col-span-1">
-            <div className="flex items-center gap-[10px] py-3 px-9 bg-[#EBECF0] w-fit h-fit rounded-[50px] lg:hidden">
-              <Slider01 />
-              <span className="text-sm leading-5 text-[#080808]">ფილტრი</span>
-            </div>
+            <FilterMobileModal
+              initialSubjects={subjects}
+              initialDays={days}
+              initialTime={time}
+              initialMinPrice={minPrice?.toString()}
+              initialMaxPrice={maxPrice?.toString()}
+            />
             <div className="hidden lg:flex flex-col rounded-2xl bg-[#FFFFFF] h-fit px-5 py-6 gap-4">
               <span className="text-sm leading-5 font-helveticaneue-regular">
                 ფილტრაცია
