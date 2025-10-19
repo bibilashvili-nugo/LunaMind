@@ -44,15 +44,13 @@ const TutorPage = async ({ params }: TutorPageProps) => {
     },
   };
 
-  console.log(teacherWithSafeImage);
-
   return (
     <div className="bg-[#F6F5FA]">
       <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
         <NavBar user={safeUser} />
         <div className="grid grid-cols-1 mt-[32px] lg:mt-5 xl:mt-6 lg:grid-cols-3 gap-4 pb-[200px]">
           <SingleTeacherLeftSide teacher={teacherWithSafeImage} />
-          <SingleTeacherRightSide />
+          <SingleTeacherRightSide teacher={teacherWithSafeImage} />
         </div>
       </div>
     </div>
