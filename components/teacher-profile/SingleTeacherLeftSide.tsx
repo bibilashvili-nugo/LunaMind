@@ -1,16 +1,107 @@
+import Image from "next/image";
 import React from "react";
 import { LinkHorizontal, Tag } from "react-coolicons";
 
-const SingleTeacherLeftSide = () => {
+interface Teacher {
+  id: string;
+  userId: string;
+  age: number | null;
+  country: string | null;
+  city: string | null;
+  address: string | null;
+  profession: string | null;
+  education: string | null;
+  currentStep: number;
+  completed: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    image?: string;
+  };
+  teacherSubjects: Array<{
+    id: string;
+    name: string;
+    price: number;
+  }>;
+  lessons: Array<{
+    id: string;
+    day: string;
+    time: string;
+    duration: number;
+    subject: string;
+    link?: string | null;
+  }>;
+}
+
+interface SingleTeacherLeftSideProps {
+  teacher: Teacher;
+}
+
+const SingleTeacherLeftSide = ({ teacher }: SingleTeacherLeftSideProps) => {
+  const fullName = `${teacher.user.firstName} ${teacher.user.lastName}`;
+
+  // გამოვთვალოთ შეხვედრების დღეების რაოდენობა
+  const uniqueDays = [...new Set(teacher.lessons.map((lesson) => lesson.day))];
+  const meetingDaysText = `კვირაში ${uniqueDays.length} დღე`;
+
+  // დროების ფორმატირება
+  const formatLessonTimes = () => {
+    return teacher.lessons.map((lesson, index) => (
+      <span
+        key={lesson.id}
+        className="text-sm leading-5 font-helveticaneue-medium text-[#080808]"
+      >
+        {lesson.day}: {lesson.time} ({lesson.duration}სთ)
+        {index < teacher.lessons.length - 1 ? "," : ""}
+      </span>
+    ));
+  };
+
+  // პირველი საგანი (ან ყველა საგნების სია)
+  const mainSubject = teacher.teacherSubjects[0]?.name || "საგანი";
+  const allSubjects = teacher.teacherSubjects
+    .map((subject) => subject.name)
+    .join(", ");
+
+  // მასწავლებლის აღწერა
+  const getTeacherDescription = () => {
+    const parts = [];
+
+    if (teacher.profession) {
+      parts.push(teacher.profession);
+    }
+
+    if (teacher.city) {
+      parts.push(`მუშაობს ${teacher.city}-ში`);
+    }
+
+    if (teacher.education) {
+      parts.push(`განათლება: ${teacher.education}`);
+    }
+
+    if (teacher.age) {
+      parts.push(`ასაკი: ${teacher.age} წელი`);
+    }
+
+    return parts.length > 0
+      ? `${fullName} არის ${parts.join(". ")}.`
+      : `${fullName} არის გამოცდილი მასწავლებელი.`;
+  };
+
   return (
     <div className="bg-white p-4 rounded-2xl lg:col-span-2">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <span className="text-2xl leading-[100%] text-black font-helveticaneue-medium !font-bold lg:text-[32px]">
-            ისტორიის საფუძვლები
+            {allSubjects}
           </span>
           <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular lg:text-base lg:leading-[100%]">
-            ნუგზარ ბიბილაშვილი
+            {fullName}
           </span>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:gap-0 sm:justify-between">
@@ -23,7 +114,7 @@ const SingleTeacherLeftSide = () => {
           <div className="flex items-center gap-2 cursor-pointer">
             <Tag color="#969696" width={24} height={24} />
             <span className="text-[#969696] text-sm leading-5 font-helveticaneue-regular">
-              ისტორიის გაკვეთილი
+              {mainSubject}
             </span>
           </div>
         </div>
@@ -35,7 +126,7 @@ const SingleTeacherLeftSide = () => {
               მასწავლებელი
             </span>
             <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
-              ნუგზარ ბიბილაშვილი
+              {fullName}
             </span>
           </div>
           <div className="flex flex-col gap-1 sm:w-1/2">
@@ -43,7 +134,7 @@ const SingleTeacherLeftSide = () => {
               შეხვედრები
             </span>
             <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
-              ონლაინ კვირაში 3 დღე
+              {meetingDaysText}
             </span>
           </div>
         </div>
@@ -53,21 +144,24 @@ const SingleTeacherLeftSide = () => {
             საათები
           </span>
           <div className="flex flex-col sm:flex-row sm:gap-1">
-            <span className="text-sm leading-5 font-helveticaneue-medium text-[#080808]">
-              სამშაბათი: 19:00 - 21:00,
-            </span>
-            <span className="text-sm leading-5 font-helveticaneue-medium text-[#080808]">
-              სამშაბათი: 19:00 - 21:00,
-            </span>
-            <span className="text-sm leading-5 font-helveticaneue-medium text-[#080808]">
-              სამშაბათი: 19:00 - 21:00
-            </span>
+            {formatLessonTimes()}
           </div>
         </div>
       </div>
       <div className="bg-black mt-3 w-full h-[185px] sm:h-[225px] relative">
-        <span className="text-white absolute top-[50%] left-[10%]">
-          ფოტო მასწის ან ისტორიის გაკვეთილის
+        <span className="text-white absolute">
+          {teacher.user.image &&
+          teacher.user.image !== "/images/default-profile.png" ? (
+            <Image
+              src={teacher.user.image}
+              alt={fullName}
+              width={100}
+              height={100}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            "ფოტო მასწავლებლის ან საგნის გაკვეთილის"
+          )}
         </span>
       </div>
       <div className="mt-6 flex flex-col gap-4">
@@ -76,12 +170,8 @@ const SingleTeacherLeftSide = () => {
             გაკვეთილის აღწერა
           </span>
           <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular">
-            SCRUM PRODUCT OWNERSHIP-ის კურსის მიზანია, დამწყებ სტუდენტებს
-            გააცნოს Product Owner-ის როლი, SCRUM-ის მუშაობის პრინციპები და
-            პროდუქტის განვითარებისა და მართვის პრაქტიკული ტექნიკები. კურსი
-            ფოკუსირებულია გამოცდილებით სწავლაზე, რეალურ მაგალითებსა და
-            ინტერაქტიულ სავარჯიშოებზე, რათა სტუდენტებმა მარტივად აითვისონ
-            პროდუქტის მართვის საფუძვლები.
+            {teacher.profession ||
+              `${mainSubject}-ის გაკვეთილი ${fullName}-ის მიერ. პროფესიონალური მიდგომა და ინდივიდუალური ყურადღება ყველა სტუდენტის მიმართ.`}
           </span>
         </div>
         <div className="flex flex-col gap-2">
@@ -89,12 +179,7 @@ const SingleTeacherLeftSide = () => {
             მასწავლებლის შესახებ
           </span>
           <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular">
-            SCRUM PRODUCT OWNERSHIP-ის კურსის მიზანია, დამწყებ სტუდენტებს
-            გააცნოს Product Owner-ის როლი, SCRUM-ის მუშაობის პრინციპები და
-            პროდუქტის განვითარებისა და მართვის პრაქტიკული ტექნიკები. კურსი
-            ფოკუსირებულია გამოცდილებით სწავლაზე, რეალურ მაგალითებსა და
-            ინტერაქტიულ სავარჯიშოებზე, რათა სტუდენტებმა მარტივად აითვისონ
-            პროდუქტის მართვის საფუძვლები.
+            {getTeacherDescription()}
           </span>
         </div>
         <div className="flex flex-col gap-2">
@@ -116,7 +201,7 @@ const SingleTeacherLeftSide = () => {
           კონსულტაციისთვის დაგვიკავშირდი
         </span>
         <span className="text-sm leading-5 text-[#3E74FF] font-helveticaneue-medium !font-bold">
-          +995 557 55 55 55 - 032 2 57 57 57 - info@domaincom
+          {teacher.user.phoneNumber} - {teacher.user.email}
         </span>
       </div>
     </div>
