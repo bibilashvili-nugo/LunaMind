@@ -214,7 +214,7 @@ const SingleTeacherRightSide = () => {
           </label>
         </div>
       </div>
-      <div className="bg-white py-4 px-4">
+      <div className="bg-white py-4 px-4 rounded-b-2xl">
         <button className="text-sm leading-5 text-[#080808] font-helveticaneue-medium py-3 bg-[#F0C514] rounded-[50px] w-full">
           გადახდა
         </button>
