@@ -1,6 +1,5 @@
 "use clinet";
 
-import React, { useEffect, useState } from "react";
 import { ChevronLeftMd, ChevronRightMd, Star } from "react-coolicons";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -10,6 +9,7 @@ import "swiper/css/navigation";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import RepetitorSwiperLoading from "../loading/RepetitorSwiperLoading";
+import { useTeachers } from "@/hooks/useTeachers";
 
 interface Teacher {
   id: string;
@@ -30,31 +30,12 @@ interface Teacher {
 }
 
 const RepetitorSwiper = () => {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { data, isLoading } = useTeachers(); // ✅ ვიყენებთ ჰუკს
 
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await fetch("/api/teachers"); // 🔹 შეცვალე შენი API endpoint-ით
-        const data = await response.json();
-        setTeachers(data.teachers || []);
-      } catch (error) {
-        console.error("Error fetching teachers:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (isLoading) return <RepetitorSwiperLoading />;
 
-    fetchTeachers();
-  }, []);
-
-  console.log(teachers);
-
-  if (loading) {
-    return <RepetitorSwiperLoading />;
-  }
+  const teachers: Teacher[] = data?.teachers || [];
 
   return (
     <div
