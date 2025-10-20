@@ -58,10 +58,13 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
   const navigation =
     user.role === "TEACHER" ? teacherNavigation : studentNavigation;
 
-  const profileLink =
-    user.role === "TEACHER"
-      ? "/dashboard/teacher-profile"
-      : "/dashboard/student-profile";
+  const getProfileLinkWithTab = (tab: string) => {
+    const baseLink =
+      user.role === "TEACHER"
+        ? "/dashboard/teacher-profile"
+        : "/dashboard/student-profile";
+    return `${baseLink}#${tab}`;
+  };
 
   return (
     <div
@@ -120,7 +123,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
             </Link>
           );
         })}
-        <Link href={profileLink}>
+        <Link href={getProfileLinkWithTab("personal")}>
           <div className="w-11 h-11 rounded-full relative overflow-hidden lg:hidden ml-2">
             <Image
               src={user?.image || "/images/default-profile.png"}
@@ -169,7 +172,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
         {open && (
           <div className="absolute w-full bg-[#EBECF0] rounded-b-xl overflow-hidden z-50">
             <Link
-              href={profileLink}
+              href={getProfileLinkWithTab("personal")}
               className="px-4 py-4 w-full  hover:bg-[#DCDCDC] border-t border-[#D2D2D2] flex items-center gap-2"
               onClick={() => setOpen(false)}
             >
@@ -179,7 +182,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
               </span>
             </Link>
             <Link
-              href={profileLink}
+              href={getProfileLinkWithTab("cards")}
               className="px-4 py-4 w-full  hover:bg-[#DCDCDC] border-t border-[#D2D2D2] flex items-center gap-2"
               onClick={() => setOpen(false)}
             >
@@ -189,7 +192,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
               </span>
             </Link>
             <Link
-              href={profileLink}
+              href={getProfileLinkWithTab("lessons")}
               className="px-4 py-4 w-full  hover:bg-[#DCDCDC] border-t border-[#D2D2D2] flex items-center gap-2"
               onClick={() => setOpen(false)}
             >

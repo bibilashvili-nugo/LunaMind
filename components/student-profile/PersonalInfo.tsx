@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "react-coolicons";
 import StudentInfo from "./StudentInfo";
 import ActivityTackSecond from "./ActivityTackSecond";
@@ -32,8 +32,35 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
     user.firstName + " " + user.lastName
   );
   const [activeTab, setActiveTab] = useState<Tab>("personal");
-  const [profileImage, setProfileImage] = useState<string | null>(null); // ახალი სურათი
-  const fileInputRef = useRef<HTMLInputElement>(null); // hidden file input
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 🔹 ტაბის ცვლილება როგორც NavBar-იდან, ისე შიგნიდან
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    // 🔹 URL-ის განახლება როცა ტაბს შიგნიდან ვცვლით
+    window.history.replaceState(null, "", `#${tab}`);
+  };
+
+  // 🔹 hashchange event listener
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "") as Tab;
+      if (hash && ["personal", "cards", "lessons"].includes(hash)) {
+        setActiveTab(hash);
+      }
+    };
+
+    // ჩატვირთვისას შევამოწმოთ
+    handleHashChange();
+
+    // დავამატოთ event listener
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
@@ -51,7 +78,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
 
       const data = await res.json();
       if (data.imageUrl) {
-        setProfileImage(data.imageUrl); // ახალი სურათი განახლდა
+        setProfileImage(data.imageUrl);
       }
     } catch (err) {
       console.error(err);
@@ -59,7 +86,6 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
     }
   };
 
-  // Camera div click
   const handleCameraClick = () => {
     fileInputRef.current?.click();
   };
@@ -122,7 +148,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
           <div className="scroll-wrapper">
             <div className="flex w-full overflow-x-auto custom-scroll gap-6 py-2">
               <span
-                onClick={() => setActiveTab("personal")}
+                onClick={() => handleTabChange("personal")}
                 className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
                   activeTab === "personal"
                     ? "text-[#080808] font-helveticaneue-medium"
@@ -133,7 +159,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
               </span>
 
               <span
-                onClick={() => setActiveTab("cards")}
+                onClick={() => handleTabChange("cards")}
                 className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
                   activeTab === "cards"
                     ? "text-[#080808] font-helveticaneue-medium"
@@ -144,7 +170,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
               </span>
 
               <span
-                onClick={() => setActiveTab("lessons")}
+                onClick={() => handleTabChange("lessons")}
                 className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
                   activeTab === "lessons"
                     ? "text-[#080808] font-helveticaneue-medium"

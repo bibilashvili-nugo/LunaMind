@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CalendarAdd } from "react-coolicons";
 
 interface OurLessonsProps {
@@ -45,12 +46,14 @@ const OurLessonsBox = ({ subject, teacher, svgColor }: OurLessonsProps) => {
 
 const AddNewLessons = () => {
   return (
-    <div className="flex items-center justify-center gap-2 px-2 py-4 bg-[#F6F5FA] rounded-[12px]">
-      <CalendarAdd className="text-[#7D3FFF]" />
-      <span className="text-sm leading-5 font-helveticaneue-regular text-[#080808] border-b-1 border-[#080808]">
-        დაამატეთ ახალი გაკვეთილი
-      </span>
-    </div>
+    <Link href="/dashboard/tutors">
+      <div className="flex items-center justify-center gap-2 px-2 py-4 bg-[#F6F5FA] rounded-[12px]">
+        <CalendarAdd className="text-[#7D3FFF]" />
+        <span className="text-sm leading-5 font-helveticaneue-regular text-[#080808] border-b-1 border-[#080808]">
+          დაამატეთ ახალი გაკვეთილი
+        </span>
+      </div>
+    </Link>
   );
 };
 
