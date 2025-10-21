@@ -2,15 +2,11 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "react-coolicons";
-import StudentInfo from "./StudentInfo";
-import ActivityTackSecond from "./ActivityTackSecond";
-import ActivityTracker from "../dashboard/ActivityTracker";
 import OurLessons from "../dashboard/OurLessons";
 import PremiumStats from "../dashboard/PremiumStats";
 import LastActivity from "./LastActivity";
-import Card from "./Card";
-import LessonsHistory from "./LessonsHistory";
 import Image from "next/image";
+import TabsContent from "../ui/TabsContent";
 
 type User = {
   id: string;
@@ -145,62 +141,13 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
             </div>
           </div>
           <hr className="text-[#F1F1F1] my-4" />
-          <div className="scroll-wrapper">
-            <div className="flex w-full overflow-x-auto custom-scroll gap-6 py-2">
-              <span
-                onClick={() => handleTabChange("personal")}
-                className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
-                  activeTab === "personal"
-                    ? "text-[#080808] font-helveticaneue-medium"
-                    : "text-[#737373] font-helveticaneue-regular hover:text-[#080808] transition-colors"
-                }`}
-              >
-                პირადი ინფორმაცია
-              </span>
-
-              <span
-                onClick={() => handleTabChange("cards")}
-                className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
-                  activeTab === "cards"
-                    ? "text-[#080808] font-helveticaneue-medium"
-                    : "text-[#737373] font-helveticaneue-regular hover:text-[#080808] transition-colors"
-                }`}
-              >
-                ბარათები
-              </span>
-
-              <span
-                onClick={() => handleTabChange("lessons")}
-                className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
-                  activeTab === "lessons"
-                    ? "text-[#080808] font-helveticaneue-medium"
-                    : "text-[#737373] font-helveticaneue-regular hover:text-[#080808] transition-colors"
-                }`}
-              >
-                გაკვეთილების ისტორია
-              </span>
-            </div>
-            <hr className="text-[#F1F1F1]" />
-          </div>
-          {activeTab === "personal" && (
-            <StudentInfo
-              user={user}
-              fullName={fullName}
-              setFullName={setFullName}
-            />
-          )}
-          {activeTab === "cards" && <Card />}
-          {activeTab === "lessons" && <LessonsHistory />}
-          {activeTab === "personal" && (
-            <div className="sm:hidden">
-              <ActivityTackSecond />
-            </div>
-          )}
-          {activeTab === "personal" && (
-            <div className="hidden sm:block mt-4">
-              <ActivityTracker profilePage={true} />
-            </div>
-          )}
+          <TabsContent
+            activeTab={activeTab}
+            handleTabChange={handleTabChange}
+            user={user}
+            fullName={fullName}
+            setFullName={setFullName}
+          />
         </div>
 
         <LastActivity />

@@ -69,7 +69,7 @@ const OurLessons = ({
       className={` bg-white rounded-2xl p-5 flex flex-col gap-4  lg:h-[596px] lg:py-6
         ${
           profilePage
-            ? "md:h-[428px] overflow-scroll lg:mt-6 mt-4 lg:h-[436px]"
+            ? "md:h-[428px] lg:mt-6 mt-4 lg:h-[436px]"
             : "mt-4 lg:mt-0"
         }`}
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
