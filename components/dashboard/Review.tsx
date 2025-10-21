@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { CircleWarning, Star } from "react-coolicons";
 import toast from "react-hot-toast";
+import { useAddReview } from "@/hooks/useAddReview";
 
 interface PropReview {
   isModal?: boolean;
-  studentId: string; // აუცილებელი
+  studentId: string;
+  onSuccess?: () => void;
 }
 
 interface TeacherProfileWithUser {
@@ -20,13 +22,13 @@ interface TeacherProfileWithUser {
   createdAt: string;
 }
 
-const Review = ({ isModal = false, studentId }: PropReview) => {
+const Review = ({ isModal = false, studentId, onSuccess }: PropReview) => {
   const [rating, setRating] = useState(0);
   const [value, setValue] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [selectedTeacherId, setSelectedTeacherId] = useState("");
   const [teachers, setTeachers] = useState<TeacherProfileWithUser[]>([]);
+
+  const { mutate: addReview, isPending } = useAddReview(studentId);
 
   useEffect(() => {
     async function fetchTeachers() {
@@ -34,6 +36,11 @@ const Review = ({ isModal = false, studentId }: PropReview) => {
         const res = await fetch("/api/teachers");
         const data = await res.json();
         setTeachers(data.teachers || []);
+
+        // Set default selected teacher if available
+        if (data.teachers && data.teachers.length > 0) {
+          setSelectedTeacherId(data.teachers[0].user.id);
+        }
       } catch (err) {
         console.error("Teachers fetch error:", err);
         toast.error("მასწავლებლების ჩამოტვირთვა ვერ მოხერხდა");
@@ -42,58 +49,31 @@ const Review = ({ isModal = false, studentId }: PropReview) => {
     fetchTeachers();
   }, []);
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      const teacherSelect = document.getElementById(
-        "teacher-select"
-      ) as HTMLSelectElement;
-      const teacherId = teacherSelect?.value;
-
-      if (!teacherId) {
-        toast.error("გთხოვთ, აირჩიოთ მასწავლებელი");
-        setLoading(false);
-        return;
-      }
-
-      if (rating === 0) {
-        toast.error("გთხოვთ, აირჩიოთ ვარსკვლავის რაოდენობა");
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studentId,
-          teacherId,
-          rating,
-          comment: value,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        toast.error(data.error || "შეცდომა მოხდა");
-        setLoading(false);
-        return;
-      }
-
-      setSuccess(true);
-      toast.success("შეფასება წარმატებით დამატებულია!");
-      setRating(0);
-      setValue("");
-    } catch (err) {
-      console.error(err);
-      toast.error("სერვერის შეცდომა");
-    } finally {
-      setLoading(false);
+  const handleSubmit = () => {
+    if (!selectedTeacherId) {
+      toast.error("გთხოვთ, აირჩიოთ მასწავლებელი");
+      return;
     }
+
+    if (rating === 0) {
+      toast.error("გთხოვთ, აირჩიოთ ვარსკვლავის რაოდენობა");
+      return;
+    }
+
+    addReview(
+      { teacherId: selectedTeacherId, rating, comment: value },
+      {
+        onSuccess: () => {
+          toast.success("შეფასება წარმატებით დამატებულია!");
+          setRating(0);
+          setValue("");
+          onSuccess?.(); // Close modal
+        },
+        onError: (err: Error) => {
+          toast.error(err.message || "სერვერის შეცდომა");
+        },
+      }
+    );
   };
 
   return (
@@ -122,8 +102,9 @@ const Review = ({ isModal = false, studentId }: PropReview) => {
         </span>
         <div className="relative w-full">
           <select
-            id="teacher-select"
-            className="w-full text-xs sm:text-sm leading-4 text-[#000000] font-helveticaneue-medium appearance-none focus:outline-none focus:ring-0"
+            value={selectedTeacherId}
+            onChange={(e) => setSelectedTeacherId(e.target.value)}
+            className="w-full text-xs sm:text-sm leading-4 text-[#000000] font-helveticaneue-medium appearance-none focus:outline-none focus:ring-0 bg-transparent"
           >
             {teachers.map((t) => (
               <option key={t.user.id} value={t.user.id}>
@@ -131,7 +112,7 @@ const Review = ({ isModal = false, studentId }: PropReview) => {
               </option>
             ))}
           </select>
-          <div className="pointer-events-none absolute inset-y-0 -right-2 bottom-4 flex items-center pr-3">
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
             <svg
               className="w-5 h-5 text-gray-500"
               fill="none"
@@ -151,26 +132,30 @@ const Review = ({ isModal = false, studentId }: PropReview) => {
 
       <div className="flex items-center justify-between mt-3 py-[18px] px-3 border border-[#EBECF0] rounded-xl">
         <span className="text-[10px] sm:text-xs leading-4 text-[#737373] font-helveticaneue-regular">
-          ვარსვკვლავი
+          ვარსკვლავი
         </span>
         <div className="flex items-center gap-[10px]">
           {[1, 2, 3, 4, 5].map((star) => (
-            <Star
+            <button
               key={star}
-              className={`w-6 h-6 cursor-pointer ${
-                rating >= star
-                  ? "text-[#F04F14] fill-[#F04F14]"
-                  : "text-gray-300"
-              }`}
+              type="button"
               onClick={() => setRating(star)}
-            />
+              className="focus:outline-none"
+            >
+              <Star
+                className={`w-6 h-6 ${
+                  rating >= star
+                    ? "text-[#F04F14] fill-[#F04F14]"
+                    : "text-gray-300"
+                }`}
+              />
+            </button>
           ))}
         </div>
       </div>
 
       <div className="relative w-full mt-3">
         <textarea
-          id="review"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           className={`w-full resize-none border border-[#EBECF0] rounded-xl focus:outline-none focus:ring-0 py-[10px] px-3 peer text-xs sm:text-sm leading-5 text-black font-helveticaneue-medium ${
@@ -179,29 +164,20 @@ const Review = ({ isModal = false, studentId }: PropReview) => {
           placeholder=" "
         />
         {value === "" && (
-          <label
-            htmlFor="review"
-            className="absolute left-3 top-3 text-[10px] sm:text-xs leading-4 text-[#737373] font-helveticaneue-regular pointer-events-none transition-all duration-200"
-          >
+          <label className="absolute left-3 top-3 text-[10px] sm:text-xs leading-4 text-[#737373] font-helveticaneue-regular pointer-events-none transition-all duration-200">
             შეიყვანეთ კომენტარი
           </label>
         )}
       </div>
 
       <button
-        className="text-sm leading-5 text-[#080808] font-helveticaneue-medium py-4 w-full rounded-[50px] bg-[#F0C514] mt-[30px] sm:mt-[26px] cursor-pointer"
+        className="text-sm leading-5 text-[#080808] font-helveticaneue-medium py-4 w-full rounded-[50px] bg-[#F0C514] mt-[30px] sm:mt-[26px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={handleSubmit}
-        disabled={loading}
+        disabled={isPending}
+        type="button"
       >
-        {loading ? "გადააგზავნა..." : "შეფასების დაწერა"}
+        {isPending ? "გადააგზავნა..." : "შეფასების დაწერა"}
       </button>
-
-      {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
-      {success && (
-        <p className="text-green-500 mt-2 text-sm">
-          შეფასება წარმატებით დამატებულია!
-        </p>
-      )}
     </div>
   );
 };

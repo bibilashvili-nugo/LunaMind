@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Star } from "react-coolicons";
+import { useReviews } from "@/hooks/useReviews";
 
 interface ReviewType {
   id: string;
@@ -21,32 +21,44 @@ export const TutorsStudentBox: React.FC<TutorsStudentBoxProps> = ({
   studentId,
   teacherId,
 }) => {
-  const [reviews, setReviews] = useState<ReviewType[]>([]);
+  // Pass both studentId and teacherId to the hook
+  const {
+    data: reviewsData,
+    isLoading,
+    error,
+  } = useReviews(studentId, teacherId);
 
-  useEffect(() => {
-    async function fetchReviews() {
-      try {
-        const query = new URLSearchParams();
-        if (studentId) query.append("studentId", studentId);
-        if (teacherId) query.append("teacherId", teacherId);
+  if (isLoading) {
+    return (
+      <div className="bg-white p-5 rounded-2xl flex justify-center items-center">
+        <span className="text-sm text-gray-500">შეფასებების ჩატვირთვა...</span>
+      </div>
+    );
+  }
 
-        const res = await fetch(`/api/reviews?${query.toString()}`);
-        const data = await res.json();
-        setReviews(data.reviews || []);
-      } catch (err) {
-        console.error("Failed to fetch reviews:", err);
-      }
-    }
-    fetchReviews();
-  }, [studentId, teacherId]);
+  if (error) {
+    return (
+      <div className="bg-white p-5 rounded-2xl flex justify-center items-center">
+        <span className="text-sm text-red-500">
+          შეფასებების ჩატვირთვა ვერ მოხერხდა
+        </span>
+      </div>
+    );
+  }
+
+  const reviews = reviewsData?.reviews || [];
 
   if (reviews.length === 0) {
-    return <p className="text-sm text-gray-500">შეფასებები არ არის</p>;
+    return (
+      <div className="bg-white p-5 rounded-2xl flex justify-center items-center">
+        <p className="text-sm text-gray-500">შეფასებები არ არის</p>
+      </div>
+    );
   }
 
   return (
     <>
-      {reviews.map((review) => (
+      {reviews.map((review: ReviewType) => (
         <div
           key={review.id}
           className="bg-white p-5 rounded-2xl flex flex-col gap-5"
@@ -65,7 +77,10 @@ export const TutorsStudentBox: React.FC<TutorsStudentBoxProps> = ({
               ))}
             </div>
             <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium xl:text-base xl:leading-6">
-              {review.teacher.firstName} {review.teacher.lastName} შესახებ
+              {/* Show different text based on who is viewing */}
+              {teacherId
+                ? `მოსწავლის შეფასება: ${review.student.firstName} ${review.student.lastName}`
+                : `${review.teacher.firstName} ${review.teacher.lastName} შესახებ`}
             </span>
           </div>
           <span className="text-xs leading-4 text-black font-helveticaneue-regular text-start sm:text-sm sm:leading-5">
@@ -73,7 +88,9 @@ export const TutorsStudentBox: React.FC<TutorsStudentBoxProps> = ({
           </span>
           <div className="flex flex-col gap-1">
             <span className="text-sm leading-5 text-black font-helveticaneue-medium">
-              {review.student.firstName} {review.student.lastName}
+              {teacherId
+                ? `მასწავლებელი: ${review.teacher.firstName} ${review.teacher.lastName}`
+                : `მოსწავლე: ${review.student.firstName} ${review.student.lastName}`}
             </span>
             <span className="text-xs leading-4 text-[#767676] font-helveticaneue-regular">
               {new Date(review.createdAt).toLocaleDateString("ka-GE", {

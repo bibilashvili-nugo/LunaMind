@@ -12,6 +12,7 @@ export default function ReviewModalButton({
   studentId,
 }: ReviewModalButtonProps) {
   const [showModal, setShowModal] = useState(false);
+
   const modalRef = useRef<HTMLDivElement | null>(null);
 
   useClickOutside(modalRef, () => setShowModal(false));
@@ -31,7 +32,11 @@ export default function ReviewModalButton({
             ref={modalRef}
             className="relative w-full lg:max-w-lg lg:w-full mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
           >
-            <Review isModal={true} studentId={studentId} />
+            <Review
+              isModal={true}
+              studentId={studentId}
+              onSuccess={() => setShowModal(false)}
+            />
             <button
               onClick={() => setShowModal(false)}
               className="absolute top-3 right-6 text-black text-lg font-bold"
