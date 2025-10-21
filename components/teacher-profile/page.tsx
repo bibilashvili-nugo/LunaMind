@@ -19,7 +19,7 @@ type TeacherProfile = {
   address?: string;
 };
 
-type User = {
+export type User = {
   id: string;
   firstName: string;
   lastName: string;
@@ -43,10 +43,14 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
   const [teacherProfile, setTeacherProfile] = useState<TeacherProfile | null>(
     null
   );
+
+  const tabRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch teacher profile on mount
+  // Fetch teacher profile
   useEffect(() => {
+    if (user.role !== "TEACHER") return;
     const fetchProfile = async () => {
       try {
         const res = await fetch(`/api/teachers/profile?userId=${user.id}`);
@@ -57,13 +61,17 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
       }
     };
     fetchProfile();
-  }, [user.id]);
+  }, [user]);
 
-  // Handle profile image upload
-  // inside PersonalInfo component
+  // Tabs underline animation
+  useEffect(() => {
+    const index = ["personal", "cards", "lessons"].indexOf(activeTab);
+    const el = tabRefs.current[index];
+    if (el) setUnderlineStyle({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [activeTab]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
-
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
@@ -74,9 +82,8 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
         method: "POST",
         body: formData,
       });
-
       const data = await res.json();
-      if (data.imageUrl) setProfileImage(data.imageUrl); // Update UI
+      if (data.imageUrl) setProfileImage(data.imageUrl);
     } catch (err) {
       console.error("Upload failed:", err);
       alert("Upload failed");
@@ -87,13 +94,19 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
     fileInputRef.current?.click();
   };
 
+  const userWithProfile = teacherProfile
+    ? { ...user, TeacherProfile: teacherProfile }
+    : user;
+
   return (
     <div className="lg:grid lg:grid-cols-[1fr_2fr] xl:grid-cols-[1fr_3fr] lg:gap-4 relative">
+      {/* Sidebar */}
       <div className="hidden lg:flex flex-col lg:order-1 order-2 sticky top-6 h-fit self-start">
-        <OurLessons profilePage={true} teacher={true} />
+        <OurLessons profilePage={true} teacher={user.role === "TEACHER"} />
         <PremiumStats profilePage={true} />
       </div>
 
+      {/* Main Content */}
       <div className="flex flex-col lg:order-2">
         <div className="bg-white p-4 rounded-2xl mt-8 lg:mt-6">
           {/* Header */}
@@ -114,7 +127,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
                   {fullName}
                 </span>
                 <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular mt-1">
-                  რეპეტიტორი
+                  {user.role === "TEACHER" ? "რეპეტიტორი" : "სტუდენტი"}
                 </span>
                 <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular mt-4">
                   რეგისტრაციის თარიღი: 25 აგვისტო, 2025
@@ -123,54 +136,72 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
             </div>
 
             {/* Camera */}
-            <div
-              className="flex items-center justify-center mt-3 gap-[10px] bg-[#EBECF0] py-3 rounded-xl cursor-pointer sm:px-[20px] sm:h-[48px]"
-              onClick={handleCameraClick}
-            >
-              <Camera className="text-[#737373]" />
-              <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-                ფოტოს შეცვლა
-              </span>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                style={{ display: "none" }}
-              />
-            </div>
+            {user.role === "TEACHER" && (
+              <div
+                className="flex items-center justify-center mt-3 gap-[10px] bg-[#EBECF0] py-3 rounded-xl cursor-pointer sm:px-[20px] sm:h-[48px]"
+                onClick={handleCameraClick}
+              >
+                <Camera className="text-[#737373]" />
+                <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+                  ფოტოს შეცვლა
+                </span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+              </div>
+            )}
           </div>
 
           <hr className="text-[#F1F1F1] my-4" />
 
           {/* Tabs */}
-          <div className="scroll-wrapper">
-            <div className="flex w-full overflow-x-auto custom-scroll gap-6 py-2">
-              {["personal", "cards", "lessons"].map((tab) => (
-                <span
-                  key={tab}
-                  onClick={() => setActiveTab(tab as Tab)}
-                  className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 ${
-                    activeTab === tab
-                      ? "text-[#080808] font-helveticaneue-medium"
-                      : "text-[#737373] font-helveticaneue-regular hover:text-[#080808] transition-colors"
-                  }`}
-                >
-                  {tab === "personal"
+          <div className="scroll-wrapper relative">
+            <div className="flex w-full overflow-x-auto gap-6 py-2">
+              {(["personal", "cards", "lessons"] as Tab[]).map((tab, index) => {
+                const label =
+                  tab === "personal"
                     ? "პირადი ინფორმაცია"
                     : tab === "cards"
                     ? "ბარათები"
-                    : "გაკვეთილების ისტორია"}
-                </span>
-              ))}
+                    : "გაკვეთილების ისტორია";
+                return (
+                  <span
+                    key={tab}
+                    ref={(el: HTMLSpanElement | null) => {
+                      tabRefs.current[index] = el;
+                    }}
+                    onClick={() => setActiveTab(tab)}
+                    className={`shrink-0 text-sm leading-5 cursor-pointer px-2 py-4 relative ${
+                      activeTab === tab
+                        ? "text-[#080808] font-helveticaneue-medium"
+                        : "text-[#737373] font-helveticaneue-regular hover:text-[#080808] transition-colors"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                );
+              })}
+
+              {/* Underline */}
+              <span
+                className="absolute bottom-0 h-1 bg-yellow-400 rounded-full transition-all duration-200"
+                style={{
+                  left: underlineStyle.left,
+                  width: underlineStyle.width,
+                }}
+              />
             </div>
-            <hr className="text-[#F1F1F1]" />
+            <hr className="text-[#F1F1F1] mt-2" />
           </div>
 
           {/* Content */}
           {activeTab === "personal" && teacherProfile && (
             <TeacherInfo
-              user={{ ...user, TeacherProfile: teacherProfile }}
+              user={userWithProfile}
               fullName={fullName}
               setFullName={setFullName}
             />
@@ -190,10 +221,12 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
           )}
         </div>
 
+        {/* Last Activity */}
         <LastActivity />
 
+        {/* Mobile sidebar */}
         <div className="md:grid md:grid-cols-2 md:gap-4 lg:hidden">
-          <OurLessons profilePage={true} />
+          <OurLessons profilePage={true} teacher={user.role === "TEACHER"} />
           <PremiumStats profilePage={true} />
         </div>
       </div>
