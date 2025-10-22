@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, CaretDownSm, CaretUpSm } from "react-coolicons";
+import { useClickOutside } from "@/hooks/useClickOutside";
 
 const subjectsData = [
   "მათემატიკა",
@@ -60,6 +61,17 @@ export const FilterPanel = ({
   const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [showSelectSubjectsButton, setShowSelectSubjectsButton] =
+    useState(false);
+  const [showSelectDaysButton, setShowSelectDaysButton] = useState(false);
+
+  const subjectsRef = useRef<HTMLDivElement | null>(null);
+  const daysRef = useRef<HTMLDivElement | null>(null);
+
+  // ჰუკები: click გარეთ დახურვისთვის
+  useClickOutside(subjectsRef, () => setOpenSubjects(false));
+  useClickOutside(daysRef, () => setOpenDays(false));
 
   // URL-დან პარამეტრების დასეტვა
   useEffect(() => {
@@ -155,11 +167,18 @@ export const FilterPanel = ({
   return (
     <div className="flex flex-col gap-4">
       {/* SUBJECTS */}
-      <div className="relative">
+      <div className="relative" ref={subjectsRef}>
         <button
           onClick={() => {
-            setOpenSubjects(!openSubjects);
+            const willOpen = !openSubjects;
+            setOpenSubjects(willOpen);
             setOpenDays(false);
+
+            if (willOpen) {
+              setTimeout(() => setShowSelectSubjectsButton(true), 0);
+            } else {
+              setShowSelectSubjectsButton(false);
+            }
           }}
           className="w-full text-left border border-[#F1F1F1] rounded-xl p-3 bg-white flex justify-between items-center"
         >
@@ -179,29 +198,64 @@ export const FilterPanel = ({
         </button>
 
         {openSubjects && (
-          <div className="absolute w-full bg-white border border-[#F1F1F1] rounded-xl mt-1 max-h-60 overflow-y-auto z-10">
-            {subjectsData.map((subject) => (
+          <div className="absolute w-full mt-1 z-10 rounded-xl overflow-hidden border border-[#F1F1F1] bg-white max-h-60 flex flex-col">
+            <div className="overflow-y-auto max-h-60 scrollbar-thumb-rounded">
+              {subjectsData.map((subject) => (
+                <div
+                  key={subject}
+                  onClick={() => toggleSubject(subject)}
+                  className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 text-sm"
+                >
+                  <span>{subject}</span>
+                  {selectedSubjects.includes(subject) && (
+                    <Check className="w-4 h-4 text-[#F0C514]" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {showSelectSubjectsButton && (
               <div
-                key={subject}
-                onClick={() => toggleSubject(subject)}
-                className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 text-sm"
+                className="p-2 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 text-sm font-helveticaneue-medium"
+                onClick={() => setOpenSubjects(false)}
               >
-                <span>{subject}</span>
-                {selectedSubjects.includes(subject) && (
-                  <Check className="w-4 h-4 text-[#F0C514]" />
-                )}
+                არჩევა
               </div>
-            ))}
+            )}
+
+            <style jsx>{`
+              .scrollbar-thumb-rounded::-webkit-scrollbar {
+                width: 6px;
+              }
+              .scrollbar-thumb-rounded::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+              }
+              .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+                background-color: #f0c514;
+                border-radius: 10px;
+              }
+              .scrollbar-thumb-rounded::-webkit-scrollbar-thumb:hover {
+                background-color: #e6c200;
+              }
+            `}</style>
           </div>
         )}
       </div>
 
       {/* DAYS */}
-      <div className="relative">
+      <div className="relative" ref={daysRef}>
         <button
           onClick={() => {
-            setOpenDays(!openDays);
+            const willOpen = !openDays;
+            setOpenDays(willOpen);
             setOpenSubjects(false);
+
+            if (willOpen) {
+              setTimeout(() => setShowSelectDaysButton(true), 0);
+            } else {
+              setShowSelectDaysButton(false);
+            }
           }}
           className="w-full text-left border border-[#F1F1F1] rounded-xl p-3 bg-white flex justify-between items-center"
         >
@@ -213,7 +267,7 @@ export const FilterPanel = ({
             }`}
           >
             {selectedDays.length > 0
-              ? `${selectedDays.join(", ")}`
+              ? selectedDays.join(", ")
               : "სასურველი დღე"}
           </span>
 
@@ -221,19 +275,47 @@ export const FilterPanel = ({
         </button>
 
         {openDays && (
-          <div className="absolute w-full bg-white border border-[#F1F1F1] rounded-xl mt-1 max-h-60 overflow-y-auto z-10">
-            {daysData.map((day) => (
+          <div className="absolute w-full mt-1 z-10 rounded-xl overflow-hidden border border-[#F1F1F1] bg-white max-h-60 flex flex-col">
+            <div className="overflow-y-auto max-h-60 scrollbar-thumb-rounded">
+              {daysData.map((day) => (
+                <div
+                  key={day}
+                  onClick={() => toggleDay(day)}
+                  className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 text-sm"
+                >
+                  <span>{day}</span>
+                  {selectedDays.includes(day) && (
+                    <Check className="w-4 h-4 text-[#F0C514]" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {showSelectDaysButton && (
               <div
-                key={day}
-                onClick={() => toggleDay(day)}
-                className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 text-sm"
+                className="p-2 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 text-sm font-helveticaneue-medium"
+                onClick={() => setOpenDays(false)}
               >
-                <span>{day}</span>
-                {selectedDays.includes(day) && (
-                  <Check className="w-4 h-4 text-[#F0C514]" />
-                )}
+                არჩევა
               </div>
-            ))}
+            )}
+
+            <style jsx>{`
+              .scrollbar-thumb-rounded::-webkit-scrollbar {
+                width: 6px;
+              }
+              .scrollbar-thumb-rounded::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+              }
+              .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+                background-color: #f0c514;
+                border-radius: 10px;
+              }
+              .scrollbar-thumb-rounded::-webkit-scrollbar-thumb:hover {
+                background-color: #e6c200;
+              }
+            `}</style>
           </div>
         )}
       </div>
