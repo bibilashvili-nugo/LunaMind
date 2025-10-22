@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { CaretDownSm, Check } from "react-coolicons";
 import toast from "react-hot-toast";
@@ -40,11 +41,17 @@ interface Teacher {
   }>;
 }
 
-interface SingleTeacherLeftSideProps {
+interface SingleTeacherRightSideProps {
   teacher: Teacher;
+  studentId: string;
+  teacherUserId: string;
 }
-
-const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
+const SingleTeacherRightSide = ({
+  teacher,
+  studentId,
+  teacherUserId,
+}: SingleTeacherRightSideProps) => {
+  const router = useRouter();
   const [openDays, setOpenDays] = useState(false);
   const [openTime, setOpenTime] = useState(false);
   const [openSubjects, setOpenSubjects] = useState(false);
@@ -131,7 +138,7 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
     toggler(false);
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!selectedSubject) return toast.error("გთხოვთ, აირჩიოთ საგანი");
     if (!selectedDay) return toast.error("გთხოვთ, აირჩიოთ დღე");
     if (!selectedTime) return toast.error("გთხოვთ, აირჩიოთ დრო");
@@ -141,22 +148,41 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
       return toast.error("გთხოვთ, დაეთანხმეთ კონფიდენციალურობის პოლიტიკას");
 
     const orderData = {
-      teacherId: teacher.id,
-      teacherName: `${teacher.user.firstName} ${teacher.user.lastName}`,
+      studentId,
+      teacherId: teacherUserId, // ✅ გამოიყენე აქ
       subject: selectedSubject,
       day: selectedDay,
       time: selectedTime,
       price: currentPrice,
-      teacherPhone: teacher.user.phoneNumber,
-      teacherEmail: teacher.user.email,
     };
 
-    console.log("Order data:", orderData);
+    try {
+      const response = await fetch("/api/book-lesson", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
 
-    toast.success(
-      `შეკვეთა მიღებულია! მასწავლებელი: ${orderData.teacherName}, საგანი: ${orderData.subject}, დრო: ${orderData.day} ${orderData.time}, ფასი: ${orderData.price}₾`,
-      { duration: 6000 }
-    );
+      const data = await response.json();
+
+      if (!response.ok)
+        throw new Error(data.error || "შეცდომა გაკვეთილის დასაწერად");
+
+      toast.success(
+        `გაკვეთილი წარმატებით დაინიშნა! მასწავლებელი: ${teacher.user.firstName} ${teacher.user.lastName}, საგანი: ${selectedSubject}, დრო: ${selectedDay} ${selectedTime}, ფასი: ${currentPrice}₾`,
+        { duration: 6000 }
+      );
+
+      router.push("/dashboard"); // გადაყვანა Dashboard-ზე
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+        console.error(error.message);
+      } else {
+        toast.error("შეცდომა მოხდა");
+        console.error(error);
+      }
+    }
   };
 
   return (

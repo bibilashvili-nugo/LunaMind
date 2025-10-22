@@ -50,7 +50,11 @@ const TutorPage = async ({ params }: TutorPageProps) => {
         <NavBar user={safeUser} />
         <div className="grid grid-cols-1 mt-[32px] lg:mt-5 xl:mt-6 lg:grid-cols-3 gap-4 pb-[200px]">
           <SingleTeacherLeftSide teacher={teacherWithSafeImage} />
-          <SingleTeacherRightSide teacher={teacherWithSafeImage} />
+          <SingleTeacherRightSide
+            teacher={teacherWithSafeImage}
+            studentId={safeUser.id}
+            teacherUserId={teacher.user.id}
+          />
         </div>
       </div>
     </div>
