@@ -26,15 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>
-          <IntlProvider>{children}</IntlProvider>
-          <Toaster position="top-right" reverseOrder={false} />
-        </Providers>
-      </body>
-    </html>
+    <Providers>
+      <IntlProvider>{children}</IntlProvider>
+      <Toaster position="top-right" reverseOrder={false} />
+    </Providers>
   );
 }
