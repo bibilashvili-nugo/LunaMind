@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CaretDownSm, Check } from "react-coolicons";
 import toast from "react-hot-toast";
 
@@ -58,41 +58,66 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
   // მასწავლებლის საგნები
   const subjectsData = teacher.teacherSubjects.map((subject) => subject.name);
 
-  // მასწავლებლის ხელმისაწვდომი დღეები
-  const availableDays = [
-    ...new Set(teacher.lessons.map((lesson) => lesson.day)),
-  ];
-  const daysData =
-    availableDays.length > 0
-      ? availableDays
-      : [
-          "ორშაბათი",
-          "სამშაბათი",
-          "ოთხშაბათი",
-          "ხუთშაბათი",
-          "პარასკევი",
-          "შაბათი",
-          "კვირა",
-        ];
+  // ფილტრირებული დღეები და დროები
+  const [filteredDays, setFilteredDays] = useState<string[]>([]);
+  const [filteredTimes, setFilteredTimes] = useState<string[]>([]);
 
-  // მასწავლებლის ხელმისაწვდომი დროები
-  const availableTimes = [
-    ...new Set(teacher.lessons.map((lesson) => lesson.time)),
-  ];
-  const timeData =
-    availableTimes.length > 0
-      ? availableTimes
-      : ["10:00", "12:00", "15:00", "17:00", "19:00", "21:00"];
-
-  // ფასის გამოთვლა შერჩეული საგნის მიხედვით
-  const getSelectedSubjectPrice = () => {
+  // დღეები საგნის მიხედვით
+  useEffect(() => {
     if (!selectedSubject) {
-      return teacher.teacherSubjects[0]?.price || 60; // პირველი საგნის ფასი ან default
+      setFilteredDays([]);
+      setSelectedDay(null);
+      setFilteredTimes([]);
+      setSelectedTime(null);
+      return;
     }
-    const selectedSubjectData = teacher.teacherSubjects.find(
+
+    const lessonsForSubject = teacher.lessons.filter(
+      (lesson) => lesson.subject === selectedSubject
+    );
+
+    const days = [...new Set(lessonsForSubject.map((lesson) => lesson.day))];
+    setFilteredDays(days);
+
+    // თუ current selectedDay აღარ არის days-ში, გამოტოვე
+    if (selectedDay && !days.includes(selectedDay)) {
+      setSelectedDay(null);
+      setSelectedTime(null);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSubject, teacher.lessons]);
+
+  // დროები დღისა და საგნის მიხედვით
+  useEffect(() => {
+    if (!selectedSubject || !selectedDay) {
+      setFilteredTimes([]);
+      setSelectedTime(null);
+      return;
+    }
+
+    const lessonsForDayAndSubject = teacher.lessons.filter(
+      (lesson) =>
+        lesson.subject === selectedSubject && lesson.day === selectedDay
+    );
+
+    const times = [
+      ...new Set(lessonsForDayAndSubject.map((lesson) => lesson.time)),
+    ];
+    setFilteredTimes(times);
+
+    if (selectedTime && !times.includes(selectedTime)) setSelectedTime(null);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSubject, selectedDay, teacher.lessons]);
+
+  // ფასის გამოთვლა
+  const getSelectedSubjectPrice = () => {
+    if (!selectedSubject) return teacher.teacherSubjects[0]?.price || 60;
+    const selected = teacher.teacherSubjects.find(
       (subj) => subj.name === selectedSubject
     );
-    return selectedSubjectData?.price || 60;
+    return selected?.price || 60;
   };
 
   const currentPrice = getSelectedSubjectPrice();
@@ -106,33 +131,14 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
     toggler(false);
   };
 
-  // შეკვეთის დამუშავება
   const handlePayment = () => {
-    // ვალიდაცია
-    if (!selectedSubject) {
-      toast.error("გთხოვთ, აირჩიოთ საგანი");
-      return;
-    }
-
-    if (!selectedDay) {
-      toast.error("გთხოვთ, აირჩიოთ დღე");
-      return;
-    }
-
-    if (!selectedTime) {
-      toast.error("გთხოვთ, აირჩიოთ დრო");
-      return;
-    }
-
-    if (!acceptedTerms) {
-      toast.error("გთხოვთ, დაეთანხმეთ პირობებს და წესებს");
-      return;
-    }
-
-    if (!acceptedPrivacy) {
-      toast.error("გთხოვთ, დაეთანხმეთ კონფიდენციალურობის პოლიტიკას");
-      return;
-    }
+    if (!selectedSubject) return toast.error("გთხოვთ, აირჩიოთ საგანი");
+    if (!selectedDay) return toast.error("გთხოვთ, აირჩიოთ დღე");
+    if (!selectedTime) return toast.error("გთხოვთ, აირჩიოთ დრო");
+    if (!acceptedTerms)
+      return toast.error("გთხოვთ, დაეთანხმეთ პირობებს და წესებს");
+    if (!acceptedPrivacy)
+      return toast.error("გთხოვთ, დაეთანხმეთ კონფიდენციალურობის პოლიტიკას");
 
     const orderData = {
       teacherId: teacher.id,
@@ -147,21 +153,10 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
 
     console.log("Order data:", orderData);
 
-    // წარმატებული შეკვეთის მესიჯი
     toast.success(
       `შეკვეთა მიღებულია! მასწავლებელი: ${orderData.teacherName}, საგანი: ${orderData.subject}, დრო: ${orderData.day} ${orderData.time}, ფასი: ${orderData.price}₾`,
-      {
-        duration: 6000,
-      }
+      { duration: 6000 }
     );
-
-    // აქ დაამატე გადახდის ლოგიკა ან API call
-    // მაგალითად:
-    // fetch('/api/payment', {
-    //   method: 'POST',
-    //   body: JSON.stringify(orderData),
-    //   headers: { 'Content-Type': 'application/json' }
-    // })
   };
 
   return (
@@ -181,9 +176,10 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
         </span>
       </div>
       <hr className="border border-[#EBECF0]" />
+
       {/* Subject Dropdown */}
       <div className="bg-white px-4 pt-4">
-        <div className="relative w-full  border border-[#EBECF0] px-3 py-[10px] rounded-xl flex flex-col cursor-pointer  ">
+        <div className="relative w-full border border-[#EBECF0] px-3 py-[10px] rounded-xl flex flex-col cursor-pointer">
           <div
             className="flex justify-between items-center"
             onClick={() => {
@@ -202,6 +198,7 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
             </div>
             <CaretDownSm className="text-[#969696] text-lg" />
           </div>
+
           {openSubjects && (
             <div className="absolute top-full left-0 w-full bg-white border border-[#E6E6E6] rounded-xl max-h-48 overflow-y-auto z-10">
               {subjectsData.map((subj) => (
@@ -225,7 +222,7 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
 
       {/* Day Dropdown */}
       <div className="bg-white px-4 pt-3">
-        <div className="relative w-full  border border-[#EBECF0] px-3 py-[10px] rounded-xl flex flex-col cursor-pointer  ">
+        <div className="relative w-full border border-[#EBECF0] px-3 py-[10px] rounded-xl flex flex-col cursor-pointer">
           <div
             className="flex justify-between items-center"
             onClick={() => {
@@ -247,7 +244,7 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
 
           {openDays && (
             <div className="absolute top-full left-0 w-full bg-white border border-[#E6E6E6] rounded-xl max-h-48 overflow-y-auto z-10">
-              {daysData.map((day) => (
+              {filteredDays.map((day) => (
                 <div
                   key={day}
                   onClick={() => handleSelect(day, setSelectedDay, setOpenDays)}
@@ -266,7 +263,7 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
 
       {/* Time Dropdown */}
       <div className="bg-white px-4 pt-3 pb-4">
-        <div className="relative w-full  border border-[#EBECF0] px-3 py-[10px] rounded-xl flex flex-col cursor-pointer  ">
+        <div className="relative w-full border border-[#EBECF0] px-3 py-[10px] rounded-xl flex flex-col cursor-pointer">
           <div
             className="flex justify-between items-center"
             onClick={() => {
@@ -288,7 +285,7 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
 
           {openTime && (
             <div className="absolute top-full left-0 w-full bg-white border border-[#E6E6E6] rounded-xl max-h-48 overflow-y-auto z-10">
-              {timeData.map((time) => (
+              {filteredTimes.map((time) => (
                 <div
                   key={time}
                   onClick={() =>
@@ -306,7 +303,10 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
           )}
         </div>
       </div>
+
       <hr className="border border-[#EBECF0] bg-white" />
+
+      {/* Checkboxes */}
       <div className="bg-white pt-4 flex flex-col gap-2">
         <div className="px-4">
           <label className="flex items-center gap-2 cursor-pointer">
@@ -333,7 +333,7 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
               className="w-[18px] h-[18px] rounded-[4px] border border-[#EBEBEB] accent-[#F0C514] cursor-pointer"
             />
             <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-              ვეთანხმები
+              ვეთანხმები{" "}
               <span className="text-[#0077FF] cursor-pointer text-sm leading-5 font-helveticaneue-regular">
                 კონფიდენციალურობის პოლიტიკას
               </span>
@@ -341,10 +341,10 @@ const SingleTeacherRightSide = ({ teacher }: SingleTeacherLeftSideProps) => {
           </label>
         </div>
       </div>
+
       <div className="bg-white py-4 px-4 rounded-b-2xl">
         <button
-          className="text-sm leading-5 text-[#080808] font-helveticaneue-medium py-3 bg-[#F0C514] rounded-[50px] w-full
-        "
+          className="text-sm leading-5 text-[#080808] font-helveticaneue-medium py-3 bg-[#F0C514] rounded-[50px] w-full"
           onClick={handlePayment}
         >
           გადახდა
