@@ -171,7 +171,7 @@ export const FilterPanel = ({
             }`}
           >
             {selectedSubjects.length > 0
-              ? `${selectedSubjects.length} საგანი არჩეულია`
+              ? selectedSubjects.join(", ")
               : "აირჩიეთ საგნები"}
           </span>
 
@@ -213,7 +213,7 @@ export const FilterPanel = ({
             }`}
           >
             {selectedDays.length > 0
-              ? `${selectedDays.length} დღე არჩეულია`
+              ? `${selectedDays.join(", ")}`
               : "სასურველი დღე"}
           </span>
 

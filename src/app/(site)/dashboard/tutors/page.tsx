@@ -79,6 +79,35 @@ export default async function TutorsStudent({
     },
   }));
 
+  // მხოლოდ subjects, price, days, time შესაბამისი ქარდები
+  const expandedTeachers = teachersWithSafeImages.flatMap(
+    (teacher) =>
+      teacher.teacherSubjects
+        ?.filter((subject) => {
+          const matchesSubject =
+            subjects.length === 0 || subjects.includes(subject.name);
+          const matchesPrice =
+            (minPrice === undefined || subject.price! >= minPrice) &&
+            (maxPrice === undefined || subject.price! <= maxPrice);
+          return matchesSubject && matchesPrice;
+        })
+        .map((subject) => ({
+          ...teacher,
+          subjectName: subject.name,
+          subjectPrice: subject.price,
+        })) || []
+  );
+
+  // დღეებისა და დროის საბოლოო ფილტრი
+  const fullyFilteredTeachers = expandedTeachers.filter((teacher) => {
+    const matchesDay =
+      days.length === 0 ||
+      teacher.lessons?.some((lesson) => days.includes(lesson.day));
+    const matchesTime =
+      !time || teacher.lessons?.some((lesson) => lesson.time === time);
+    return matchesDay && matchesTime;
+  });
+
   return (
     <div className="bg-[#F6F5FA]">
       <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
@@ -105,10 +134,7 @@ export default async function TutorsStudent({
               />
             </div>
           </div>
-          <TeacherList
-            teachers={teachersWithSafeImages}
-            filterParams={{ subjects, days, time, minPrice, maxPrice }}
-          />
+          <TeacherList teachers={fullyFilteredTeachers} />
         </div>
       </div>
     </div>
