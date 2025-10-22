@@ -171,6 +171,9 @@ model BookedLesson {
   day       String
   time      String
   price     Float
+  duration  Float? // Optional
+  comment   String? // Optional
+  link      String? // Optional
   createdAt DateTime @default(now())
 
   student User @relation("BookedLessonStudent", fields: [studentId], references: [id], onDelete: Cascade)
