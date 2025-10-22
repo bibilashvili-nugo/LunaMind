@@ -98,8 +98,13 @@ export default async function TutorsStudent({
         })) || []
   );
 
+  // ✅ იფილტრება მასწავლებლები, რომლებსაც გაკვეთილი/lesson არ აქვთ
+  const teachersWithLessons = expandedTeachers.filter(
+    (teacher) => teacher.lessons && teacher.lessons.length > 0
+  );
+
   // დღეებისა და დროის საბოლოო ფილტრი
-  const fullyFilteredTeachers = expandedTeachers.filter((teacher) => {
+  const fullyFilteredTeachers = teachersWithLessons.filter((teacher) => {
     const matchesDay =
       days.length === 0 ||
       teacher.lessons?.some((lesson) => days.includes(lesson.day));
