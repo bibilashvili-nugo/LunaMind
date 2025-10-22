@@ -34,12 +34,20 @@ const RegistrationForm = () => {
   const [error, setError] = useState("");
 
   const router = useRouter();
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const georgianNameRegex = /^[ა-ჰ\s]*$/; // * რათა ტაიპისას არ დაბლოკოს
+    if (georgianNameRegex.test(value)) {
+      setFullName(value);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName.trim()) {
-      setError("გთხოვთ შეიყვანოთ სახელი და გვარი.");
+    const parts = fullName.trim().split(" ");
+    if (parts.length < 2 || parts.some((part) => part.length < 2)) {
+      setError("გთხოვთ შეიყვანოთ სახელი და გვარი (თითოეულში მინიმუმ 2 ასო).");
       return;
     }
     if (!emailRegex.test(email)) {
@@ -129,9 +137,9 @@ const RegistrationForm = () => {
           </div>
           <div className="mt-[20px] lg:mt-[24px] flex flex-col gap-4">
             <LoginRegisterContentInput
-              placeholder="სახელი და გვარი"
+              placeholder="სახელი და გვარი (ქართულად)"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={handleFullNameChange}
               type="text"
             />
             <LoginRegisterContentInput
