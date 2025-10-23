@@ -166,7 +166,7 @@ const ActivityTracker = ({
             ref={modalRef}
             className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
           >
-            <OurLessons />
+            <OurLessons lessons={lessons} teacher={teacher} />
             <button
               onClick={() => setShowModal(false)}
               className="absolute top-3 right-6 text-black text-lg font-bold"

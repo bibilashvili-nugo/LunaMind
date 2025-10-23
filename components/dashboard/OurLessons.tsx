@@ -1,4 +1,3 @@
-import { useBookedLessons } from "@/hooks/useBookedLessons";
 import Link from "next/link";
 import { CalendarAdd } from "react-coolicons";
 import NoContent from "../ui/NoContent";
@@ -7,6 +6,22 @@ interface OurLessonsProps {
   subject: string;
   teacher: string;
   svgColor: string;
+}
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface BookedLesson {
+  id: string;
+  date: string;
+  teacher: User;
+  student: User;
+  createdAt: string;
+  duration: number;
+  subject: string;
 }
 
 const OurLessonsBox = ({ subject, teacher, svgColor }: OurLessonsProps) => {
@@ -62,18 +77,16 @@ const AddNewLessons = () => {
 const OurLessons = ({
   profilePage = false,
   teacher = false,
-  studentId,
-  teacherId,
+  // studentId,
+  // teacherId,
+  lessons,
 }: {
   profilePage?: boolean;
   teacher?: boolean;
-  studentId?: string;
-  teacherId?: string;
+  // studentId?: string;
+  // teacherId?: string;
+  lessons?: BookedLesson[];
 }) => {
-  const { data: lessons } = useBookedLessons(
-    teacher ? { teacherId: teacherId } : { studentId: studentId }
-  );
-
   return (
     <div
       className={` bg-white rounded-2xl p-5 flex flex-col gap-4 ${

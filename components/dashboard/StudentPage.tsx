@@ -1,3 +1,4 @@
+import { useBookedLessons } from "@/hooks/useBookedLessons";
 import ActivityTracker from "./ActivityTracker";
 import FutureLessons from "./FutureLessons";
 import NavBar from "./NavBar";
@@ -18,12 +19,13 @@ type StudentPageProps = {
 };
 
 const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
+  const { data: lessons } = useBookedLessons({ studentId: user?.id });
   return (
     <div className="px-4 lg:px-6 bg-[#F6F5FA] 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
       <NavBar user={user} />
       <div className="grid grid-cols-1 pt-8 lg:hidden">
         <ActivityTracker studentId={user.id} />
-        <OurLessons studentId={user.id} />
+        <OurLessons lessons={lessons} />
         <FutureLessons studentId={user.id} />
         <PremiumStats />
         <RepetitorSwiper />
@@ -31,7 +33,7 @@ const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
       </div>
       <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <OurLessons studentId={user.id} />
+          <OurLessons lessons={lessons} />
           <Review studentId={user.id} />
         </div>
         <div className="lg:col-span-2 flex flex-col gap-4">
