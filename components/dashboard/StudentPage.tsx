@@ -24,7 +24,7 @@ const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
       <div className="grid grid-cols-1 pt-8 lg:hidden">
         <ActivityTracker />
         <OurLessons />
-        <FutureLessons />
+        <FutureLessons studentId={user.id} />
         <PremiumStats />
         <RepetitorSwiper />
         <Review studentId={user.id} />
@@ -37,7 +37,7 @@ const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
         <div className="lg:col-span-2 flex flex-col gap-4">
           <ActivityTracker />
           <div className="xl:grid xl:grid-cols-3 gap-4">
-            <FutureLessons />
+            <FutureLessons studentId={user.id} />
             <PremiumStats />
           </div>
           <div className="hidden xl:block">

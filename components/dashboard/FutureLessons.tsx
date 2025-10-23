@@ -133,9 +133,11 @@ const FutureLessonsBox = ({
 const FutureLessons = ({
   teacher = false,
   teacherId = undefined,
+  studentId,
 }: {
   teacher?: boolean;
   teacherId?: string;
+  studentId?: string;
 }) => {
   const [formattedDate, setFormattedDate] = useState("");
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -158,24 +160,40 @@ const FutureLessons = ({
     setFormattedDate(formatted);
   }, []);
 
+  // FutureLessons კომპონენტში
   useEffect(() => {
     const fetchLessons = async () => {
+      if (!studentId && !teacher) return;
+
       try {
-        const res = await fetch("/api/teachers/lessons");
+        const url = teacher
+          ? "/api/teachers/lessons"
+          : `/api/book-lesson/booked-lessons?studentId=${studentId}`;
+
+        console.log("Fetching from:", url);
+        console.log("Student ID:", studentId);
+
+        const res = await fetch(url);
+
+        console.log("Response status:", res.status);
+
         if (!res.ok) throw new Error("Failed to fetch");
+
         const data: Lesson[] = await res.json();
+        console.log("Fetched data:", data);
+
+        // მხოლოდ მომავალი გაკვეთილები
         const futureLessons = data.filter(
-          (lesson) =>
-            new Date(lesson.date) >= new Date() &&
-            (!teacherId || lesson.teacher.id === teacherId)
+          (lesson) => new Date(lesson.date) >= new Date()
         );
+
         setLessons(futureLessons);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching lessons:", error);
       }
     };
     fetchLessons();
-  }, [teacherId]);
+  }, [teacher, studentId]);
 
   const handleOpenMeetingLink = (lesson: Lesson) => {
     setSelectedLesson(lesson);

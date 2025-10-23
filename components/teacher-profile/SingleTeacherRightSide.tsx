@@ -49,7 +49,6 @@ interface SingleTeacherRightSideProps {
 const SingleTeacherRightSide = ({
   teacher,
   studentId,
-  teacherUserId,
 }: SingleTeacherRightSideProps) => {
   const router = useRouter();
   const [openDays, setOpenDays] = useState(false);
@@ -147,9 +146,21 @@ const SingleTeacherRightSide = ({
     if (!acceptedPrivacy)
       return toast.error("გთხოვთ, დაეთანხმეთ კონფიდენციალურობის პოლიტიკას");
 
+    // იპოვე შერჩეული ლესონი დეტალებით
+    const selectedLesson = teacher.lessons.find(
+      (lesson) =>
+        lesson.subject === selectedSubject &&
+        lesson.day === selectedDay &&
+        lesson.time === selectedTime
+    );
+
+    if (!selectedLesson) {
+      return toast.error("გაკვეთილი ვერ მოიძებნა");
+    }
+
     const orderData = {
       studentId,
-      teacherId: teacherUserId, // ✅ გამოიყენე აქ
+      teacherId: teacher.user.id, // ✅ გამოიყენე teacher.user.id (ეს არის User-ის ID)
       subject: selectedSubject,
       day: selectedDay,
       time: selectedTime,
@@ -173,7 +184,7 @@ const SingleTeacherRightSide = ({
         { duration: 6000 }
       );
 
-      router.push("/dashboard"); // გადაყვანა Dashboard-ზე
+      router.push("/dashboard");
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);

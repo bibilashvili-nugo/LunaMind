@@ -169,6 +169,7 @@ model BookedLesson {
   teacherId String
   subject   String
   day       String
+  date      DateTime
   time      String
   price     Float
   duration  Float? // Optional

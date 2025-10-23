@@ -41,15 +41,19 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1️⃣ შექმენი ჩანიშნული ლესონი
+    // 1️⃣ შექმენი ჩანიშნული ლესონი - დაამატე date და link ველები
     const bookedLesson = await prisma.bookedLesson.create({
       data: {
         studentId,
         teacherId,
         subject,
         day,
+        date: lesson.date, // ✅ დაემატა date
         time,
         price,
+        duration: lesson.duration, // ✅ დაემატა duration
+        link: lesson.link, // ✅ დაემატა link
+        comment: lesson.comment, // ✅ დაემატა comment (თუ არის)
       },
     });
 
