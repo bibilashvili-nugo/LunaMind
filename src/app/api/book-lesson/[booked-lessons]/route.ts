@@ -1,4 +1,4 @@
-// app/api/book-lesson/booked-lessons/route.ts
+// app/api/book-lesson/[booked-lessons]/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 

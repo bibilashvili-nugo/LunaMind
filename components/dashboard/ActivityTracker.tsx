@@ -3,6 +3,8 @@
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useRef, useState } from "react";
 import OurLessons from "./OurLessons";
+import { useBookedLessons } from "@/hooks/useBookedLessons";
+import { countFinishedLessons, countFinishedLessonsHours } from "@/utils/count";
 
 interface AtcivityTrackerBoxProps {
   color: string;
@@ -11,6 +13,7 @@ interface AtcivityTrackerBoxProps {
   text: string;
   seeAllText: string;
   profilePage?: boolean;
+  count?: number;
   onClick?: () => void;
 }
 
@@ -22,6 +25,7 @@ const AtcivityTrackerBox = ({
   seeAllText,
   profilePage,
   onClick,
+  count,
 }: AtcivityTrackerBoxProps) => {
   return (
     <div
@@ -45,7 +49,7 @@ const AtcivityTrackerBox = ({
       </div>
       <div className="pt-3 flex justify-between items-center md:pt-5">
         <span className="text-2xl leading-[28px] text-black font-spacegrotesk-bold md:text-[32px]">
-          3
+          {count}
         </span>
         <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular underline underline-[#737373] underline-offset-3 cursor-pointer">
           {seeAllText}
@@ -58,12 +62,40 @@ const AtcivityTrackerBox = ({
 const ActivityTracker = ({
   profilePage = false,
   teacher = false,
+  studentId,
 }: {
   profilePage?: boolean;
   teacher?: boolean;
+  studentId: string;
 }) => {
   const [showModal, setShowModal] = useState(false);
   const modalRef = useRef<HTMLDivElement | null>(null);
+
+  const { data: lessons } = useBookedLessons(studentId);
+  const activeLessonsCount = lessons?.length || 0;
+
+  const uniqueTeachersCount = lessons
+    ? new Set(lessons.map((lesson) => lesson.teacher.id)).size
+    : 0;
+
+  // ActivityTracker-ში
+  const finishedLessonsCount = lessons
+    ? countFinishedLessons(
+        lessons.map((lesson) => ({
+          createdAt: lesson.createdAt,
+          duration: lesson.duration,
+        }))
+      )
+    : 0;
+
+  const finishedLessonsHours = lessons
+    ? countFinishedLessonsHours(
+        lessons.map((lesson) => ({
+          createdAt: lesson.createdAt,
+          duration: lesson.duration,
+        }))
+      )
+    : 0;
 
   useClickOutside(modalRef, () => setShowModal(false));
   return (
@@ -81,6 +113,7 @@ const ActivityTracker = ({
           seeAllText="ყველას ნახვა"
           profilePage={profilePage}
           onClick={() => setShowModal(true)}
+          count={activeLessonsCount}
         />
         <AtcivityTrackerBox
           text="ისწავლე მეტი"
@@ -89,6 +122,7 @@ const ActivityTracker = ({
           description={teacher ? "ჩემი მოსწავლეები" : "არჩეული რეპეტიტორი"}
           seeAllText="ყველას ნახვა"
           profilePage={profilePage}
+          count={uniqueTeachersCount}
         />
       </div>
       <div className="flex flex-col gap-3 sm:flex-row xl:flex-1 xl:items-center">
@@ -99,6 +133,7 @@ const ActivityTracker = ({
           description="დასრულებული გაკვეთილი"
           seeAllText="ისტორიის ნახვა"
           profilePage={profilePage}
+          count={finishedLessonsCount}
         />
         <div
           className={`p-4  border border-[#EFEEF4] rounded-2xl flex flex-col gap-3 md:gap-5 sm:w-1/2
@@ -111,7 +146,7 @@ const ActivityTracker = ({
             className="text-2xl leading-[28px] font-spacegrotesk-bold md:text-[32px]"
             style={{ color: "rgba(125, 63, 255, 0.973)" }}
           >
-            02:43:29
+            {finishedLessonsHours}:00:00
           </span>
           <span className="text-[10px] leading-3 text-[#737373] font-helveticaneue-regular md:text-xs md:leading-4">
             სწავლაში დაბანდებული დრო არასდროს არის დაკარგული
