@@ -5,6 +5,7 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import NoContent from "../ui/NoContent";
 import LinkCreate from "../teacher-profile/LinkCreate";
 import { LessonCreate } from "../teacher-profile/LessonCreate";
+import { useBookedLessons } from "@/hooks/useBookedLessons";
 
 interface Lesson {
   id: string;
@@ -150,6 +151,10 @@ const FutureLessons = ({
   useClickOutside(modalRef, () => setModalOpen(false));
   useClickOutside(meetingModalRef, () => setMeetingModalOpen(false));
 
+  const { data: bookedLessons } = useBookedLessons({
+    teacherId,
+  });
+
   useEffect(() => {
     const today = new Date();
     const formatted = new Intl.DateTimeFormat("ka-GE", {
@@ -202,9 +207,21 @@ const FutureLessons = ({
 
   return (
     <div
-      className="mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto lg:mt-0 xl:col-span-2 max-h-[644px] xl:max-h-[680px]"
+      className="mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto lg:mt-0 xl:col-span-2 h-fit max-h-[644px] xl:max-h-[680px]"
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
+      {teacher &&
+        bookedLessons &&
+        bookedLessons
+          .filter((lesson) => new Date(lesson.date) >= new Date())
+          .map((lesson) => (
+            <FutureLessonsBox
+              key={lesson.id}
+              teacher={teacher}
+              lesson={lesson}
+              onOpenMeetingLink={handleOpenMeetingLink}
+            />
+          ))}
       <div className="flex sm:justify-between sm:items-center flex-col items-start sm:flex-row gap-4">
         <div className="flex flex-col gap-1">
           <span className="text-xl leading-7 text-[#0C0F21] font-helveticaneue-medium !font-bold">

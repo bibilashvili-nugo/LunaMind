@@ -14,6 +14,7 @@ interface BookedLesson {
   createdAt: string;
   duration: number;
   subject: string;
+  time: string;
 }
 
 interface UseBookedLessonsParams {
