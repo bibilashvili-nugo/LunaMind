@@ -1,14 +1,10 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import TutorsType from "./TutorsType";
 
 const ChooseAnyTime = () => {
-  const t = useTranslations("chooseAnyTime");
   return (
     <div className="text-center flex flex-col gap-3 w-full sm:gap-5 lg:order-1 lg:w-[20%] lg:gap-3">
       <p className="text-sm leading-5 font-helveticaneue-regular text-[#939393] w-[288px] mx-auto lg:w-full lg:text-xs">
-        {t("pickDay")}
+        შენ შეგიძლია სწავლისთვის აირჩიო კვირის ნებისმიერი დღე
       </p>
 
       <div className="rounded-[16px] bg-[#F6F7FB] h-[242px] flex items-center justify-center p-[16px] sm:hidden lg:flex lg:h-full lg:rounded-4xl">

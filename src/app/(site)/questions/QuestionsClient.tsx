@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import LanguageDropDown from "../../../../components/ui/LanguageDropDown";
 
 type QuestionType = "text" | "number" | "textarea" | "select" | "subjects";
 
@@ -262,7 +261,6 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         <div className="text-2xl leading-[100%] font-aclonica-regular xl:text-[32px] cursor-pointer px-2 sm:px-0">
           LunaMind
         </div>
-        <LanguageDropDown />
       </div>
       <hr className="text-[#EBEBEB] pb-6 sm:pb-8" />
       <div className="px-4 md:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto lg:w-[576px] lg:mx-auto">

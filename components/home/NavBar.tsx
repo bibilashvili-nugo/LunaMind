@@ -3,32 +3,24 @@
 import { useEffect, useState } from "react";
 import { AccountCircle } from "../ui/Icons";
 import Link from "next/link";
-import LanguageDropDown from "../ui/LanguageDropDown";
-import { useTranslations } from "next-intl";
 
 const NAV_OFFSET = 80;
 
 type HeaderKey = "home" | "why" | "tutors" | "reviews" | "packages";
 
 const NavBar = () => {
-  const headerLinks: { key: HeaderKey; href: string }[] = [
-    { key: "home", href: "#home" },
-    { key: "why", href: "#why" },
-    { key: "tutors", href: "#tutors" },
-    { key: "reviews", href: "#reviews" },
-    { key: "packages", href: "#packages" },
+  const headerLinks: { key: HeaderKey; href: string; label: string }[] = [
+    { key: "home", href: "#home", label: "მთავარი" },
+    { key: "why", href: "#why", label: "რატომ ჩვენ" },
+    { key: "tutors", href: "#tutors", label: "რეპეტიტორები" },
+    { key: "reviews", href: "#reviews", label: "შეფასებები" },
+    { key: "packages", href: "#packages", label: "პაკეტები" },
   ];
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeId, setActiveId] = useState<string>(headerLinks[0]?.href || "");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  const t = useTranslations();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,9 +112,7 @@ const NavBar = () => {
                   onMouseEnter={() => setHoveredId(item.href)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
-                  {mounted
-                    ? t(`header.${item.key}`, { fallback: item.key })
-                    : item.key}
+                  {item.label}
                 </li>
               );
             })}
@@ -133,12 +123,10 @@ const NavBar = () => {
               <div className="bg-[#FFD52A] py-[14px] px-[24px] rounded-[40px] xl:flex xl:items-center xl:gap-2">
                 <AccountCircle />
                 <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-[24px] font-helveticaneue-medium">
-                  {mounted ? t("header.login") : <span></span>}
+                  შესვლა
                 </span>
               </div>
             </Link>
-
-            <LanguageDropDown />
           </div>
         </div>
       </div>

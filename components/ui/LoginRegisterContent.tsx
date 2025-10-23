@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import LanguageDropDown from "./LanguageDropDown";
+
 import { useState } from "react";
 import { Hide, Show } from "react-coolicons";
 
@@ -11,9 +11,6 @@ export const LoginRegisterContentHeader = () => {
       <span className="text-2xl text-[#0C0F21] font-aclonica-regular">
         LunaMind
       </span>
-      <div className="lg:mr-4 2xl:mr-0">
-        <LanguageDropDown />
-      </div>
     </div>
   );
 };

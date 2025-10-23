@@ -1,10 +1,6 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 const Tutors = () => {
-  const t = useTranslations("tutors");
   const tutorImages = [
     "/images/tutor.png",
     "/images/tutor.png",
@@ -38,12 +34,12 @@ const Tutors = () => {
             137+
           </span>
           <span className="text-xs leading-4 text-[#939393] font-helveticaneue-regular">
-            {t("tutorsCount")}
+            რეპეტიტორი
           </span>
         </div>
       </div>
       <div className="w-full text-center text-xs leading-4 font-helveticaneue-regular text-[#737373]  hidden lg:block pb-3 3xl:pb-4">
-        {t("chooseSubject")}
+        აირჩიე სასურველი საგანი და დაიწყე ონლაინ მომზადება
       </div>
     </>
   );
