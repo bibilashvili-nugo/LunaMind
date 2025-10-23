@@ -21,13 +21,13 @@ const TeacherProfile: React.FC<TeacherPageProps> = ({ user }) => {
       <NavBar user={user} />
       <div className="grid grid-cols-1 pt-8 lg:hidden">
         <ActivityTracker teacher={true} teacherId={user?.id} />
-        <OurLessons teacher={true} />
+        <OurLessons teacher={true} teacherId={user?.id} />
         <FutureLessons teacher={true} teacherId={user?.id} />
         <PremiumStats />
       </div>
       <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <OurLessons teacher={true} />
+          <OurLessons teacher={true} teacherId={user?.id} />
         </div>
         <div className="lg:col-span-2 flex flex-col gap-4">
           <ActivityTracker teacher={true} teacherId={user?.id} />

@@ -13,6 +13,7 @@ interface BookedLesson {
   student: User;
   createdAt: string;
   duration: number;
+  subject: string;
 }
 
 interface UseBookedLessonsParams {

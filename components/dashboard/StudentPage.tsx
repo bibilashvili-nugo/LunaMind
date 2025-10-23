@@ -23,7 +23,7 @@ const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
       <NavBar user={user} />
       <div className="grid grid-cols-1 pt-8 lg:hidden">
         <ActivityTracker studentId={user.id} />
-        <OurLessons />
+        <OurLessons studentId={user.id} />
         <FutureLessons studentId={user.id} />
         <PremiumStats />
         <RepetitorSwiper />
@@ -31,7 +31,7 @@ const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
       </div>
       <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <OurLessons />
+          <OurLessons studentId={user.id} />
           <Review studentId={user.id} />
         </div>
         <div className="lg:col-span-2 flex flex-col gap-4">

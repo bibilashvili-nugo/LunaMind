@@ -1,5 +1,7 @@
+import { useBookedLessons } from "@/hooks/useBookedLessons";
 import Link from "next/link";
 import { CalendarAdd } from "react-coolicons";
+import NoContent from "../ui/NoContent";
 
 interface OurLessonsProps {
   subject: string;
@@ -60,13 +62,23 @@ const AddNewLessons = () => {
 const OurLessons = ({
   profilePage = false,
   teacher = false,
+  studentId,
+  teacherId,
 }: {
   profilePage?: boolean;
   teacher?: boolean;
+  studentId?: string;
+  teacherId?: string;
 }) => {
+  const { data: lessons } = useBookedLessons(
+    teacher ? { teacherId: teacherId } : { studentId: studentId }
+  );
+
   return (
     <div
-      className={` bg-white rounded-2xl p-5 flex flex-col gap-4  lg:h-[596px] lg:py-6
+      className={` bg-white rounded-2xl p-5 flex flex-col gap-4 ${
+        lessons?.length === 0 && "lg:max-h-[596px]"
+      } lg:py-6
         ${
           profilePage
             ? "md:h-[428px] lg:mt-6 mt-4 lg:h-[436px]"
@@ -79,31 +91,22 @@ const OurLessons = ({
       </span>
       <div className="flex flex-col justify-between h-full gap-2">
         <div className="flex flex-col gap-2">
-          <OurLessonsBox
-            subject="ისტორიის საფუძვლები"
-            teacher="მანანა კახიძე"
-            svgColor="#7D3FFF"
-          />
-          <OurLessonsBox
-            subject="მათემატიკა"
-            teacher="გურამ ალთუნაშვილი"
-            svgColor="#52CE91"
-          />
-          <OurLessonsBox
-            subject="ზოგადი უნარები"
-            teacher="მერაბ კაცაძე"
-            svgColor="#F0C514"
-          />
-          <OurLessonsBox
-            subject="ინგლისური ენა"
-            teacher="თეიმურაზ ბოჭორიშვილი"
-            svgColor="#3E74FF"
-          />
-          <OurLessonsBox
-            subject="ბუნების მეტყველება"
-            teacher="მერაბ კაცაძე"
-            svgColor="#F04F14"
-          />
+          {lessons && lessons.length > 0 ? (
+            lessons.map((lesson) => (
+              <OurLessonsBox
+                key={lesson.id}
+                subject={lesson.subject}
+                teacher={
+                  teacher
+                    ? `${lesson.student.firstName} ${lesson.student.lastName}`
+                    : `${lesson.teacher.firstName} ${lesson.teacher.lastName}`
+                }
+                svgColor="#7D3FFF"
+              />
+            ))
+          ) : (
+            <NoContent needBtn={false} desc="გთხოვთ დაამატოთ გაკვეთილი" />
+          )}
         </div>
         {!teacher && <AddNewLessons />}
       </div>
