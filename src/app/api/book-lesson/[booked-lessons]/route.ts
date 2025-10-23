@@ -23,7 +23,6 @@ export async function GET(req: Request) {
       );
     }
 
-    // წვდომის საწყისი ფილტრი
     const whereClause: Prisma.BookedLessonWhereInput = {};
 
     if (studentId) {
@@ -52,12 +51,25 @@ export async function GET(req: Request) {
       }
     }
 
-    // ჩანიშნული გაკვეთილები
     const bookedLessons = await prisma.bookedLesson.findMany({
       where: whereClause,
       include: {
-        teacher: { select: { id: true, firstName: true, lastName: true } },
-        student: { select: { id: true, firstName: true, lastName: true } },
+        teacher: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            image: true, // ✅ სურათი დაემატა
+          },
+        },
+        student: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            image: true, // ✅ სურათი დაემატა
+          },
+        },
       },
       orderBy: { date: "asc" },
     });
@@ -66,7 +78,6 @@ export async function GET(req: Request) {
 
     const now = new Date();
 
-    // მხოლოდ მომავალი გაკვეთილები
     const futureLessons = bookedLessons.filter(
       (lesson) => new Date(lesson.date) >= now
     );

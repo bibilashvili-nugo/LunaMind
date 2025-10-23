@@ -6,6 +6,8 @@ import NoContent from "../ui/NoContent";
 import LinkCreate from "../teacher-profile/LinkCreate";
 import { LessonCreate } from "../teacher-profile/LessonCreate";
 import { useBookedLessons } from "@/hooks/useBookedLessons";
+import toast from "react-hot-toast";
+import Image from "next/image";
 
 interface Lesson {
   id: string;
@@ -19,6 +21,13 @@ interface Lesson {
     id: string;
     firstName: string;
     lastName: string;
+    image?: string;
+  };
+  student: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    image?: string;
   };
 }
 
@@ -43,21 +52,39 @@ const FutureLessonsBoxContent = ({
   lesson: Lesson;
   onOpenMeetingLink: (lesson: Lesson) => void;
 }) => {
-  const fullName = `${lesson.teacher.firstName} ${lesson.teacher.lastName}`;
+  const fullNameTeacher = `${lesson.teacher?.firstName || ""} ${
+    lesson.teacher?.lastName || ""
+  }`;
+  const fullNameStudent = `${lesson.student?.firstName || ""} ${
+    lesson.student?.lastName || ""
+  }`;
+
   const handleAttendanceClick = () => {
     if (lesson.link) {
       window.open(lesson.link, "_blank"); // Opens link in a new tab
     } else {
-      alert("შეხვედრის ლინკი ჯერ არ არის მითითებული");
+      toast.error("შეხვედრის ლინკი ჯერ არ არის მითითებული");
     }
   };
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:gap-0 sm:justify-between">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 bg-black rounded-full"></div>
+        <div className="w-11 h-11  rounded-full">
+          <Image
+            width={44}
+            height={44}
+            src={
+              teacher
+                ? lesson?.student?.image || "/images/default-profile.png"
+                : lesson?.teacher?.image || "/images/default-profile.png"
+            }
+            alt="user image"
+            className="w-full h-full object-cover"
+          />
+        </div>
         <div className="flex flex-col">
           <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
-            {fullName}
+            {teacher ? fullNameStudent : fullNameTeacher}
           </span>
           <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
             {lesson.subject}
@@ -206,99 +233,101 @@ const FutureLessons = ({
   };
 
   return (
-    <div
-      className="mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto lg:mt-0 xl:col-span-2 h-fit max-h-[644px] xl:max-h-[680px]"
-      style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
-    >
-      {teacher &&
-        bookedLessons &&
-        bookedLessons
-          .filter((lesson) => new Date(lesson.date) >= new Date())
-          .map((lesson) => (
-            <FutureLessonsBox
-              key={lesson.id}
-              teacher={teacher}
-              lesson={lesson}
-              onOpenMeetingLink={handleOpenMeetingLink}
-            />
-          ))}
-      <div className="flex sm:justify-between sm:items-center flex-col items-start sm:flex-row gap-4">
-        <div className="flex flex-col gap-1">
-          <span className="text-xl leading-7 text-[#0C0F21] font-helveticaneue-medium !font-bold">
-            {formattedDate}
-          </span>
-          <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-            მოახლოებული გაკვეთილები ({lessons.length})
-          </span>
+    <>
+      <div
+        className="mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto lg:mt-0 xl:col-span-2 h-fit max-h-[644px] xl:max-h-[680px]"
+        style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
+      >
+        {teacher &&
+          bookedLessons &&
+          bookedLessons
+            .filter((lesson) => new Date(lesson.date) >= new Date())
+            .map((lesson) => (
+              <FutureLessonsBox
+                key={lesson.id}
+                teacher={teacher}
+                lesson={lesson}
+                onOpenMeetingLink={handleOpenMeetingLink}
+              />
+            ))}
+        <div className="flex sm:justify-between sm:items-center flex-col items-start sm:flex-row gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-xl leading-7 text-[#0C0F21] font-helveticaneue-medium !font-bold">
+              {formattedDate}
+            </span>
+            <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+              მოახლოებული გაკვეთილები ({lessons.length})
+            </span>
+          </div>
+          {teacher && (
+            <button
+              className="text-sm leading-5 font-helveticaneue-medium py-3 w-full bg-[#FFEDFA] sm:w-fit sm:px-6 rounded-[50px] cursor-pointer text-[#080808]"
+              onClick={() => setModalOpen(true)}
+            >
+              გაკვეთილის ჩანიშვნა
+            </button>
+          )}
         </div>
-        {teacher && (
-          <button
-            className="text-sm leading-5 font-helveticaneue-medium py-3 w-full bg-[#FFEDFA] sm:w-fit sm:px-6 rounded-[50px] cursor-pointer text-[#080808]"
-            onClick={() => setModalOpen(true)}
-          >
-            გაკვეთილის ჩანიშვნა
-          </button>
+        <hr className="text-[#EBECF0]" />
+
+        <div className="flex flex-col gap-2">
+          {lessons.length === 0 ? (
+            <NoContent
+              desc="არ გაქვთ გაკვეთილი, გთხოვთ ჩანიშნოთ გაკვეთილი"
+              needBtn={false}
+            />
+          ) : (
+            lessons.map((lesson) => (
+              <FutureLessonsBox
+                key={lesson.id}
+                teacher={teacher}
+                lesson={lesson}
+                onOpenMeetingLink={handleOpenMeetingLink}
+              />
+            ))
+          )}
+        </div>
+
+        {/* გაკვეთილის შექმნის მოდალი */}
+        {modalOpen && (
+          <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-[#00000099]">
+            <div
+              ref={modalRef}
+              className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
+            >
+              <LessonCreate teacherId={teacherId} setModalOpen={setModalOpen} />
+              <button
+                onClick={() => setModalOpen(false)}
+                className="absolute top-3 right-6 text-black text-lg font-bold"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* შეხვედრის ლინკის მოდალი */}
+        {meetingModalOpen && selectedLesson && (
+          <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-[#00000099]">
+            <div
+              ref={meetingModalRef}
+              className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[400px] lg:h-[420px]"
+            >
+              <LinkCreate
+                lesson={selectedLesson}
+                onClose={() => setMeetingModalOpen(false)}
+              />
+              <button
+                onClick={() => setMeetingModalOpen(false)}
+                className="absolute top-3 right-6 text-black text-lg font-bold"
+              >
+                ×
+              </button>
+            </div>
+          </div>
         )}
       </div>
-      <hr className="text-[#EBECF0]" />
-
-      <div className="flex flex-col gap-2">
-        {lessons.length === 0 ? (
-          <NoContent
-            desc="არ გაქვთ გაკვეთილი, გთხოვთ ჩანიშნოთ გაკვეთილი"
-            needBtn={false}
-          />
-        ) : (
-          lessons.map((lesson) => (
-            <FutureLessonsBox
-              key={lesson.id}
-              teacher={teacher}
-              lesson={lesson}
-              onOpenMeetingLink={handleOpenMeetingLink}
-            />
-          ))
-        )}
-      </div>
-
-      {/* გაკვეთილის შექმნის მოდალი */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-[#00000099]">
-          <div
-            ref={modalRef}
-            className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
-          >
-            <LessonCreate teacherId={teacherId} setModalOpen={setModalOpen} />
-            <button
-              onClick={() => setModalOpen(false)}
-              className="absolute top-3 right-6 text-black text-lg font-bold"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* შეხვედრის ლინკის მოდალი */}
-      {meetingModalOpen && selectedLesson && (
-        <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-[#00000099]">
-          <div
-            ref={meetingModalRef}
-            className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[400px] lg:h-[420px]"
-          >
-            <LinkCreate
-              lesson={selectedLesson}
-              onClose={() => setMeetingModalOpen(false)}
-            />
-            <button
-              onClick={() => setMeetingModalOpen(false)}
-              className="absolute top-3 right-6 text-black text-lg font-bold"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 

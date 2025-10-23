@@ -1,23 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 
-interface User {
+export interface User {
   id: string;
   firstName: string;
   lastName: string;
+  image?: string;
 }
 
-interface BookedLesson {
+export interface BookedLesson {
   id: string;
   date: string;
-  teacher: User;
-  student: User;
-  createdAt: string;
+  time: string;
   duration: number;
   subject: string;
-  time: string;
+  createdAt: string;
+  comment?: string;
+  link?: string;
+  teacher: User;
+  student: User;
 }
 
-interface UseBookedLessonsParams {
+export interface UseBookedLessonsParams {
   studentId?: string | null;
   teacherId?: string | null;
 }
@@ -25,13 +28,13 @@ interface UseBookedLessonsParams {
 const fetchBookedLessons = async ({
   studentId,
   teacherId,
-}: UseBookedLessonsParams) => {
+}: UseBookedLessonsParams): Promise<BookedLesson[]> => {
   const params = new URLSearchParams();
   if (studentId) params.append("studentId", studentId);
   if (teacherId) params.append("teacherId", teacherId);
 
   const res = await fetch(
-    `/api/book-lesson/[booked-lessons]?${params.toString()}`
+    `/api/book-lesson/booked-lessons?${params.toString()}`
   );
 
   if (!res.ok) {
@@ -39,7 +42,20 @@ const fetchBookedLessons = async ({
     throw new Error(errorData.error || "ვერ მოხერხდა გაკვეთილების წამოღება");
   }
 
-  return res.json() as Promise<BookedLesson[]>;
+  const data: BookedLesson[] = await res.json();
+
+  // ✅ Default სურათის დამატება თუ უკავია image
+  return data.map((lesson) => ({
+    ...lesson,
+    teacher: {
+      ...lesson.teacher,
+      image: lesson.teacher.image || "/images/default-profile.png",
+    },
+    student: {
+      ...lesson.student,
+      image: lesson.student.image || "/images/default-profile.png",
+    },
+  }));
 };
 
 export const useBookedLessons = ({
