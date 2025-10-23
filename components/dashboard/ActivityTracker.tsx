@@ -63,19 +63,26 @@ const ActivityTracker = ({
   profilePage = false,
   teacher = false,
   studentId,
+  teacherId,
 }: {
   profilePage?: boolean;
   teacher?: boolean;
-  studentId: string;
+  studentId?: string;
+  teacherId?: string;
 }) => {
   const [showModal, setShowModal] = useState(false);
   const modalRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: lessons } = useBookedLessons(studentId);
+  const { data: lessons } = useBookedLessons(
+    teacher ? { teacherId: teacherId } : { studentId: studentId }
+  );
+
   const activeLessonsCount = lessons?.length || 0;
 
-  const uniqueTeachersCount = lessons
-    ? new Set(lessons.map((lesson) => lesson.teacher.id)).size
+  const uniqueCount = lessons
+    ? teacher
+      ? new Set(lessons.map((lesson) => lesson.student.id)).size // უნიკალური მოსწავლეები
+      : new Set(lessons.map((lesson) => lesson.teacher.id)).size // უნიკალური მასწავლებლები
     : 0;
 
   // ActivityTracker-ში
@@ -122,7 +129,7 @@ const ActivityTracker = ({
           description={teacher ? "ჩემი მოსწავლეები" : "არჩეული რეპეტიტორი"}
           seeAllText="ყველას ნახვა"
           profilePage={profilePage}
-          count={uniqueTeachersCount}
+          count={uniqueCount}
         />
       </div>
       <div className="flex flex-col gap-3 sm:flex-row xl:flex-1 xl:items-center">

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-interface Teacher {
+interface User {
   id: string;
   firstName: string;
   lastName: string;
@@ -9,17 +9,27 @@ interface Teacher {
 interface BookedLesson {
   id: string;
   date: string;
-  teacher: Teacher;
-  createdAt: string; // აქ უკვე გაქვს მონაცემებში
-  duration: number; // აქ უკვე გაქვს მონაცემებში
-  // სხვა ფილდები თუ გაქვს, დაამატე აქ
+  teacher: User;
+  student: User;
+  createdAt: string;
+  duration: number;
 }
 
-const fetchBookedLessons = async (
-  studentId: string
-): Promise<BookedLesson[]> => {
+interface UseBookedLessonsParams {
+  studentId?: string | null;
+  teacherId?: string | null;
+}
+
+const fetchBookedLessons = async ({
+  studentId,
+  teacherId,
+}: UseBookedLessonsParams) => {
+  const params = new URLSearchParams();
+  if (studentId) params.append("studentId", studentId);
+  if (teacherId) params.append("teacherId", teacherId);
+
   const res = await fetch(
-    `/api/book-lesson/[booked-lessons]?studentId=${studentId}`
+    `/api/book-lesson/[booked-lessons]?${params.toString()}`
   );
 
   if (!res.ok) {
@@ -27,14 +37,19 @@ const fetchBookedLessons = async (
     throw new Error(errorData.error || "ვერ მოხერხდა გაკვეთილების წამოღება");
   }
 
-  return res.json();
+  return res.json() as Promise<BookedLesson[]>;
 };
 
-export const useBookedLessons = (studentId: string | null) => {
+export const useBookedLessons = ({
+  studentId,
+  teacherId,
+}: UseBookedLessonsParams) => {
+  const enabled = !!studentId || !!teacherId;
+
   return useQuery({
-    queryKey: ["bookedLessons", studentId],
-    queryFn: () => fetchBookedLessons(studentId!),
-    enabled: !!studentId, // მხოლოდ მაშინ გაეშვება, თუ studentId არსებობს
-    staleTime: 1000 * 60 * 1, // 1 წუთი ხდება fresh
+    queryKey: ["bookedLessons", { studentId, teacherId }],
+    queryFn: () => fetchBookedLessons({ studentId, teacherId }),
+    enabled,
+    staleTime: 1000 * 60, // 1 წუთი fresh
   });
 };
