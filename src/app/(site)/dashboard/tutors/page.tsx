@@ -80,23 +80,30 @@ export default async function TutorsStudent({
   }));
 
   // მხოლოდ subjects, price, days, time შესაბამისი ქარდები
-  const expandedTeachers = teachersWithSafeImages.flatMap(
-    (teacher) =>
+  const expandedTeachers = teachersWithSafeImages.flatMap((teacher) => {
+    return (
       teacher.teacherSubjects
         ?.filter((subject) => {
+          // აქვს თუ არა ამ საგანზე გაკვეთილი
+          const hasLessonForSubject = teacher.lessons.some(
+            (lesson) => lesson.subject === subject.name // subject name უნდა ემთხვეოდეს lesson.subject-ს (შენთან რა field-ია, ის ჩასვი)
+          );
+
           const matchesSubject =
             subjects.length === 0 || subjects.includes(subject.name);
           const matchesPrice =
             (minPrice === undefined || subject.price! >= minPrice) &&
             (maxPrice === undefined || subject.price! <= maxPrice);
-          return matchesSubject && matchesPrice;
+
+          return hasLessonForSubject && matchesSubject && matchesPrice;
         })
         .map((subject) => ({
           ...teacher,
           subjectName: subject.name,
           subjectPrice: subject.price,
         })) || []
-  );
+    );
+  });
 
   // ✅ იფილტრება მასწავლებლები, რომლებსაც გაკვეთილი/lesson არ აქვთ
   const teachersWithLessons = expandedTeachers.filter(
