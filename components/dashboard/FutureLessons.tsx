@@ -167,7 +167,7 @@ const FutureLessons = ({
 
       try {
         const url = teacher
-          ? "/api/teachers/lessons"
+          ? `/api/teachers/lessons?teacherId=${teacherId}`
           : `/api/book-lesson/booked-lessons?studentId=${studentId}`;
 
         console.log("Fetching from:", url);
@@ -193,7 +193,7 @@ const FutureLessons = ({
       }
     };
     fetchLessons();
-  }, [teacher, studentId]);
+  }, [teacher, studentId, teacherId]);
 
   const handleOpenMeetingLink = (lesson: Lesson) => {
     setSelectedLesson(lesson);
