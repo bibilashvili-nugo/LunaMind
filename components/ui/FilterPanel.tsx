@@ -220,7 +220,7 @@ export const FilterPanel = ({
         <span className="text-sm leading-5 text-[#000000] mb-1 font-helveticaneue-medium">
           დრო
         </span>
-        <div className="flex items-center flex-col gap-2">
+        <div className="flex items-center flex-col sm:flex-row lg:flex-col gap-2">
           <div className="w-full relative">
             <div className="absolute left-3 top-1/4 transform -translate-y-1/4 text-xs leading-4 text-[#737373] font-helveticaneue-regular pointer-events-none">
               დაწყება
