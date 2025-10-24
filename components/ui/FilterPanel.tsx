@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, CaretDownSm, CaretUpSm } from "react-coolicons";
 import { useClickOutside } from "@/hooks/useClickOutside";
 
 const subjectsData = [
@@ -35,7 +34,7 @@ const daysData = [
 interface FilterPanelProps {
   initialSubjects?: string[];
   initialDays?: string[];
-  initialTime?: string;
+  initialTime?: string; // format: "09:00-12:00"
   initialMinPrice?: string;
   initialMaxPrice?: string;
   onFiltered?: () => void;
@@ -52,32 +51,40 @@ export const FilterPanel = ({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [openSubjects, setOpenSubjects] = useState(false);
-  const [openDays, setOpenDays] = useState(false);
   const [selectedSubjects, setSelectedSubjects] =
     useState<string[]>(initialSubjects);
   const [selectedDays, setSelectedDays] = useState<string[]>(initialDays);
-  const [time, setTime] = useState(initialTime);
+  const [timeStart, setTimeStart] = useState(
+    initialTime ? initialTime.split("-")[0] : ""
+  );
+  const [timeEnd, setTimeEnd] = useState(
+    initialTime ? initialTime.split("-")[1] : ""
+  );
   const [minPrice, setMinPrice] = useState(initialMinPrice);
   const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [showSelectSubjectsButton, setShowSelectSubjectsButton] =
-    useState(false);
-  const [showSelectDaysButton, setShowSelectDaysButton] = useState(false);
-
   const subjectsRef = useRef<HTMLDivElement | null>(null);
   const daysRef = useRef<HTMLDivElement | null>(null);
 
-  // ჰუკები: click გარეთ დახურვისთვის
-  useClickOutside(subjectsRef, () => setOpenSubjects(false));
-  useClickOutside(daysRef, () => setOpenDays(false));
+  // Click გარეთ დახურვისთვის (თუ იყენებთ dropdown-ს)
+  useClickOutside(subjectsRef, () => {});
+  useClickOutside(daysRef, () => {});
 
-  // URL-დან პარამეტრების დასეტვა
+  // initial state-ს განახლება, როცა prop-ები იცვლება
   useEffect(() => {
     setSelectedSubjects(initialSubjects);
     setSelectedDays(initialDays);
-    setTime(initialTime);
+
+    if (initialTime) {
+      const [start, end] = initialTime.split("-");
+      setTimeStart(start || "");
+      setTimeEnd(end || "");
+    } else {
+      setTimeStart("");
+      setTimeEnd("");
+    }
+
     setMinPrice(initialMinPrice);
     setMaxPrice(initialMaxPrice);
   }, [
@@ -102,43 +109,43 @@ export const FilterPanel = ({
     );
   };
 
+  const isValidTime = (value: string) => {
+    if (!value.includes(":")) return false;
+    const [h, m] = value.split(":").map(Number);
+    if (isNaN(h) || isNaN(m)) return false;
+    return h >= 0 && h <= 23 && m >= 0 && m <= 59;
+  };
+
+  const padTime = (value: string) => {
+    if (!value) return "";
+    const [h, m] = value.split(":");
+    const hh = h.padStart(2, "0");
+    const mm = (m || "00").padStart(2, "0");
+    return `${hh}:${mm}`;
+  };
+
   const handleFilter = async () => {
     setIsLoading(true);
-
     const params = new URLSearchParams(searchParams.toString());
 
-    if (selectedSubjects.length > 0) {
+    if (selectedSubjects.length > 0)
       params.set("subjects", selectedSubjects.join(","));
-    } else {
-      params.delete("subjects");
-    }
+    else params.delete("subjects");
 
-    if (selectedDays.length > 0) {
-      params.set("days", selectedDays.join(","));
-    } else {
-      params.delete("days");
-    }
+    if (selectedDays.length > 0) params.set("days", selectedDays.join(","));
+    else params.delete("days");
 
-    if (time) {
-      params.set("time", time);
-    } else {
-      params.delete("time");
-    }
+    if (timeStart || timeEnd)
+      params.set("time", `${timeStart || ""}-${timeEnd || ""}`);
+    else params.delete("time");
 
-    if (minPrice) {
-      params.set("minPrice", minPrice);
-    } else {
-      params.delete("minPrice");
-    }
+    if (minPrice) params.set("minPrice", minPrice);
+    else params.delete("minPrice");
 
-    if (maxPrice) {
-      params.set("maxPrice", maxPrice);
-    } else {
-      params.delete("maxPrice");
-    }
+    if (maxPrice) params.set("maxPrice", maxPrice);
+    else params.delete("maxPrice");
 
     try {
-      // ახალი მონაცემების ჩატვირთვა current URL-ზე
       router.replace(`?${params.toString()}`, { scroll: false });
       onFiltered?.();
     } catch (error) {
@@ -151,14 +158,16 @@ export const FilterPanel = ({
   const hasActiveFilters =
     selectedSubjects.length > 0 ||
     selectedDays.length > 0 ||
-    time ||
+    timeStart ||
+    timeEnd ||
     minPrice ||
     maxPrice;
 
   const clearFilters = () => {
     setSelectedSubjects([]);
     setSelectedDays([]);
-    setTime("");
+    setTimeStart("");
+    setTimeEnd("");
     setMinPrice("");
     setMaxPrice("");
     router.replace("/dashboard/tutors", { scroll: false });
@@ -167,194 +176,121 @@ export const FilterPanel = ({
   return (
     <div className="flex flex-col gap-4">
       {/* SUBJECTS */}
-      <div className="relative" ref={subjectsRef}>
-        <button
-          onClick={() => {
-            const willOpen = !openSubjects;
-            setOpenSubjects(willOpen);
-            setOpenDays(false);
-
-            if (willOpen) {
-              setTimeout(() => setShowSelectSubjectsButton(true), 0);
-            } else {
-              setShowSelectSubjectsButton(false);
-            }
-          }}
-          className="w-full text-left border border-[#F1F1F1] rounded-xl p-3 bg-white flex justify-between items-center"
-        >
-          <span
-            className={`text-sm ${
-              selectedSubjects.length > 0
-                ? "leading-5 text-[#000000] font-helveticaneue-medium"
-                : "leading-4 text-[#737373] font-helveticaneue-regular"
-            }`}
-          >
-            {selectedSubjects.length > 0
-              ? selectedSubjects.join(", ")
-              : "აირჩიეთ საგნები"}
-          </span>
-
-          {openSubjects ? <CaretUpSm /> : <CaretDownSm />}
-        </button>
-
-        {openSubjects && (
-          <div className="absolute w-full mt-1 z-10 rounded-xl overflow-hidden border border-[#F1F1F1] bg-white max-h-60 flex flex-col">
-            <div className="overflow-y-auto max-h-60 scrollbar-thumb-rounded">
-              {subjectsData.map((subject) => (
-                <div
-                  key={subject}
-                  onClick={() => toggleSubject(subject)}
-                  className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 text-sm"
-                >
-                  <span>{subject}</span>
-                  {selectedSubjects.includes(subject) && (
-                    <Check className="w-4 h-4 text-[#F0C514]" />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {showSelectSubjectsButton && (
-              <div
-                className="p-2 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 text-sm font-helveticaneue-medium"
-                onClick={() => setOpenSubjects(false)}
-              >
-                არჩევა
-              </div>
-            )}
-
-            <style jsx>{`
-              .scrollbar-thumb-rounded::-webkit-scrollbar {
-                width: 6px;
-              }
-              .scrollbar-thumb-rounded::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
-              }
-              .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
-                background-color: #f0c514;
-                border-radius: 10px;
-              }
-              .scrollbar-thumb-rounded::-webkit-scrollbar-thumb:hover {
-                background-color: #e6c200;
-              }
-            `}</style>
-          </div>
-        )}
+      <div className="flex flex-col gap-2">
+        <span className="text-sm leading-5 text-[#000000] mb-1 font-helveticaneue-medium">
+          საგანი
+        </span>
+        {subjectsData.map((subject) => (
+          <label key={subject} className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={selectedSubjects.includes(subject)}
+              onChange={() => toggleSubject(subject)}
+              className="w-[18px] h-[18px] rounded-[4px] border border-[#EBEBEB] accent-[#F0C514] cursor-pointer"
+            />
+            <span className="text-sm leading-5 text-[#000] font-helveticaneue-regular">
+              {subject}
+            </span>
+          </label>
+        ))}
       </div>
 
       {/* DAYS */}
-      <div className="relative" ref={daysRef}>
-        <button
-          onClick={() => {
-            const willOpen = !openDays;
-            setOpenDays(willOpen);
-            setOpenSubjects(false);
-
-            if (willOpen) {
-              setTimeout(() => setShowSelectDaysButton(true), 0);
-            } else {
-              setShowSelectDaysButton(false);
-            }
-          }}
-          className="w-full text-left border border-[#F1F1F1] rounded-xl p-3 bg-white flex justify-between items-center"
-        >
-          <span
-            className={`text-sm ${
-              selectedDays.length > 0
-                ? "leading-5 text-[#000000] font-helveticaneue-medium"
-                : "leading-4 text-[#737373] font-helveticaneue-regular"
-            }`}
-          >
-            {selectedDays.length > 0
-              ? selectedDays.join(", ")
-              : "სასურველი დღე"}
-          </span>
-
-          {openDays ? <CaretUpSm /> : <CaretDownSm />}
-        </button>
-
-        {openDays && (
-          <div className="absolute w-full mt-1 z-10 rounded-xl overflow-hidden border border-[#F1F1F1] bg-white max-h-60 flex flex-col">
-            <div className="overflow-y-auto max-h-60 scrollbar-thumb-rounded">
-              {daysData.map((day) => (
-                <div
-                  key={day}
-                  onClick={() => toggleDay(day)}
-                  className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 text-sm"
-                >
-                  <span>{day}</span>
-                  {selectedDays.includes(day) && (
-                    <Check className="w-4 h-4 text-[#F0C514]" />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {showSelectDaysButton && (
-              <div
-                className="p-2 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 text-sm font-helveticaneue-medium"
-                onClick={() => setOpenDays(false)}
-              >
-                არჩევა
-              </div>
-            )}
-
-            <style jsx>{`
-              .scrollbar-thumb-rounded::-webkit-scrollbar {
-                width: 6px;
-              }
-              .scrollbar-thumb-rounded::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
-              }
-              .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
-                background-color: #f0c514;
-                border-radius: 10px;
-              }
-              .scrollbar-thumb-rounded::-webkit-scrollbar-thumb:hover {
-                background-color: #e6c200;
-              }
-            `}</style>
-          </div>
-        )}
+      <div className="flex flex-col gap-2">
+        <span className="text-sm leading-5 text-[#000000] mb-1 font-helveticaneue-medium">
+          სასურველი დღე
+        </span>
+        {daysData.map((day) => (
+          <label key={day} className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={selectedDays.includes(day)}
+              onChange={() => toggleDay(day)}
+              className="w-[18px] h-[18px] rounded-[4px] border border-[#EBEBEB] accent-[#F0C514] cursor-pointer"
+            />
+            <span className="text-sm leading-5 text-[#000] font-helveticaneue-regular">
+              {day}
+            </span>
+          </label>
+        ))}
       </div>
 
-      {/* TIME */}
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="მიუთითეთ შეხვედრის დრო"
-          value={time}
-          onChange={(e) => {
-            const value = e.target.value.replace(/[^0-9:]/g, "");
-            if (value.length === 2 && !value.includes(":"))
-              setTime(value + ":");
-            else if (value.length <= 5) setTime(value);
-          }}
-          className="w-full border border-[#F1F1F1] rounded-xl p-3 text-sm font-helveticaneue-medium
-          text-[#080808] bg-white focus:outline-none placeholder-[#737373]
-          placeholder:font-helveticaneue-regular placeholder:text-xs"
-          maxLength={5}
-        />
+      {/* TIME RANGE */}
+      <div className="flex flex-col gap-2">
+        <span className="text-sm leading-5 text-[#000000] mb-1 font-helveticaneue-medium">
+          დრო
+        </span>
+        <div className="flex items-center flex-col gap-2">
+          <div className="w-full relative">
+            <div className="absolute left-3 top-1/4 transform -translate-y-1/4 text-xs leading-4 text-[#737373] font-helveticaneue-regular pointer-events-none">
+              დაწყება
+            </div>
+            <input
+              type="text"
+              placeholder="00:00"
+              value={timeStart}
+              onChange={(e) => {
+                let value = e.target.value.replace(/[^0-9:]/g, "");
+                if (value.length === 2 && !value.includes(":")) value += ":";
+                if (
+                  value.length <= 5 &&
+                  (!value.includes(":") || isValidTime(value))
+                )
+                  setTimeStart(value);
+              }}
+              onBlur={() => setTimeStart(padTime(timeStart))}
+              className="w-full border border-[#F1F1F1] rounded-xl px-3 pb-[10px] pt-[26px] text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none leading-5"
+              maxLength={5}
+            />
+          </div>
+
+          <div className="w-full relative ">
+            <div className="absolute left-3 top-1/4 transform -translate-y-1/4 text-xs leading-4 text-[#737373] font-helveticaneue-regular pointer-events-none">
+              დასრულება
+            </div>
+            <input
+              type="text"
+              placeholder="23:59"
+              value={timeEnd}
+              onChange={(e) => {
+                let value = e.target.value.replace(/[^0-9:]/g, "");
+                if (value.length === 2 && !value.includes(":")) value += ":";
+                if (
+                  value.length <= 5 &&
+                  (!value.includes(":") || isValidTime(value))
+                )
+                  setTimeEnd(value);
+              }}
+              onBlur={() => setTimeEnd(padTime(timeEnd))}
+              className="w-full border border-[#F1F1F1] rounded-xl px-3 pb-[10px] pt-[26px] text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none leading-5"
+              maxLength={5}
+            />
+          </div>
+        </div>
       </div>
 
       {/* PRICE RANGE */}
-      <div className="flex items-center gap-2">
-        <input
-          type="number"
-          placeholder="დან"
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-          className="w-full border border-[#F1F1F1] rounded-xl p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-[#737373] placeholder:font-helveticaneue-regular placeholder:text-sm"
-        />
-        <input
-          type="number"
-          placeholder="მდე"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          className="w-full border border-[#F1F1F1] rounded-xl p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-[#737373] placeholder:font-helveticaneue-regular placeholder:text-sm"
-        />
+      <div className="flex flex-col gap-2">
+        <span className="text-sm leading-5 text-[#000000] mb-1 font-helveticaneue-medium">
+          ფასი
+        </span>
+        <div className="flex items-center">
+          <input
+            type="number"
+            placeholder="დან"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            className="w-full border border-[#F1F1F1] rounded-tl-xl rounded-bl-xl border-r-0 p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-[#000000] placeholder:font-helveticaneue-medium placeholder:text-sm"
+          />
+          <div className="bg-[#EBECF0] w-[1px] h-8"></div>
+          <input
+            type="number"
+            placeholder="მდე"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            className="w-full border border-[#F1F1F1] rounded-tr-xl rounded-br-xl border-l-0 p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-[#000000] placeholder:font-helveticaneue-medium placeholder:text-sm"
+          />
+        </div>
       </div>
 
       {/* FILTER BUTTON */}

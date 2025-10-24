@@ -134,7 +134,7 @@ export default async function TutorsStudent({
               initialMaxPrice={maxPrice?.toString()}
             />
             <div className="hidden lg:flex flex-col rounded-2xl bg-[#FFFFFF] h-fit px-5 py-6 gap-4">
-              <span className="text-sm leading-5 font-helveticaneue-regular">
+              <span className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
                 ფილტრაცია
               </span>
               <FilterPanel
