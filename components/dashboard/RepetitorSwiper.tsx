@@ -1,11 +1,10 @@
 "use clinet";
 
-import { ChevronLeftMd, ChevronRightMd, Star } from "react-coolicons";
+import { ChevronLeftMd, ChevronRightMd, WavyCheck } from "react-coolicons";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-// import { tutorSwiper } from "../../constants/data";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import RepetitorSwiperLoading from "../loading/RepetitorSwiperLoading";
@@ -86,47 +85,47 @@ const RepetitorSwiper = () => {
               slidesOffsetAfter: 10,
             },
             640: {
-              slidesPerView: 2.1,
+              slidesPerView: 1.7,
               slidesOffsetBefore: 16,
               slidesOffsetAfter: 16,
             },
             768: {
-              slidesPerView: 2.4,
+              slidesPerView: 2.1,
               slidesOffsetBefore: 16,
               slidesOffsetAfter: 16,
             },
             1024: {
-              slidesPerView: 3.5,
+              slidesPerView: 2.7,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1124: {
-              slidesPerView: 3.5,
+              slidesPerView: 2.7,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1280: {
-              slidesPerView: 2.8,
+              slidesPerView: 2.3,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1380: {
-              slidesPerView: 2.9,
+              slidesPerView: 2.4,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1480: {
-              slidesPerView: 3,
+              slidesPerView: 2.6,
               spaceBetween: 24,
               slidesOffsetBefore: 44,
               slidesOffsetAfter: 44,
             },
             1536: {
-              slidesPerView: 3.1,
+              slidesPerView: 2.8,
               spaceBetween: 24,
               slidesOffsetBefore: 48,
               slidesOffsetAfter: 48,
@@ -139,69 +138,126 @@ const RepetitorSwiper = () => {
             const price = firstSubject?.price || 0;
             const subjectName = firstSubject?.name || "საგანი";
             const fullName = `${teacher.user.firstName} ${teacher.user.lastName}`;
-            const rating = teacher.rating || 4.9; // 🔹 დროებითი, შეცვალე რეალური რეიტინგით
 
             return (
               <SwiperSlide
                 key={teacher.id}
-                className="p-4 border border-[#EBECF0] rounded-[12px] w-full flex flex-col"
+                className="hover:shadow-md transition-shadow"
               >
-                <div className="flex justify-between w-full items-center">
-                  <div className="w-[44px] h-[44px] overflow-hidden">
-                    <Image
-                      src={teacher.user.image || "/images/default-profile.png"}
-                      alt={fullName}
-                      className="w-full h-full object-cover"
-                      width={44}
-                      height={44}
-                    />
+                <div className="bg-[#EBECF0] px-4 py-3 rounded-t-2xl flex flex-col gap-3 xl:gap-4">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="flex items-center gap-1 p-2 rounded-[40px]"
+                      style={{ backgroundColor: "rgba(0, 119, 255, 0.1)" }}
+                    >
+                      <WavyCheck color="#0077FF" width={20} height={20} />
+                      <span className="text-xs leading-4 text-[#0077FF] font-helveticaneue-regular">
+                        ვერიფიცირებული
+                      </span>
+                    </div>
+                    <div
+                      className="flex items-center gap-2 backdrop-blur-[24px] px-4 py-3 rounded-[40px] h-[36px]"
+                      style={{ backgroundColor: "rgba(73, 176, 44, 0.2)" }}
+                    >
+                      <div className="bg-[#49B02C] w-3 h-3 rounded-full"></div>
+                      <span className="text-xs leading-4 text-[#49B02C] font-helveticaneue-regular">
+                        ონლაინ
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex flex-col text-end gap-1">
-                    <span className="text-sm leading-5 text-black font-helveticaneue-medium">
-                      {price} ლარი
-                    </span>
-                    <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
-                      {rating} შეფასება
-                    </span>
+                  <div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="w-[52px] h-[52px] xl:w-[64px] xl:h-[64px] relative overflow-hidden rounded-full">
+                          <Image
+                            src={
+                              teacher.user.image ||
+                              "/images/default-profile.png"
+                            }
+                            alt={fullName}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
+                            {subjectName}
+                          </span>
+                          <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
+                            {fullName}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span className="bg-white  px-3 py-2 xl:px-4 xl:py-3 w-fit text-xs leading-4 font-helveticaneue-regular rounded-[40px] backdrop-blur-[24px]">
+                        თბილისი
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="mt-3 flex flex-col gap-3">
+                <div className="bg-white px-4 py-3 rounded-b-2xl border border-[#EBECF0]">
                   <div className="flex flex-col">
-                    <span className="text-[#737373] text-xs leading-4 font-helveticaneue-regular">
-                      {subjectName}
+                    <span className="text-base leading-6 text-[#080808] font-helveticaneue-medium !font-bold xl:text-[20px] xl:leading-7">
+                      {price} ლარი
+                      <span className="text-xs leadign-4 font-helveticaneue-regular text-[#737373] xl:text-sm xl:leading-5">
+                        /საათი
+                      </span>
                     </span>
-                    <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
-                      {fullName}
+                    <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular line-clamp-2 mt-1 min-h-[40px]">
+                      {"პროფესია არ არის მითითებული"}
                     </span>
+                    <div className="flex w-full items-center mt-3">
+                      <div className="w-1/2 flex flex-col">
+                        <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
+                          ხანგრძლივობა
+                        </span>
+                        <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
+                          2 საათი
+                        </span>
+                      </div>
+                      <div className="w-1/2 flex flex-col">
+                        <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
+                          შეხვედრები
+                        </span>
+                        <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
+                          მოქნილი განრიგი
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-[#737373] text-xs leading-4 font-helveticaneue-regular">
-                    შედეგად, ტექსტი ჩვეულებრივ ინგლისურს გავს, მისი წაითხვა კი
-                    შეუძლებელია. დღეს უამრავი პერსონალური საგამომცემლო
-                  </p>
-                </div>
-                <hr className="text-[#EBECF0] mt-5 pb-3" />
-                <div className="flex flex-col">
-                  <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
-                    შეხვედრის დრო
-                  </span>
-                  <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium">
-                    {teacher.lessons.length > 0
-                      ? "განსაზღვრული გრაფიკი"
-                      : "თავისუფალი გრაფიკი"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3 mt-3">
+                  <hr className="mt-3 border border-[#EBECF0]" />
+                  <div className="mt-2">
+                    <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
+                      განათლება/გამოცდილება
+                    </span>
+                    <div className="mt-2 h-[72px] overflow-hidden flex gap-2 flex-wrap">
+                      <div
+                        style={{ backgroundColor: "rgba(0, 119, 255, 0.1)" }}
+                        className="w-fit flex justify-center items-center py-2 px-3 rounded-[40px] h-[32px]"
+                      >
+                        <span className="text-sm leading-5 text-[#0077FF] font-helveticaneue-regular">
+                          ივანე ჯავახიშვილის უნივერსიტეტი
+                        </span>
+                      </div>
+                      <div
+                        style={{ backgroundColor: "rgba(0, 119, 255, 0.1)" }}
+                        className="w-fit flex justify-center items-center py-2 px-3 rounded-[40px] h-[32px]"
+                      >
+                        <span className="text-sm leading-5 text-[#0077FF] font-helveticaneue-regular">
+                          {subjectName}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <hr className="mt-3 border border-[#EBECF0]" />
                   <button
-                    className="text-sm leading-5 text-[#080808] font-helveticaneue-medium py-3 bg-[#F0C514] px-[71.5px] rounded-[50px] cursor-pointer w-full"
+                    className="py-[14px] w-full rounded-[40px] bg-[#F0C514] cursor-pointer mt-4 text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium hover:bg-[#e6b800] transition"
                     onClick={() =>
                       router.push(`/dashboard/tutors/${teacher.id}`)
                     }
                   >
-                    არჩევა
+                    დეტალურად ნახვა
                   </button>
-                  <div className="shrink-0 bg-[#EBECF0] w-[44px] h-[44px] rounded-full flex items-center justify-center cursor-pointer">
-                    <Star className="text-[#F04F14] fill-[#F04F14] w-[20px] h-[20px]" />
-                  </div>
                 </div>
               </SwiperSlide>
             );

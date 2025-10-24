@@ -106,7 +106,7 @@ export const TeacherList = ({ teachers, filterParams }: TeacherListProps) => {
               </div>
             </div>
           </div>
-          <div className="bg-white px-4 py-3">
+          <div className="bg-white px-4 py-3 rounded-b-2xl">
             <div className="flex flex-col">
               <span className="text-base leading-6 text-[#080808] font-helveticaneue-medium !font-bold xl:text-[20px] xl:leading-7">
                 {item.subjectPrice} ლარი
