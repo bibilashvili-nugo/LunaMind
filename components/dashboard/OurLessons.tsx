@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { CalendarAdd } from "react-coolicons";
 import NoContent from "../ui/NoContent";
+import Image from "next/image";
 
 interface OurLessonsProps {
   subject: string;
   teacher: string;
-  svgColor: string;
+  teacherImage: string;
 }
 
 interface User {
   id: string;
   firstName: string;
   lastName: string;
+  image: string;
 }
 
 interface BookedLesson {
@@ -24,30 +26,19 @@ interface BookedLesson {
   subject: string;
 }
 
-const OurLessonsBox = ({ subject, teacher, svgColor }: OurLessonsProps) => {
+const OurLessonsBox = ({ subject, teacher, teacherImage }: OurLessonsProps) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3 border border-[#F1F1F1] rounded-2xl">
+    <div className="flex items-center justify-between px-4 py-3 border border-[#F1F1F1] rounded-2xl bg-[#F6F5FA]">
       <div className="flex items-center gap-3">
-        <div>
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 18 18"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect x="2" y="2" width="14" height="14" rx="7" fill="white" />
-            <rect
-              x="2"
-              y="2"
-              width="14"
-              height="14"
-              rx="7"
-              stroke={svgColor}
-              strokeWidth="4"
-            />
-          </svg>
+        <div className="w-11 h-11 relative">
+          <Image
+            src={teacherImage}
+            alt="user image"
+            fill
+            className="object-cover object-center rounded-full"
+          />
         </div>
+
         <div className="flex flex-col gap-1">
           <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium">
             {subject}
@@ -114,7 +105,11 @@ const OurLessons = ({
                     ? `${lesson.student.firstName} ${lesson.student.lastName}`
                     : `${lesson.teacher.firstName} ${lesson.teacher.lastName}`
                 }
-                svgColor="#7D3FFF"
+                teacherImage={
+                  teacher
+                    ? lesson.student.image || "/images/default-profile.png"
+                    : lesson.teacher.image || "/images/default-profile.png"
+                }
               />
             ))
           ) : (

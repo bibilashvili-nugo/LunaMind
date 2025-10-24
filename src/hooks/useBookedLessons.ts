@@ -4,7 +4,7 @@ export interface User {
   id: string;
   firstName: string;
   lastName: string;
-  image?: string;
+  image: string; // ✅ პროფილის სურათი (არაა სავალდებულო)
 }
 
 export interface BookedLesson {
