@@ -41,7 +41,7 @@ export const FilterMobileModal: React.FC<FilterMobileModalProps> = ({
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#00000099] lg:hidden">
           <div
             ref={modalRef}
-            className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto  h-[1150px]"
+            className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-y-scroll h-[480px]"
           >
             <div className="mt-[22px] px-4">
               <span className="text-sm leading-5 text-[#080808]">ფილტრი</span>
