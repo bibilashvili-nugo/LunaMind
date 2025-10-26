@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SpinContent from "../../../../components/ui/SpinContent";
 import {
   LoginRegisterContentHeader,
@@ -12,6 +12,7 @@ import {
 } from "../../../../components/ui/LoginRegisterContent";
 import { useRouter } from "next/navigation";
 import { emailRegex, isValidPassword, isValidPhone } from "@/utils/validation";
+import toast from "react-hot-toast";
 
 type Role = "STUDENT" | "TEACHER";
 
@@ -33,25 +34,57 @@ const RegistrationForm = () => {
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [error, setError] = useState("");
 
+  const toastShownRef = useRef(false);
+
   const router = useRouter();
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const georgianNameRegex = /^[ა-ჰ\s]*$/; // * რათა ტაიპისას არ დაბლოკოს
+    const georgianNameRegex = /^[ა-ჰ\s]*$/;
+
     if (georgianNameRegex.test(value)) {
       setFullName(value);
+      // ყოველთვის გავასუფთაოთ error როცა ქართული ასოებია შეყვანილი
+      setError("");
+      // reset toastShownRef
+      if (toastShownRef.current) {
+        toastShownRef.current = false;
+      }
+    } else {
+      // ტოსტერის ჩვენება მხოლოდ ერთხელ, თუ უკვე არ არის გამოჩენილი
+      if (!toastShownRef.current) {
+        setError("გთხოვთ სახელი და გვარი შეიყვანოთ მხოლოდ ქართული ასოებით");
+        toast.error("გთხოვთ სახელი და გვარი შეიყვანოთ მხოლოდ ქართული ასოებით");
+        toastShownRef.current = true;
+      }
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const parts = fullName.trim().split(" ");
-    if (parts.length < 2 || parts.some((part) => part.length < 2)) {
+    // სახელის და გვარის ვალიდაცია - მხოლოდ 2 ნაწილი
+    const parts = fullName
+      .trim()
+      .split(" ")
+      .filter((part) => part.length > 0);
+
+    if (parts.length !== 2) {
+      setError("გთხოვთ შეიყვანოთ მხოლოდ სახელი და გვარი (2 სიტყვა).");
+      return;
+    }
+
+    const [firstName, lastName] = parts;
+
+    if (firstName.length < 2 || lastName.length < 2) {
       setError("გთხოვთ შეიყვანოთ სახელი და გვარი (თითოეულში მინიმუმ 2 ასო).");
       return;
     }
+
     if (!emailRegex.test(email)) {
-      setError("ელ.ფოსტა არასწორია.");
+      setError(
+        "გთხოვთ შეიყვანოთ სწორი ელ.ფოსტის მისამართი (მხოლოდ ინგლისური ასოებით)"
+      );
+      toast.error("გთხოვთ შეიყვანოთ სწორი ელ.ფოსტის მისამართი");
       return;
     }
     if (!isValidPhone(phone)) {
@@ -106,9 +139,19 @@ const RegistrationForm = () => {
         {/* Header */}
         <LoginRegisterContentHeader />
         {/* Title */}
+
         <LoginRegisterContentTitle title="რეგისტრაცია" />
         {/* Error Message */}
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+
+        <div className="">
+          <div className="mt-2"></div>
+          {error && (
+            <p className="text-red-500 leading-0 font-helveticaneue-regular text-sm">
+              {error}
+            </p>
+          )}
+        </div>
+
         <form onSubmit={handleSubmit} className="flex flex-col mt-6">
           <div className="flex w-full items-center border border-[#EBEBEB] rounded-[62px] p-1">
             <div

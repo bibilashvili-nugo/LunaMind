@@ -31,7 +31,13 @@ export default function RootLayout({
       >
         <Providers>
           {children}
-          <Toaster position="top-right" reverseOrder={false} />
+          <Toaster
+            position="top-right"
+            reverseOrder={false}
+            toastOptions={{
+              className: "font-helveticaneue-medium",
+            }}
+          />
         </Providers>
       </body>
     </html>
