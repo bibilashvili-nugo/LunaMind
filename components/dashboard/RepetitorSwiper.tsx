@@ -1,4 +1,4 @@
-"use clinet";
+"use client";
 
 import { ChevronLeftMd, ChevronRightMd, WavyCheck } from "react-coolicons";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -26,22 +26,36 @@ interface Teacher {
     time: string;
   }[];
   rating?: number;
+  profession: string;
 }
 
 const RepetitorSwiper = () => {
   const router = useRouter();
-  const { data, isLoading } = useTeachers(); // ✅ ვიყენებთ ჰუკს
+  const { data, isLoading } = useTeachers();
 
   if (isLoading) return <RepetitorSwiperLoading />;
 
   const teachers: Teacher[] = data?.teachers || [];
+
+  const slides = teachers.flatMap((teacher) =>
+    teacher.teacherSubjects
+      .map((subject) => {
+        if (teacher.lessons.length === 0) return null; // skip if no lessons
+
+        return {
+          ...teacher,
+          subjectName: subject.name,
+          subjectPrice: subject.price,
+        };
+      })
+      .filter((slide): slide is NonNullable<typeof slide> => slide !== null)
+  );
 
   return (
     <div
       className="mt-4 bg-white rounded-2xl lg:mt-0"
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
-      {/* Header with title + custom nav buttons */}
       <div className="flex justify-between items-center mb-4 px-5 pt-5 gap-1.5">
         <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
           შემოთავაზებული რეპეტიტორები
@@ -56,7 +70,6 @@ const RepetitorSwiper = () => {
         </div>
       </div>
 
-      {/* Swiper */}
       <div className="w-full max-w-[1920px] 3xl:mx-auto overflow-hidden pb-5">
         <Swiper
           modules={[Navigation]}
@@ -133,15 +146,14 @@ const RepetitorSwiper = () => {
             1920: { slidesPerView: 3.2, spaceBetween: 24 },
           }}
         >
-          {teachers?.map((teacher) => {
-            const firstSubject = teacher.teacherSubjects[0];
-            const price = firstSubject?.price || 0;
-            const subjectName = firstSubject?.name || "საგანი";
+          {slides.map((teacher) => {
             const fullName = `${teacher.user.firstName} ${teacher.user.lastName}`;
+            const price = teacher.subjectPrice || 0;
+            const subjectName = teacher.subjectName || "საგანი";
 
             return (
               <SwiperSlide
-                key={teacher.id}
+                key={`${teacher.id}-${subjectName}`}
                 className="hover:shadow-md transition-shadow"
               >
                 <div className="bg-[#EBECF0] px-4 py-3 rounded-t-2xl flex flex-col gap-3 xl:gap-4">
@@ -189,7 +201,7 @@ const RepetitorSwiper = () => {
                         </div>
                       </div>
 
-                      <span className="bg-white  px-3 py-2 xl:px-4 xl:py-3 w-fit text-xs leading-4 font-helveticaneue-regular rounded-[40px] backdrop-blur-[24px]">
+                      <span className="bg-white px-3 py-2 xl:px-4 xl:py-3 w-fit text-xs leading-4 font-helveticaneue-regular rounded-[40px] backdrop-blur-[24px]">
                         თბილისი
                       </span>
                     </div>
@@ -204,7 +216,7 @@ const RepetitorSwiper = () => {
                       </span>
                     </span>
                     <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular line-clamp-2 mt-1 min-h-[40px]">
-                      {"პროფესია არ არის მითითებული"}
+                      {teacher?.profession || "პროფესია არ არის მითითებული"}
                     </span>
                     <div className="flex w-full items-center mt-3">
                       <div className="w-1/2 flex flex-col">
@@ -253,7 +265,11 @@ const RepetitorSwiper = () => {
                   <button
                     className="py-[14px] w-full rounded-[40px] bg-[#F0C514] cursor-pointer mt-4 text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium hover:bg-[#e6b800] transition"
                     onClick={() =>
-                      router.push(`/dashboard/tutors/${teacher.id}`)
+                      router.push(
+                        `/dashboard/tutors/${
+                          teacher.id
+                        }?subject=${encodeURIComponent(teacher.subjectName)}`
+                      )
                     }
                   >
                     დეტალურად ნახვა

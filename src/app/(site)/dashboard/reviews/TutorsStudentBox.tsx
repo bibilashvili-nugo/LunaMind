@@ -2,6 +2,7 @@
 
 import { Star } from "react-coolicons";
 import { useReviews } from "@/hooks/useReviews";
+import NoContent from "../../../../../components/ui/NoContent";
 
 interface ReviewType {
   id: string;
@@ -50,8 +51,8 @@ export const TutorsStudentBox: React.FC<TutorsStudentBoxProps> = ({
 
   if (reviews.length === 0) {
     return (
-      <div className="bg-white p-5 rounded-2xl flex justify-center items-center">
-        <p className="text-sm text-gray-500">შეფასებები არ არის</p>
+      <div className="col-span-full w-full">
+        <NoContent needBtn={false} desc="შეფასება არ არის" />
       </div>
     );
   }
