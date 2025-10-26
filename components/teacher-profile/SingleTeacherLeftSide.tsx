@@ -1,6 +1,6 @@
-import Image from "next/image";
 import React from "react";
 import { LinkHorizontal, Tag } from "react-coolicons";
+import { ThreeScene } from "../ThreeScene";
 
 interface Teacher {
   id: string;
@@ -177,22 +177,16 @@ const SingleTeacherLeftSide = ({
         </div>
       )}
 
-      <div className="bg-black mt-3 w-full h-[185px] sm:h-[225px] relative">
-        <span className="text-white absolute">
-          {teacher.user.image &&
-          teacher.user.image !== "/images/default-profile.png" ? (
-            <Image
-              src={teacher.user.image}
-              alt={fullName}
-              width={100}
-              height={100}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            "ფოტო მასწავლებლის ან საგნის გაკვეთილის"
-          )}
-        </span>
+      <div className=" w-full h-[225px] rounded-xl overflow-hidden">
+        {teacher.user.image ? (
+          <ThreeScene image={teacher.user.image} />
+        ) : (
+          <span className="text-white flex items-center justify-center h-full">
+            ფოტო არ არის
+          </span>
+        )}
       </div>
+
       <div className="mt-6 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <span className="text-base leading-6 text-[#000000] font-helveticaneue-medium !font-bold">
