@@ -10,7 +10,7 @@ import { FilterMobileModal } from "../../../../../components/ui/FilterMobileModa
 interface SearchParams {
   subjects?: string;
   days?: string;
-  time?: string;
+  time?: string; // format: "13:00-17:00"
   minPrice?: string;
   maxPrice?: string;
 }
@@ -35,6 +35,9 @@ export default async function TutorsStudent({
   const minPrice = params.minPrice ? parseFloat(params.minPrice) : undefined;
   const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : undefined;
 
+  // დროის დიაპაზონის დაშლა
+  const [timeStart, timeEnd] = time ? time.split("-") : ["", ""];
+
   const where: Prisma.TeacherProfileWhereInput = {};
 
   // საგნების და ფასის ფილტრი
@@ -52,10 +55,9 @@ export default async function TutorsStudent({
     };
   }
 
-  // დღეებისა და დროის ფილტრი
+  // დღეების ფილტრი
   const lessonsFilter: Prisma.LessonWhereInput = {};
   if (days.length > 0) lessonsFilter.day = { in: days, mode: "insensitive" };
-  if (time) lessonsFilter.time = { contains: time, mode: "insensitive" };
 
   if (Object.keys(lessonsFilter).length > 0) {
     where.lessons = { some: lessonsFilter };
@@ -79,46 +81,83 @@ export default async function TutorsStudent({
     },
   }));
 
-  // მხოლოდ subjects, price, days, time შესაბამისი ქარდები
-  const expandedTeachers = teachersWithSafeImages.flatMap((teacher) => {
-    return (
-      teacher.teacherSubjects
-        ?.filter((subject) => {
-          // აქვს თუ არა ამ საგანზე გაკვეთილი
-          const hasLessonForSubject = teacher.lessons.some(
-            (lesson) => lesson.subject === subject.name // subject name უნდა ემთხვეოდეს lesson.subject-ს (შენთან რა field-ია, ის ჩასვი)
+  // დროის დიაპაზონის ფილტრის ფუნქცია
+  const timeToMinutes = (timeStr: string) => {
+    if (!timeStr) return 0;
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return hours * 60 + (minutes || 0);
+  };
+
+  const matchesTimeFilter = (lessonTime: string) => {
+    if (!timeStart && !timeEnd) return true;
+
+    const lessonMinutes = timeToMinutes(lessonTime);
+    const startMinutes = timeToMinutes(timeStart);
+    const endMinutes = timeToMinutes(timeEnd);
+
+    let matches = true;
+
+    if (timeStart) {
+      matches = matches && lessonMinutes >= startMinutes;
+    }
+
+    if (timeEnd) {
+      matches = matches && lessonMinutes <= endMinutes;
+    }
+
+    return matches;
+  };
+
+  // თითოეული მასწავლებლისთვის ქმნის ცალკე ქარდს ყოველი შესაბამისი საგნისთვის
+  const teachersWithExpandedSubjects = teachersWithSafeImages.flatMap(
+    (teacher) => {
+      // ფილტრავს საგნებს რომლებიც აკმაყოფილებენ საგნისა და ფასის პირობებს
+      const matchingSubjects = teacher.teacherSubjects.filter((subject) => {
+        const matchesSubject =
+          subjects.length === 0 || subjects.includes(subject.name);
+        const matchesPrice =
+          (minPrice === undefined || subject.price! >= minPrice) &&
+          (maxPrice === undefined || subject.price! <= maxPrice);
+
+        return matchesSubject && matchesPrice;
+      });
+
+      // თითოეული საგნისთვის ვამოწმებთ დღეებისა და დროის პირობებს
+      const expandedCards = matchingSubjects
+        .map((subject) => {
+          // ვპოულობთ ამ საგანთან დაკავშირებულ გაკვეთილებს
+          const subjectLessons = teacher.lessons.filter(
+            (lesson) => lesson.subject === subject.name
           );
 
-          const matchesSubject =
-            subjects.length === 0 || subjects.includes(subject.name);
-          const matchesPrice =
-            (minPrice === undefined || subject.price! >= minPrice) &&
-            (maxPrice === undefined || subject.price! <= maxPrice);
+          // აკმაყოფილებს თუ არა ეს საგანი დღეებისა და დროის პირობებს
+          const hasMatchingLessons = subjectLessons.some((lesson) => {
+            const matchesDay = days.length === 0 || days.includes(lesson.day);
+            const matchesTime = matchesTimeFilter(lesson.time);
+            return matchesDay && matchesTime;
+          });
 
-          return hasLessonForSubject && matchesSubject && matchesPrice;
+          // თუ საგანი აკმაყოფილებს ყველა პირობას, ვაბრუნებთ
+          if (hasMatchingLessons) {
+            return {
+              ...teacher,
+              // ჩავსვათ საგნის ინფორმაცია ქარდისთვის
+              subjectName: subject.name,
+              subjectPrice: subject.price,
+              // შევინარჩუნოთ მხოლოდ ამ საგანთან დაკავშირებული teacherSubjects
+              teacherSubjects: [subject],
+              // შევინარჩუნოთ მხოლოდ ამ საგანთან დაკავშირებული lessons
+              lessons: subjectLessons,
+            };
+          }
+
+          return null;
         })
-        .map((subject) => ({
-          ...teacher,
-          subjectName: subject.name,
-          subjectPrice: subject.price,
-        })) || []
-    );
-  });
+        .filter((card): card is NonNullable<typeof card> => card !== null); // Type-safe ფილტრაცია
 
-  // ✅ იფილტრება მასწავლებლები, რომლებსაც გაკვეთილი/lesson არ აქვთ
-  const teachersWithLessons = expandedTeachers.filter(
-    (teacher) => teacher.lessons && teacher.lessons.length > 0
+      return expandedCards;
+    }
   );
-
-  // დღეებისა და დროის საბოლოო ფილტრი
-  const fullyFilteredTeachers = teachersWithLessons.filter((teacher) => {
-    const matchesDay =
-      days.length === 0 ||
-      teacher.lessons?.some((lesson) => days.includes(lesson.day));
-    const matchesTime =
-      !time || teacher.lessons?.some((lesson) => lesson.time === time);
-    return matchesDay && matchesTime;
-  });
 
   return (
     <div className="bg-[#F6F5FA]">
@@ -146,7 +185,7 @@ export default async function TutorsStudent({
               />
             </div>
           </div>
-          <TeacherList teachers={fullyFilteredTeachers} />
+          <TeacherList teachers={teachersWithExpandedSubjects} />
         </div>
       </div>
     </div>
