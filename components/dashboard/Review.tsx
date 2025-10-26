@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CircleWarning, Star } from "react-coolicons";
 import toast from "react-hot-toast";
 import { useAddReview } from "@/hooks/useAddReview";
+import { useBookedLessons } from "@/hooks/useBookedLessons";
 
 interface PropReview {
   isModal?: boolean;
@@ -11,43 +12,44 @@ interface PropReview {
   onSuccess?: () => void;
 }
 
-interface TeacherProfileWithUser {
+interface TeacherOption {
   id: string;
-  userId: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-  };
-  createdAt: string;
+  firstName: string;
+  lastName: string;
 }
 
 const Review = ({ isModal = false, studentId, onSuccess }: PropReview) => {
   const [rating, setRating] = useState(0);
   const [value, setValue] = useState("");
   const [selectedTeacherId, setSelectedTeacherId] = useState("");
-  const [teachers, setTeachers] = useState<TeacherProfileWithUser[]>([]);
+  const [teachers, setTeachers] = useState<TeacherOption[]>([]);
 
   const { mutate: addReview, isPending } = useAddReview(studentId);
+  const { data: lessons } = useBookedLessons({ studentId });
 
   useEffect(() => {
-    async function fetchTeachers() {
-      try {
-        const res = await fetch("/api/teachers");
-        const data = await res.json();
-        setTeachers(data.teachers || []);
+    if (!lessons) return;
 
-        // Set default selected teacher if available
-        if (data.teachers && data.teachers.length > 0) {
-          setSelectedTeacherId(data.teachers[0].user.id);
-        }
-      } catch (err) {
-        console.error("Teachers fetch error:", err);
-        toast.error("მასწავლებლების ჩამოტვირთვა ვერ მოხერხდა");
-      }
+    const uniqueTeachersMap = new Map<
+      string,
+      { id: string; firstName: string; lastName: string }
+    >();
+
+    lessons.forEach((lesson) => {
+      uniqueTeachersMap.set(lesson.teacher.id, {
+        id: lesson.teacher.id,
+        firstName: lesson.teacher.firstName,
+        lastName: lesson.teacher.lastName,
+      });
+    });
+
+    const uniqueTeachers = Array.from(uniqueTeachersMap.values());
+    setTeachers(uniqueTeachers);
+
+    if (uniqueTeachers.length > 0) {
+      setSelectedTeacherId(uniqueTeachers[0].id);
     }
-    fetchTeachers();
-  }, []);
+  }, [lessons]);
 
   const handleSubmit = () => {
     if (!selectedTeacherId) {
@@ -107,8 +109,8 @@ const Review = ({ isModal = false, studentId, onSuccess }: PropReview) => {
             className="w-full text-xs sm:text-sm leading-4 text-[#000000] font-helveticaneue-medium appearance-none focus:outline-none focus:ring-0 bg-transparent"
           >
             {teachers.map((t) => (
-              <option key={t.user.id} value={t.user.id}>
-                {t.user.firstName} {t.user.lastName}
+              <option key={t.id} value={t.id}>
+                {t.firstName} {t.lastName}
               </option>
             ))}
           </select>
