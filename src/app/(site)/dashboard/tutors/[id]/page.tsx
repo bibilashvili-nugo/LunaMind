@@ -9,21 +9,27 @@ interface TutorPageProps {
   params: {
     id: string;
   };
+  searchParams: {
+    subject?: string;
+  };
 }
 
-const TutorPage = async ({ params }: TutorPageProps) => {
+const TutorPage = async ({ params, searchParams }: TutorPageProps) => {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
   const safeUser = { ...user, image: user.image || undefined };
 
   if (safeUser.role === "TEACHER") redirect("/dashboard");
+
   const { id } = await params;
+  const searchParamsObj = await searchParams;
+  const selectedSubject = searchParamsObj.subject;
 
   // პირდაპირ Prisma-ს გამოყენებით მასწავლებლის მონაცემების მიღება
   const teacher = await prisma.teacherProfile.findUnique({
     where: {
-      id: id, // ან userId: id - დამოკიდებულია რა ID-ს იყენებ
+      id: id,
     },
     include: {
       user: true,
@@ -33,11 +39,24 @@ const TutorPage = async ({ params }: TutorPageProps) => {
   });
 
   if (!teacher) {
-    redirect("/dashboard/tutors"); // ან გაუშვი error page
+    redirect("/dashboard/tutors");
   }
 
-  const teacherWithSafeImage = {
+  // ფილტრაცია მხოლოდ იმ საგნისა და გაკვეთილების, რომელზეც დააწკაპუნეს
+  const filteredTeacher = {
     ...teacher,
+    teacherSubjects: selectedSubject
+      ? teacher.teacherSubjects.filter(
+          (subject) => subject.name === selectedSubject
+        )
+      : teacher.teacherSubjects,
+    lessons: selectedSubject
+      ? teacher.lessons.filter((lesson) => lesson.subject === selectedSubject)
+      : teacher.lessons,
+  };
+
+  const teacherWithSafeImage = {
+    ...filteredTeacher,
     user: {
       ...teacher.user,
       image: teacher.user.image || "/images/default-profile.png",
@@ -49,7 +68,10 @@ const TutorPage = async ({ params }: TutorPageProps) => {
       <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
         <NavBar user={safeUser} />
         <div className="grid grid-cols-1 mt-[32px] lg:mt-5 xl:mt-6 lg:grid-cols-3 gap-4 pb-[200px]">
-          <SingleTeacherLeftSide teacher={teacherWithSafeImage} />
+          <SingleTeacherLeftSide
+            teacher={teacherWithSafeImage}
+            selectedSubject={selectedSubject}
+          />
           <SingleTeacherRightSide
             teacher={teacherWithSafeImage}
             studentId={safeUser.id}

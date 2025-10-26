@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { CaretDownSm, Check } from "react-coolicons";
 import toast from "react-hot-toast";
@@ -46,27 +46,39 @@ interface SingleTeacherRightSideProps {
   studentId: string;
   teacherUserId: string;
 }
+
 const SingleTeacherRightSide = ({
   teacher,
   studentId,
 }: SingleTeacherRightSideProps) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // URL-დან საგნის ამოღება
+  const urlSubject = searchParams.get("subject");
+
   const [openDays, setOpenDays] = useState(false);
   const [openTime, setOpenTime] = useState(false);
-  const [openSubjects, setOpenSubjects] = useState(false);
 
+  // საგანი ავტომატურად ირჩევა URL-დან
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(
+    urlSubject
+  );
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
-
-  // მასწავლებლის საგნები
-  const subjectsData = teacher.teacherSubjects.map((subject) => subject.name);
 
   // ფილტრირებული დღეები და დროები
   const [filteredDays, setFilteredDays] = useState<string[]>([]);
   const [filteredTimes, setFilteredTimes] = useState<string[]>([]);
+
+  // URL-დან საგნის აღება პირველ ჩატვირთვაზე
+  useEffect(() => {
+    if (urlSubject) {
+      setSelectedSubject(urlSubject);
+    }
+  }, [urlSubject]);
 
   // დღეები საგნის მიხედვით
   useEffect(() => {
@@ -160,7 +172,7 @@ const SingleTeacherRightSide = ({
 
     const orderData = {
       studentId,
-      teacherId: teacher.user.id, // ✅ გამოიყენე teacher.user.id (ეს არის User-ის ID)
+      teacherId: teacher.user.id,
       subject: selectedSubject,
       day: selectedDay,
       time: selectedTime,
@@ -214,46 +226,17 @@ const SingleTeacherRightSide = ({
       </div>
       <hr className="border border-[#EBECF0]" />
 
-      {/* Subject Dropdown */}
+      {/* Selected Subject Display (არა dropdown) */}
       <div className="bg-white px-4 pt-4">
-        <div className="relative w-full border border-[#EBECF0] px-3 py-[10px] rounded-xl flex flex-col cursor-pointer">
-          <div
-            className="flex justify-between items-center"
-            onClick={() => {
-              setOpenSubjects((prev) => !prev);
-              setOpenDays(false);
-              setOpenTime(false);
-            }}
-          >
-            <div>
-              <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
-                აირჩიეთ საგანი
-              </span>
-              <div className="text-sm leading-5 text-[#000000] font-helveticaneue-medium">
-                {selectedSubject || "საგნის არჩევა"}
-              </div>
+        <div className="w-full border border-[#EBECF0] px-3 py-[10px] rounded-xl flex flex-col">
+          <div>
+            <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
+              არჩეული საგანი
+            </span>
+            <div className="text-sm leading-5 text-[#000000] font-helveticaneue-medium mt-1">
+              {selectedSubject || "საგანი არ არის არჩეული"}
             </div>
-            <CaretDownSm className="text-[#969696] text-lg" />
           </div>
-
-          {openSubjects && (
-            <div className="absolute top-full left-0 w-full bg-white border border-[#E6E6E6] rounded-xl max-h-48 overflow-y-auto z-10">
-              {subjectsData.map((subj) => (
-                <div
-                  key={subj}
-                  onClick={() =>
-                    handleSelect(subj, setSelectedSubject, setOpenSubjects)
-                  }
-                  className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 text-sm"
-                >
-                  <span>{subj}</span>
-                  {selectedSubject === subj && (
-                    <Check className="w-4 h-4 text-[#F0C514]" />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -264,7 +247,6 @@ const SingleTeacherRightSide = ({
             className="flex justify-between items-center"
             onClick={() => {
               setOpenDays((prev) => !prev);
-              setOpenSubjects(false);
               setOpenTime(false);
             }}
           >
@@ -306,7 +288,6 @@ const SingleTeacherRightSide = ({
             onClick={() => {
               setOpenTime((prev) => !prev);
               setOpenDays(false);
-              setOpenSubjects(false);
             }}
           >
             <div>

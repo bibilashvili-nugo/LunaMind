@@ -40,33 +40,49 @@ interface Teacher {
 
 interface SingleTeacherLeftSideProps {
   teacher: Teacher;
+  selectedSubject?: string;
 }
 
-const SingleTeacherLeftSide = ({ teacher }: SingleTeacherLeftSideProps) => {
+const SingleTeacherLeftSide = ({
+  teacher,
+  selectedSubject,
+}: SingleTeacherLeftSideProps) => {
   const fullName = `${teacher.user.firstName} ${teacher.user.lastName}`;
 
-  // გამოვთვალოთ შეხვედრების დღეების რაოდენობა
+  // მხოლოდ არჩეული საგნის გაკვეთილების დღეები
   const uniqueDays = [...new Set(teacher.lessons.map((lesson) => lesson.day))];
   const meetingDaysText = `კვირაში ${uniqueDays.length} დღე`;
 
-  // დროების ფორმატირება
+  // დროების ფორმატირება (მხოლოდ არჩეული საგნისთვის)
   const formatLessonTimes = () => {
+    if (teacher.lessons.length === 0) {
+      return (
+        <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular">
+          დროები არ არის მითითებული
+        </span>
+      );
+    }
+
     return teacher.lessons.map((lesson, index) => (
-      <span
-        key={lesson.id}
-        className="text-sm leading-5 font-helveticaneue-medium text-[#080808]"
-      >
-        {lesson.day}: {lesson.time} ({lesson.duration}სთ)
-        {index < teacher.lessons.length - 1 ? "," : ""}
-      </span>
+      <div key={lesson.id} className="flex items-center gap-1">
+        <span className="text-sm leading-5 font-helveticaneue-medium text-[#080808]">
+          {lesson.day}: {lesson.time} ({lesson.duration}სთ)
+        </span>
+        {index < teacher.lessons.length - 1 && (
+          <span className="text-[#969696]">•</span>
+        )}
+      </div>
     ));
   };
 
-  // პირველი საგანი (ან ყველა საგნების სია)
-  const mainSubject = teacher.teacherSubjects[0]?.name || "საგანი";
-  const allSubjects = teacher.teacherSubjects
-    .map((subject) => subject.name)
-    .join(", ");
+  // არჩეული საგანი ან პირველი საგანი
+  const mainSubject =
+    selectedSubject || teacher.teacherSubjects[0]?.name || "საგანი";
+
+  // ყველა საგანი (მხოლოდ არჩეული საგნისთვის)
+  const displaySubjects = selectedSubject
+    ? selectedSubject
+    : teacher.teacherSubjects.map((subject) => subject.name).join(", ");
 
   // მასწავლებლის აღწერა
   const getTeacherDescription = () => {
@@ -98,7 +114,7 @@ const SingleTeacherLeftSide = ({ teacher }: SingleTeacherLeftSideProps) => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <span className="text-2xl leading-[100%] text-black font-helveticaneue-medium !font-bold lg:text-[32px]">
-            {allSubjects}
+            {displaySubjects}
           </span>
           <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular lg:text-base lg:leading-[100%]">
             {fullName}
@@ -119,35 +135,48 @@ const SingleTeacherLeftSide = ({ teacher }: SingleTeacherLeftSideProps) => {
           </div>
         </div>
       </div>
-      <div className="bg-[#ECF1FF] rounded-xl p-3 mt-3 flex flex-col gap-3">
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="flex flex-col gap-1 sm:w-1/2">
-            <span className="text-xs leading-4 text-[#969696] font-helveticaneue-regular">
-              მასწავლებელი
-            </span>
-            <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
-              {fullName}
-            </span>
+
+      {/* მხოლოდ თუ არჩეული საგნისთვის არის გაკვეთილები */}
+      {teacher.lessons.length > 0 ? (
+        <div className="bg-[#ECF1FF] rounded-xl p-3 mt-3 flex flex-col gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="flex flex-col gap-1 sm:w-1/2">
+              <span className="text-xs leading-4 text-[#969696] font-helveticaneue-regular">
+                მასწავლებელი
+              </span>
+              <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
+                {fullName}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1 sm:w-1/2">
+              <span className="text-xs leading-4 text-[#969696] font-helveticaneue-regular">
+                შეხვედრები
+              </span>
+              <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
+                {meetingDaysText}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col gap-1 sm:w-1/2">
+          <hr className="border border-[#D3DFFF]" />
+          <div className="flex flex-col gap-1">
             <span className="text-xs leading-4 text-[#969696] font-helveticaneue-regular">
-              შეხვედრები
+              საათები ({mainSubject})
             </span>
-            <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
-              {meetingDaysText}
-            </span>
+            <div className="flex flex-col sm:flex-row sm:gap-1 flex-wrap">
+              {formatLessonTimes()}
+            </div>
           </div>
         </div>
-        <hr className="border border-[#D3DFFF]" />
-        <div className="flex flex-col gap-1">
-          <span className="text-xs leading-4 text-[#969696] font-helveticaneue-regular">
-            საათები
+      ) : (
+        <div className="bg-[#ECF1FF] rounded-xl p-3 mt-3">
+          <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular">
+            {selectedSubject
+              ? `${selectedSubject} საგნისთვის გაკვეთილები არ არის მითითებული`
+              : "გაკვეთილები არ არის მითითებული"}
           </span>
-          <div className="flex flex-col sm:flex-row sm:gap-1">
-            {formatLessonTimes()}
-          </div>
         </div>
-      </div>
+      )}
+
       <div className="bg-black mt-3 w-full h-[185px] sm:h-[225px] relative">
         <span className="text-white absolute">
           {teacher.user.image &&

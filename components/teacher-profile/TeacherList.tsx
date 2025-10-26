@@ -51,6 +51,15 @@ export const TeacherList = ({ teachers, filterParams }: TeacherListProps) => {
       : true
   );
 
+  const handleTeacherClick = (teacher: Teacher) => {
+    // აქ ვამოწმებთ თუ არსებობს subjectName და ვამატებთ URL პარამეტრს
+    const subjectParam = teacher.subjectName
+      ? `?subject=${encodeURIComponent(teacher.subjectName)}`
+      : "";
+
+    router.push(`/dashboard/tutors/${teacher.id}${subjectParam}`);
+  };
+
   return (
     <div className="flex flex-col md:grid gap-4 md:grid-cols-1 lg:col-span-2 xl:col-span-3 lg:grid-cols-2 mt-6 lg:mt-0 h-fit">
       {filteredTeachers.map((item, index) => (
@@ -167,7 +176,7 @@ export const TeacherList = ({ teachers, filterParams }: TeacherListProps) => {
             <hr className="mt-3 border border-[#EBECF0]" />
             <button
               className="py-[14px] w-full rounded-[40px] bg-[#F0C514] cursor-pointer mt-4 text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium hover:bg-[#e6b800] transition"
-              onClick={() => router.push(`/dashboard/tutors/${item.id}`)}
+              onClick={() => handleTeacherClick(item)}
             >
               დეტალურად ნახვა
             </button>
