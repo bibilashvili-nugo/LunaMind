@@ -67,11 +67,9 @@ export const FilterPanel = ({
   const subjectsRef = useRef<HTMLDivElement | null>(null);
   const daysRef = useRef<HTMLDivElement | null>(null);
 
-  // Click გარეთ დახურვისთვის (თუ იყენებთ dropdown-ს)
   useClickOutside(subjectsRef, () => {});
   useClickOutside(daysRef, () => {});
 
-  // initial state-ს განახლება, როცა prop-ები იცვლება
   useEffect(() => {
     setSelectedSubjects(initialSubjects);
     setSelectedDays(initialDays);
@@ -109,11 +107,28 @@ export const FilterPanel = ({
     );
   };
 
-  const isValidTime = (value: string) => {
-    if (!value.includes(":")) return false;
-    const [h, m] = value.split(":").map(Number);
-    if (isNaN(h) || isNaN(m)) return false;
-    return h >= 0 && h <= 23 && m >= 0 && m <= 59;
+  const handleTimeInput = (value: string, isStart: boolean) => {
+    // მხოლოდ ციფრები
+    value = value.replace(/[^0-9]/g, "");
+
+    // ავტომატურად ":" მეოთხე ციფრის შემდეგ
+    if (value.length > 2) {
+      value = value.slice(0, 2) + ":" + value.slice(2, 4);
+    }
+
+    let [h = "", m = ""] = value.split(":");
+    if (h.length > 2) h = h.slice(0, 2);
+    if (m.length > 2) m = m.slice(0, 2);
+
+    const hourNum = parseInt(h || "0", 10);
+    const minNum = parseInt(m || "0", 10);
+
+    if (hourNum > 23) h = "23";
+    if (minNum > 59) m = "59";
+
+    const formatted = h + (m ? ":" + m : "");
+    if (isStart) setTimeStart(formatted);
+    else setTimeEnd(formatted);
   };
 
   const padTime = (value: string) => {
@@ -186,7 +201,20 @@ export const FilterPanel = ({
               type="checkbox"
               checked={selectedSubjects.includes(subject)}
               onChange={() => toggleSubject(subject)}
-              className="w-[18px] h-[18px] rounded-[4px] border border-[#EBEBEB] accent-[#F0C514] cursor-pointer"
+              className="
+                w-[18px] h-[18px]
+                appearance-none
+                border border-[#EBECF0]
+                rounded-[4px]
+                cursor-pointer
+                checked:bg-[#F0C514]
+                checked:border-none
+                checked:after:content-['✔']
+                checked:after:block
+                checked:after:text-white
+                checked:after:text-[12px]
+                checked:after:text-center
+              "
             />
             <span className="text-sm leading-5 text-[#000] font-helveticaneue-regular">
               {subject}
@@ -206,7 +234,20 @@ export const FilterPanel = ({
               type="checkbox"
               checked={selectedDays.includes(day)}
               onChange={() => toggleDay(day)}
-              className="w-[18px] h-[18px] rounded-[4px] border border-[#EBEBEB] accent-[#F0C514] cursor-pointer"
+              className="
+                w-[18px] h-[18px]
+                appearance-none
+                border border-[#EBECF0]
+                rounded-[4px]
+                cursor-pointer
+                checked:bg-[#F0C514]
+                checked:border-none
+                checked:after:content-['✔']
+                checked:after:block
+                checked:after:text-white
+                checked:after:text-[12px]
+                checked:after:text-center
+              "
             />
             <span className="text-sm leading-5 text-[#000] font-helveticaneue-regular">
               {day}
@@ -229,15 +270,7 @@ export const FilterPanel = ({
               type="text"
               placeholder="00:00"
               value={timeStart}
-              onChange={(e) => {
-                let value = e.target.value.replace(/[^0-9:]/g, "");
-                if (value.length === 2 && !value.includes(":")) value += ":";
-                if (
-                  value.length <= 5 &&
-                  (!value.includes(":") || isValidTime(value))
-                )
-                  setTimeStart(value);
-              }}
+              onChange={(e) => handleTimeInput(e.target.value, true)}
               onBlur={() => setTimeStart(padTime(timeStart))}
               className="w-full border border-[#F1F1F1] rounded-xl px-3 pb-[10px] pt-[26px] text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none leading-5"
               maxLength={5}
@@ -252,15 +285,7 @@ export const FilterPanel = ({
               type="text"
               placeholder="23:59"
               value={timeEnd}
-              onChange={(e) => {
-                let value = e.target.value.replace(/[^0-9:]/g, "");
-                if (value.length === 2 && !value.includes(":")) value += ":";
-                if (
-                  value.length <= 5 &&
-                  (!value.includes(":") || isValidTime(value))
-                )
-                  setTimeEnd(value);
-              }}
+              onChange={(e) => handleTimeInput(e.target.value, false)}
               onBlur={() => setTimeEnd(padTime(timeEnd))}
               className="w-full border border-[#F1F1F1] rounded-xl px-3 pb-[10px] pt-[26px] text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none leading-5"
               maxLength={5}
@@ -280,7 +305,7 @@ export const FilterPanel = ({
             placeholder="დან"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            className="w-full border border-[#F1F1F1] rounded-tl-xl rounded-bl-xl border-r-0 p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-[#000000] placeholder:font-helveticaneue-medium placeholder:text-sm"
+            className="w-full h-[56px] border border-[#F1F1F1] rounded-tl-xl rounded-bl-xl border-r-0 p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-[#000000] placeholder:font-helveticaneue-medium placeholder:text-sm"
           />
           <div className="bg-[#EBECF0] w-[1px] h-8"></div>
           <input
@@ -288,7 +313,7 @@ export const FilterPanel = ({
             placeholder="მდე"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
-            className="w-full border border-[#F1F1F1] rounded-tr-xl rounded-br-xl border-l-0 p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-[#000000] placeholder:font-helveticaneue-medium placeholder:text-sm"
+            className="w-full h-[56px] border border-[#F1F1F1] rounded-tr-xl rounded-br-xl border-l-0 p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-[#000000] placeholder:font-helveticaneue-medium placeholder:text-sm"
           />
         </div>
       </div>

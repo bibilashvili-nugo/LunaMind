@@ -37,6 +37,7 @@ const RepetitorSwiper = () => {
 
   const teachers: Teacher[] = data?.teachers || [];
 
+  // Create a slide for each subject if teacher has at least one lesson
   const slides = teachers.flatMap((teacher) =>
     teacher.teacherSubjects
       .map((subject) => {
@@ -56,6 +57,7 @@ const RepetitorSwiper = () => {
       className="mt-4 bg-white rounded-2xl lg:mt-0"
       style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
     >
+      {/* Header with title + custom nav buttons */}
       <div className="flex justify-between items-center mb-4 px-5 pt-5 gap-1.5">
         <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
           შემოთავაზებული რეპეტიტორები
@@ -110,38 +112,38 @@ const RepetitorSwiper = () => {
             1024: {
               slidesPerView: 2.7,
               spaceBetween: 24,
-              slidesOffsetBefore: 44,
-              slidesOffsetAfter: 44,
+              slidesOffsetBefore: 16,
+              slidesOffsetAfter: 16,
             },
             1124: {
               slidesPerView: 2.7,
               spaceBetween: 24,
-              slidesOffsetBefore: 44,
-              slidesOffsetAfter: 44,
+              slidesOffsetBefore: 16,
+              slidesOffsetAfter: 16,
             },
             1280: {
               slidesPerView: 2.3,
               spaceBetween: 24,
-              slidesOffsetBefore: 44,
-              slidesOffsetAfter: 44,
+              slidesOffsetBefore: 16,
+              slidesOffsetAfter: 16,
             },
             1380: {
               slidesPerView: 2.4,
               spaceBetween: 24,
-              slidesOffsetBefore: 44,
-              slidesOffsetAfter: 44,
+              slidesOffsetBefore: 16,
+              slidesOffsetAfter: 16,
             },
             1480: {
               slidesPerView: 2.6,
               spaceBetween: 24,
-              slidesOffsetBefore: 44,
-              slidesOffsetAfter: 44,
+              slidesOffsetBefore: 16,
+              slidesOffsetAfter: 16,
             },
             1536: {
               slidesPerView: 2.8,
               spaceBetween: 24,
-              slidesOffsetBefore: 48,
-              slidesOffsetAfter: 48,
+              slidesOffsetBefore: 16,
+              slidesOffsetAfter: 16,
             },
             1920: { slidesPerView: 3.2, spaceBetween: 24 },
           }}
