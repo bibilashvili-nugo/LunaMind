@@ -2,7 +2,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-type QuestionType = "text" | "number" | "textarea" | "select" | "subjects";
+type QuestionType =
+  | "text"
+  | "number"
+  | "textarea"
+  | "select"
+  | "subjects"
+  | "multi-select";
 
 interface Subject {
   name: string;
@@ -10,7 +16,7 @@ interface Subject {
 }
 
 interface Profile {
-  [key: string]: string | number | undefined | Subject[];
+  [key: string]: string | number | undefined | Subject[] | string[];
 }
 
 interface Question {
@@ -27,37 +33,76 @@ interface QuestionsClientProps {
 }
 
 const studentQuestions: Question[] = [
-  { key: "age", label: "თქვენი ასაკი", type: "number" },
-  {
-    key: "country",
-    label: "ქვეყანა",
-    type: "select",
-    options: ["საქართველო", "აშშ", "გერმანია"],
-  },
-  { key: "city", label: "ქალაქი", type: "text" },
-  { key: "address", label: "სრული მისამართი", type: "text" },
   {
     key: "educationLevel",
-    label: "რა არის თქვენი მიმდინარე საგანმანათლებლო დონე?",
+    label: "განათლება",
     type: "select",
-    options: ["SCHOOL", "UNIVERSITY", "OTHER"],
+    options: [
+      "სკოლის მოსწავლე",
+      "სტუდენტი",
+      "საშუალო განათლება",
+      "უმაღლესი განათლება",
+      "თვით ნასწავლი",
+      "სხვა",
+    ],
   },
   {
-    key: "subjectInterest",
-    label: "რომელი საგანი ან უნარი გაინტერესებთ ყველაზე მეტად?",
-    type: "select",
-    options: ["პროგრამირება", "მათემატიკა", "ენები"],
+    key: "desiredSubjects",
+    label: "რომელია თქვენი სასურველი საგნები დასაწყისისთვის?",
+    type: "multi-select",
+    options: [
+      "მათემატიკა",
+      "ქართული",
+      "ისტორია",
+      "გეოგრაფია",
+      "ქიმია",
+      "ფიზიკა",
+      "ბიოლოგია",
+      "ხელოვნება",
+      "ინგლისური",
+      "რუსული",
+      "გერმანული",
+      "ესპანური",
+      "ფრანგული",
+      "დაწყებითი კლასები",
+    ],
   },
   {
     key: "reason",
-    label: "რატომ გადაწყვიტეთ ჩვენი პლატფორმის გამოყენება?",
-    type: "textarea",
+    label: "რატომ აირჩიეთ ევექტუსი?",
+    type: "select",
+    options: [
+      "სასკოლო დავალებების შესასრულებლად",
+      "ნიშნების ასამაღლებლად",
+      "გამოცდისთვის მოსამზადებლად",
+      "საგნის საფუძვლიანად შესასწავლად",
+      "სხვა",
+    ],
   },
   {
-    key: "availability",
-    label: "როდის ხარ ხელმისაწვდომი?",
+    key: "hasOtherCourses",
+    label:
+      "გქონიათ თუ არა შეხება სხვა ონლაინ სასწავლებელ კურსებთან ან პლატფორმებთან?",
     type: "select",
-    options: ["FLEXIBLE", "FIXED"],
+    options: ["კი", "არა"],
+  },
+  {
+    key: "usageFrequency",
+    label: "რამდენად ხშირად გსურთ გამოიყენოთ ჩვენი პლატფორმა?",
+    type: "select",
+    options: ["ყოველდღიურად", "კვირაში რამდენჯერმე", "საჭიროების მიხედვით"],
+  },
+  {
+    key: "preferredLessonType",
+    label: "როგორი ტიპის გაკვეთილები მოგწონთ ყველაზე მეტად?",
+    type: "select",
+    options: ["პრაქტიკული", "თეორიული", "თამაშზე დაფუძნებული"],
+  },
+  {
+    key: "discoverySource",
+    label: "როგორ გაიგეთ ჩვენს შესახებ?",
+    type: "select",
+    options: ["მეგობრისგან", "სოციალური ქსელიდან", "რეკლამიდან", "სხვა"],
   },
 ];
 
@@ -98,6 +143,9 @@ const subjectOptions = [
   "დაწყებითი კლასები",
 ];
 
+// ✅ ტიპი "სხვა" ველებისთვის
+type OtherFieldKeys = "educationLevel" | "reason" | "discoverySource";
+
 const QuestionsClient: React.FC<QuestionsClientProps> = ({
   userId,
   role,
@@ -106,7 +154,6 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
   const router = useRouter();
   const questions = role === "STUDENT" ? studentQuestions : teacherQuestions;
 
-  // ✅ ვალიდაცია initialStep-ისთვის
   const validatedInitialStep = Math.max(
     0,
     Math.min(initialStep, questions.length - 1)
@@ -114,11 +161,19 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
   const [step, setStep] = useState<number>(validatedInitialStep);
   const [answers, setAnswers] = useState<Profile>({
     subjects: [],
+    desiredSubjects: [],
   });
+
+  // ✅ "სხვა" ველების მდგომარეობა
+  const [otherValues, setOtherValues] = useState<{
+    educationLevel?: string;
+    reason?: string;
+    discoverySource?: string;
+  }>({});
 
   // ✅ ვალიდაციის ფუნქციები
   const isValidNumber = (
-    value: string | number | undefined | Subject[]
+    value: string | number | undefined | Subject[] | string[]
   ): boolean => {
     if (value === "" || value === undefined || Array.isArray(value))
       return false;
@@ -127,7 +182,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
   };
 
   const isNonEmptyString = (
-    value: string | number | undefined | Subject[]
+    value: string | number | undefined | Subject[] | string[]
   ): boolean => {
     return typeof value === "string" && value.trim() !== "";
   };
@@ -141,14 +196,22 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     );
   };
 
-  const getCurrentValue = (): string | number | undefined | Subject[] => {
+  const hasValidDesiredSubjects = (): boolean => {
+    const desiredSubjects = answers.desiredSubjects as string[];
+    return Array.isArray(desiredSubjects) && desiredSubjects.length > 0;
+  };
+
+  const getCurrentValue = ():
+    | string
+    | number
+    | undefined
+    | Subject[]
+    | string[] => {
     return answers[current.key];
   };
 
-  // ✅ ვალიდაცია current-ისთვის
   const current = questions[step];
 
-  // ✅ თუ current არ არსებობს, redirect
   if (!current) {
     console.error("❌ Invalid step or questions array:", {
       step,
@@ -164,9 +227,40 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
   const handleChange = (
     key: string,
-    value: string | number | undefined | Subject[]
+    value: string | number | undefined | Subject[] | string[]
   ) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // ✅ "სხვა" ველის დამუშავება
+  const handleSelectChange = (key: string, value: string) => {
+    if (value === "სხვა") {
+      // თუ "სხვა" აირჩიეს, ვინახავთ მნიშვნელობას
+      handleChange(key, value);
+    } else {
+      // თუ სხვა ოფშენი აირჩიეს, ვშლით "სხვა" მნიშვნელობას
+      handleChange(key, value);
+      setOtherValues((prev) => ({ ...prev, [key as OtherFieldKeys]: "" }));
+    }
+  };
+
+  // ✅ "სხვა" ტექსტის დამუშავება
+  const handleOtherTextChange = (key: string, value: string) => {
+    setOtherValues((prev) => ({ ...prev, [key as OtherFieldKeys]: value }));
+  };
+
+  // ✅ მრავალი საგნის არჩევის ფუნქცია
+  const handleMultiSelectChange = (selectedValue: string) => {
+    const currentSubjects = [...((answers.desiredSubjects as string[]) || [])];
+
+    const newSubjects = currentSubjects.includes(selectedValue)
+      ? currentSubjects.filter((subj) => subj !== selectedValue)
+      : [...currentSubjects, selectedValue];
+
+    setAnswers((prev) => ({
+      ...prev,
+      desiredSubjects: newSubjects,
+    }));
   };
 
   const handleSubjectChange = (name: string, price: number) => {
@@ -176,14 +270,11 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
       if (index >= 0) {
         if (price === 0) {
-          // Remove subject if price is 0
           subjects.splice(index, 1);
         } else {
-          // Update price
           subjects[index].price = price;
         }
       } else {
-        // Add new subject
         subjects.push({ name, price });
       }
 
@@ -199,61 +290,78 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         return !isValidNumber(value);
       case "text":
       case "textarea":
+        return !isNonEmptyString(value);
       case "select":
+        // თუ "სხვა" არის არჩეული, ვამოწმებთ ტექსტურ ველს
+        if (value === "სხვა") {
+          const otherKey = current.key as OtherFieldKeys;
+          return !otherValues[otherKey] || otherValues[otherKey].trim() === "";
+        }
         return !isNonEmptyString(value);
       case "subjects":
         return !hasValidSubjects();
+      case "multi-select":
+        return !hasValidDesiredSubjects();
       default:
         return !value;
     }
   };
 
   const handleNext = async () => {
-    const value = getCurrentValue();
     const isLastQuestion = step === questions.length - 1;
 
-    // თუ ბოლო ნაბიჯი არაა, ვალიდაცია ჯერ გავაკეთოთ
-    if (!isLastQuestion && isNextDisabled()) {
-      alert("გთხოვთ შეავსოთ ველი სწორად");
-      return;
-    }
-
     try {
-      const apiUrl =
-        role === "STUDENT" ? "/api/students/profile" : "/api/teachers/profile";
+      // ✅ მოამზადება API-სთვის - "სხვა" მნიშვნელობების გაერთიანება
+      const apiAnswers = { ...answers };
 
-      const response = await fetch(apiUrl, {
+      // თუ "სხვა" არის არჩეული და არის ტექსტური მნიშვნელობა, ვიყენებთ ტექსტურ მნიშვნელობას
+      if (answers.educationLevel === "სხვა" && otherValues.educationLevel) {
+        apiAnswers.educationLevel = otherValues.educationLevel;
+      }
+      if (answers.reason === "სხვა" && otherValues.reason) {
+        apiAnswers.reason = otherValues.reason;
+      }
+      if (answers.discoverySource === "სხვა" && otherValues.discoverySource) {
+        apiAnswers.discoverySource = otherValues.discoverySource;
+      }
+
+      console.log("📤 Sending answers to API:", apiAnswers);
+
+      await fetch("/api/students/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
-          key: current.key,
-          value,
-          step: step,
+          step,
           isLastQuestion,
+          answers: apiAnswers,
         }),
       });
 
-      const data = await response.json();
-      console.log("📥 API Response:", data);
-
-      if (isLastQuestion) {
-        // ბოლო ნაბიჯზე პირდაპირ dashboard–ზე გადაგვყავს
-        router.push("/dashboard");
-        return;
-      }
-
-      // შემდეგი ნაბიჯი
-      setStep((prev) => prev + 1);
+      if (isLastQuestion) router.push("/dashboard");
+      else setStep((prev) => prev + 1);
     } catch (err) {
-      console.error("❌ Error saving profile:", err);
+      console.error(err);
     }
   };
 
   const totalSteps = questions.length;
+  const selectedSubjects = (answers.desiredSubjects as string[]) || [];
+
+  // ✅ შევამოწმოთ არის თუ არა "სხვა" არჩეული მიმდინარე კითხვაზე
+  const isOtherSelected =
+    (current.key === "educationLevel" && answers.educationLevel === "სხვა") ||
+    (current.key === "reason" && answers.reason === "სხვა") ||
+    (current.key === "discoverySource" && answers.discoverySource === "სხვა");
+
+  // ✅ მიმდინარე "სხვა" ველის მნიშვნელობა (უსაფრთხო წვდომა)
+  const getCurrentOtherValue = (): string => {
+    const key = current.key as OtherFieldKeys;
+    return otherValues[key] || "";
+  };
 
   return (
-    <>
+    <div className="pb-4">
       <div
         className="flex justify-between items-center mt-8 pb-4 md:pb-6
       px-4 md:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto"
@@ -334,21 +442,71 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
           />
         )}
         {current.type === "select" && (
-          <select
-            value={(answers[current.key] as string) ?? ""}
-            onChange={(e) => handleChange(current.key, e.target.value)}
-            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
-            text-sm leading-5 font-helveticaneue-regular
-          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
-          xl:text-base"
-          >
-            <option value="">აირჩიეთ...</option>
-            {current.options?.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+          <div className="space-y-4">
+            <select
+              value={(answers[current.key] as string) ?? ""}
+              onChange={(e) => handleSelectChange(current.key, e.target.value)}
+              className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+              text-sm leading-5 font-helveticaneue-regular
+            focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+            xl:text-base"
+            >
+              <option value="">აირჩიეთ...</option>
+              {current.options?.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+
+            {/* "სხვა" ტექსტური ველი */}
+            {isOtherSelected && (
+              <div className="mt-4">
+                <label className="block text-base leading-5 font-helveticaneue-regular text-black mb-2">
+                  გთხოვთ მიუთითოთ თქვენი ვერსია:
+                </label>
+                <input
+                  type="text"
+                  value={getCurrentOtherValue()}
+                  onChange={(e) =>
+                    handleOtherTextChange(current.key, e.target.value)
+                  }
+                  placeholder={`შეიყვანეთ ${current.label.toLowerCase()}`}
+                  className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+                  text-sm leading-5 font-helveticaneue-regular
+                  focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+                  xl:text-base"
+                />
+              </div>
+            )}
+          </div>
+        )}
+        {current.type === "multi-select" && (
+          <div className="space-y-4">
+            {/* საგნების არჩევის ღილაკები */}
+            <div className="grid grid-cols-2 gap-3">
+              {current.options?.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => handleMultiSelectChange(option)}
+                  className={`py-3 px-4 border rounded-lg text-sm font-medium transition-all duration-200 ${
+                    selectedSubjects.includes(option)
+                      ? "bg-[#FFD52A] border-[#FFD52A] text-[#0C0F21]"
+                      : "bg-white border-gray-300 text-gray-700 hover:border-[#FFD52A]"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+
+            {selectedSubjects.length === 0 && (
+              <p className="text-[#737373] text-center py-4">
+                გთხოვთ აირჩიოთ მინიმუმ ერთი საგანი
+              </p>
+            )}
+          </div>
         )}
         {current.type === "subjects" && (
           <div className="space-y-4">
@@ -437,7 +595,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
           {step < questions.length - 1 ? "შემდეგი" : "დასრულება"}
         </button>
       </div>
-    </>
+    </div>
   );
 };
 

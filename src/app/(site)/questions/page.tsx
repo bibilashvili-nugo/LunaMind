@@ -24,7 +24,7 @@ export default async function QuestionsPage() {
   }
 
   // 3️⃣ თუ უკვე დასრულებულია → dashboard
-  const totalQuestions = user.role === "STUDENT" ? 8 : 6;
+  const totalQuestions = user.role === "STUDENT" ? 8 : 7;
   if (currentStep >= totalQuestions - 1) {
     return redirect("/dashboard"); // ✅ პირდაპირ dashboard
   }
