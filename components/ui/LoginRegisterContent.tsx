@@ -34,21 +34,7 @@ export const LoginRegisterContentSocial = ({
 }) => {
   return (
     <>
-      <div className="flex flex-col mt-8 gap-4 lg:mt-6 xl:mt-[44px] 3xl:!mt-[64px]">
-        <button className="flex items-center gap-2 border border-[#EBEBEB] rounded-[12px] w-full justify-center py-3 hover:bg-gray-100 transition">
-          <div className="w-6 h-6 bg-[#D9D9D9] rounded-full"></div>
-          <span className="text-sm text-[#737373] font-helveticaneue-regular leading-5 xl:text-base xl:leading-6">
-            Google
-          </span>
-        </button>
-        <button className="flex items-center gap-2 border border-[#EBEBEB] rounded-[12px] w-full justify-center py-3 hover:bg-gray-100 transition">
-          <div className="w-6 h-6 bg-[#D9D9D9] rounded-full"></div>
-          <span className="text-sm text-[#737373] font-helveticaneue-regular leading-5 xl:text-base xl:leading-6">
-            Facebook
-          </span>
-        </button>
-      </div>
-      <div className="text-center text-xs text-[#0C0F21] font-helveticaneue-regular leading-4 mt-6 xl:text-sm xl:leading-5">
+      <div className="pb-8 text-center text-xs text-[#0C0F21] font-helveticaneue-regular leading-4 mt-6 xl:text-sm xl:leading-5">
         გაქვს ანგარიში?
         <Link
           href={`${authType === "რეგისტრაცია" ? "/register" : "/login"}`}

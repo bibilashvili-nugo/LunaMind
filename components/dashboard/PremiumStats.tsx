@@ -29,7 +29,9 @@ const PremiumStats = ({ profilePage = false }: { profilePage?: boolean }) => {
     >
       <div
         className={`bg-white rounded-2xl p-5 gap-4 flex flex-col xl:w-full ${
-          profilePage ? "sm:w-full md:justify-between md:h-[428px]" : "sm:w-1/2"
+          profilePage
+            ? "sm:w-full md:justify-between md:h-[428px]"
+            : "sm:w-full"
         }`}
         style={
           profilePage ? {} : { boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }
@@ -122,19 +124,6 @@ const PremiumStats = ({ profilePage = false }: { profilePage?: boolean }) => {
             </span>
           </div>
         </div>
-      </div>
-      <div
-        style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
-        className={`bg-[#7D3FFF] rounded-2xl p-5 flex flex-col gap-4 sm:w-1/2 xl:w-full xl:max-h-[188px] ${
-          profilePage && "hidden"
-        }`}
-      >
-        <span className="text-sm leading-5 font-helveticaneue-medium !font-bold text-white">
-          გახდი პრემიუმი
-        </span>
-        <span className="text-sm leading-5 font-helveticaneue-regular text-white h-[200px] xl:h-[188px]">
-          სტატისტიკა მოცემულია თქვენი დროის და გაკვეთილების ცხრილის მიხედვით
-        </span>
       </div>
     </div>
   );

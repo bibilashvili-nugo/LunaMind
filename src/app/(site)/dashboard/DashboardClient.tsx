@@ -18,13 +18,13 @@ interface DashboardClientProps {
 const DashboardClient: React.FC<DashboardClientProps> = ({ user }) => {
   if (user.role === "STUDENT") {
     return (
-      <div className="bg-[#F6F5FA]">
+      <div className="bg-[#F6F5FA] h-screen">
         <StudentPage user={user} />
       </div>
     );
   } else if (user.role === "TEACHER") {
     return (
-      <div className="bg-[#F6F5FA]">
+      <div className="bg-[#F6F5FA] h-screen">
         <TeacherProfile user={user} />
       </div>
     );
