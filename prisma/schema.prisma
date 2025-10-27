@@ -81,14 +81,13 @@ model StudentProfile {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  age             Int?
-  country         String?
-  city            String?
-  address         String?
-  educationLevel  EducationLevel?
-  subjectInterest String?
-  reason          String?
-  availability    Availability?
+  educationLevel      String?
+  desiredSubjects     String[]
+  reason              String?
+  hasOtherCourses     Boolean?
+  usageFrequency      String?
+  preferredLessonType String?
+  discoverySource     String?
 
   currentStep Int      @default(0) // აქ შენახავს, რომელი კითხვაზეა სტუდენტი
   completed   Boolean  @default(false)
