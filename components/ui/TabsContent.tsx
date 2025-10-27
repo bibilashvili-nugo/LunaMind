@@ -106,7 +106,7 @@ const TabsContent: React.FC<TabsContentProps> = ({
             <ActivityTackSecond />
           </div>
           <div className="hidden sm:block mt-4">
-            <ActivityTracker profilePage={true} />
+            <ActivityTracker profilePage={true} studentId={user.id} />
           </div>
         </>
       )}
