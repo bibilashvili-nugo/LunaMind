@@ -11,6 +11,7 @@ import LessonsHistory from "../student-profile/LessonsHistory";
 import ActivityTackSecond from "../student-profile/ActivityTackSecond";
 import LastActivity from "../student-profile/LastActivity";
 import TeacherInfo from "./TeacherInfo";
+import { useBookedLessons } from "@/hooks/useBookedLessons";
 
 type TeacherProfile = {
   age?: number;
@@ -35,6 +36,7 @@ interface PersonalInfoProps {
 type Tab = "personal" | "cards" | "lessons";
 
 const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
+  const { data: lessons } = useBookedLessons({ teacherId: user?.id });
   const [fullName, setFullName] = useState(
     user.firstName + " " + user.lastName
   );
@@ -102,7 +104,11 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
     <div className="lg:grid lg:grid-cols-[1fr_2fr] xl:grid-cols-[1fr_3fr] lg:gap-4 relative">
       {/* Sidebar */}
       <div className="hidden lg:flex flex-col lg:order-1 order-2 sticky top-6 h-fit self-start">
-        <OurLessons profilePage={true} teacher={user.role === "TEACHER"} />
+        <OurLessons
+          profilePage={true}
+          teacher={user.role === "TEACHER"}
+          lessons={lessons}
+        />
         <PremiumStats profilePage={true} />
       </div>
 
@@ -226,7 +232,11 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
 
         {/* Mobile sidebar */}
         <div className="md:grid md:grid-cols-2 md:gap-4 lg:hidden">
-          <OurLessons profilePage={true} teacher={user.role === "TEACHER"} />
+          <OurLessons
+            profilePage={true}
+            teacher={user.role === "TEACHER"}
+            lessons={lessons}
+          />
           <PremiumStats profilePage={true} />
         </div>
       </div>

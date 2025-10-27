@@ -7,6 +7,7 @@ import PremiumStats from "../dashboard/PremiumStats";
 import LastActivity from "./LastActivity";
 import Image from "next/image";
 import TabsContent from "../ui/TabsContent";
+import { useBookedLessons } from "@/hooks/useBookedLessons";
 
 type User = {
   id: string;
@@ -24,6 +25,8 @@ interface PersonalInfoProps {
 type Tab = "personal" | "cards" | "lessons";
 
 const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
+  const { data: lessons } = useBookedLessons({ studentId: user?.id });
+
   const [fullName, setFullName] = useState(
     user.firstName + " " + user.lastName
   );
@@ -90,7 +93,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
     <div className="lg:grid lg:grid-cols-[1fr_2fr] xl:grid-cols-[1fr_3fr] lg:gap-4 relative">
       <div className="hidden lg:flex flex-col lg:order-1 order-2 sticky top-6 h-fit self-start">
         <div className="w-full">
-          <OurLessons profilePage={true} />
+          <OurLessons profilePage={true} lessons={lessons} />
         </div>
         <div className="w-full">
           <PremiumStats profilePage={true} />
@@ -153,7 +156,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
         <LastActivity />
 
         <div className="md:grid md:grid-cols-2 md:gap-4 lg:hidden">
-          <OurLessons profilePage={true} />
+          <OurLessons profilePage={true} lessons={lessons} />
           <PremiumStats profilePage={true} />
         </div>
       </div>
