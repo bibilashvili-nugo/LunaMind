@@ -80,7 +80,8 @@ const OurLessons = ({
 }) => {
   return (
     <div
-      className={` bg-white rounded-2xl p-5 flex flex-col gap-4 ${
+      className={` bg-white rounded-2xl p-5 flex flex-col
+        ${teacher ? "h-screen" : ""} gap-4 ${
         lessons?.length === 0 && "lg:max-h-[596px]"
       } lg:py-6
         ${

@@ -28,7 +28,7 @@ const TeacherProfile: React.FC<TeacherPageProps> = ({ user }) => {
         <PremiumStats />
       </div>
       <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
-        <div className="lg:col-span-1 flex flex-col gap-4">
+        <div className="lg:col-span-1 flex flex-col gap-4 sticky top-6 h-fit self-start">
           <OurLessons teacher={true} lessons={lessons} />
         </div>
         <div className="lg:col-span-2 flex flex-col gap-4">
