@@ -161,7 +161,7 @@ export default async function TutorsStudent({
 
   return (
     <div className="bg-[#F6F5FA]">
-      <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
+      <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-8">
         <NavBar user={safeUser} />
         <div className="grid grid-cols-1 mt-[22px] sm:mt-8 lg:mt-[20px] xl:mt-6 lg:grid-cols-3 lg:gap-4 xl:grid-cols-4">
           <div className="cursor-pointer lg:grid lg:col-span-1">
@@ -172,7 +172,7 @@ export default async function TutorsStudent({
               initialMinPrice={minPrice?.toString()}
               initialMaxPrice={maxPrice?.toString()}
             />
-            <div className="hidden lg:flex flex-col rounded-2xl bg-[#FFFFFF] h-fit px-5 py-6 gap-4">
+            <div className="hidden lg:flex flex-col rounded-2xl bg-[#FFFFFF] h-fit px-5 py-6 gap-4 sticky top-6 self-start">
               <span className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
                 ფილტრაცია
               </span>

@@ -65,18 +65,20 @@ const TutorPage = async ({ params, searchParams }: TutorPageProps) => {
 
   return (
     <div className="bg-[#F6F5FA]">
-      <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-0">
+      <div className="bg-[#F6F5FA] min-h-screen px-4 lg:px-6 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-8">
         <NavBar user={safeUser} />
-        <div className="grid grid-cols-1 mt-[32px] lg:mt-5 xl:mt-6 lg:grid-cols-3 gap-4 pb-[200px]">
+        <div className="grid grid-cols-1 mt-[32px] lg:mt-5 xl:mt-6 lg:grid-cols-3 gap-4 pb-[50px] lg:pb-0">
           <SingleTeacherLeftSide
             teacher={teacherWithSafeImage}
             selectedSubject={selectedSubject}
           />
-          <SingleTeacherRightSide
-            teacher={teacherWithSafeImage}
-            studentId={safeUser.id}
-            teacherUserId={teacher.user.id}
-          />
+          <div className="sticky top-6 self-start h-fit">
+            <SingleTeacherRightSide
+              teacher={teacherWithSafeImage}
+              studentId={safeUser.id}
+              teacherUserId={teacher.user.id}
+            />
+          </div>
         </div>
       </div>
     </div>

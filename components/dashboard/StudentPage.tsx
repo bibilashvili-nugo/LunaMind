@@ -32,7 +32,7 @@ const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
         <Review studentId={user.id} />
       </div>
       <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
-        <div className="lg:col-span-1 flex flex-col gap-4">
+        <div className="lg:col-span-1 flex flex-col gap-4 sticky top-6 h-fit self-start">
           <OurLessons lessons={lessons} />
           <Review studentId={user.id} />
         </div>
