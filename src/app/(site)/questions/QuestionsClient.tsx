@@ -8,15 +8,32 @@ type QuestionType =
   | "textarea"
   | "select"
   | "subjects"
-  | "multi-select";
+  | "multi-select"
+  | "boolean"
+  | "file";
 
 interface Subject {
   name: string;
   price: number;
 }
 
+interface Base64File {
+  name: string;
+  type: string;
+  size: number;
+  base64: string;
+}
+
 interface Profile {
-  [key: string]: string | number | undefined | Subject[] | string[];
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | undefined
+    | Subject[]
+    | string[]
+    | File[]
+    | Base64File[];
 }
 
 interface Question {
@@ -24,6 +41,9 @@ interface Question {
   label: string;
   type: QuestionType;
   options?: string[];
+  multiple?: boolean;
+  maxSizeMB?: number;
+  dependsOn?: string;
 }
 
 interface QuestionsClientProps {
@@ -124,6 +144,56 @@ const teacherQuestions: Question[] = [
     options: ["BACHELOR", "MASTER", "DOCTORATE", "OTHER"],
   },
   { key: "subjects", label: "აირჩიეთ საგნები და ფასები", type: "subjects" },
+  {
+    key: "goal",
+    label: "რა არის თქვენი მთავარი მიზანი ჩვენს პლატფორმაზე?",
+    type: "select",
+    options: [
+      "ახალი მოსწავლეების მოვნა",
+      "გამოცდილების გაზიარება",
+      "დამატებითი შემოსავლის მიღება",
+      "პროფესიული ზრდა, განვითარება",
+    ],
+  },
+  {
+    key: "experienceYears",
+    label: "რამდენ წლიანი გამოცდილება გაქვს სწავლების მიმართულებით?",
+    type: "select",
+    options: ["0-1", "2-5", "6-10", "10+"],
+  },
+  {
+    key: "preferredAgeGroups",
+    label: "რომელ ასაკობრივ ჯგუფთან ისურვებდით მუშაობას?",
+    type: "multi-select",
+    options: [
+      "დაწყებითი კლასები",
+      "საშუალო კლასები",
+      "აბიტურიენტები",
+      "სტუდენტები",
+      "მოზრდილები",
+    ],
+  },
+  {
+    key: "hasCertificate",
+    label: "გაქვს თუ არა სპეციალური სერთიფიკატი ან განათლება შენს სფეროში?",
+    type: "boolean",
+  },
+  {
+    key: "offersFreeIntroLesson",
+    label: "გსურთ თუ არა გაცნობითი ხასიათის გაკვეთილის ჩატარება უფასოდ?",
+    type: "boolean",
+  },
+  {
+    key: "hasIntroVideo",
+    label: "გსურთ თუ არა წინასწარ ჩაწერილი გაცნობითი ვიდეო თქვენს პროფილზე?",
+    type: "boolean",
+  },
+  {
+    key: "howDidYouHearAboutUs",
+    label: "როგორ გაიგეთ ჩვენს შესახებ?",
+    type: "select",
+    options: ["მეგობრისგან", "სოციალური ქსელიდან", "რეკლამიდან"],
+  },
 ];
 
 const subjectOptions = [
@@ -143,7 +213,6 @@ const subjectOptions = [
   "დაწყებითი კლასები",
 ];
 
-// ✅ ტიპი "სხვა" ველებისთვის
 type OtherFieldKeys = "educationLevel" | "reason" | "discoverySource";
 
 const QuestionsClient: React.FC<QuestionsClientProps> = ({
@@ -162,105 +231,71 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
   const [answers, setAnswers] = useState<Profile>({
     subjects: [],
     desiredSubjects: [],
+    preferredAgeGroups: [],
+    hasCertificate: undefined,
+    offersFreeIntroLesson: undefined,
+    hasIntroVideo: undefined,
   });
-
-  // ✅ "სხვა" ველების მდგომარეობა
   const [otherValues, setOtherValues] = useState<{
     educationLevel?: string;
     reason?: string;
     discoverySource?: string;
   }>({});
-
-  // ✅ ვალიდაციის ფუნქციები
-  const isValidNumber = (
-    value: string | number | undefined | Subject[] | string[]
-  ): boolean => {
-    if (value === "" || value === undefined || Array.isArray(value))
-      return false;
-    const num = Number(value);
-    return !isNaN(num) && num > 0;
-  };
-
-  const isNonEmptyString = (
-    value: string | number | undefined | Subject[] | string[]
-  ): boolean => {
-    return typeof value === "string" && value.trim() !== "";
-  };
-
-  const hasValidSubjects = (): boolean => {
-    const subjects = answers.subjects as Subject[];
-    return (
-      Array.isArray(subjects) &&
-      subjects.length > 0 &&
-      subjects.every((s) => s.price > 0)
-    );
-  };
-
-  const hasValidDesiredSubjects = (): boolean => {
-    const desiredSubjects = answers.desiredSubjects as string[];
-    return Array.isArray(desiredSubjects) && desiredSubjects.length > 0;
-  };
-
-  const getCurrentValue = ():
-    | string
-    | number
-    | undefined
-    | Subject[]
-    | string[] => {
-    return answers[current.key];
-  };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const current = questions[step];
 
-  if (!current) {
-    console.error("❌ Invalid step or questions array:", {
-      step,
-      questionsLength: questions.length,
-      initialStep,
-      validatedInitialStep,
+  // ფაილის გადაყვანა Base64-ში
+  const fileToBase64 = (file: File): Promise<Base64File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        resolve({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          base64: reader.result as string,
+        });
+      };
+      reader.onerror = (error) => reject(error);
     });
-    router.push("/dashboard");
-    return (
-      <div className="flex justify-center items-center h-64">Loading...</div>
-    );
-  }
+  };
 
   const handleChange = (
     key: string,
-    value: string | number | undefined | Subject[] | string[]
+    value:
+      | string
+      | number
+      | boolean
+      | string[]
+      | Subject[]
+      | File[]
+      | Base64File[]
   ) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
   };
 
-  // ✅ "სხვა" ველის დამუშავება
   const handleSelectChange = (key: string, value: string) => {
     if (value === "სხვა") {
-      // თუ "სხვა" აირჩიეს, ვინახავთ მნიშვნელობას
       handleChange(key, value);
     } else {
-      // თუ სხვა ოფშენი აირჩიეს, ვშლით "სხვა" მნიშვნელობას
       handleChange(key, value);
       setOtherValues((prev) => ({ ...prev, [key as OtherFieldKeys]: "" }));
     }
   };
 
-  // ✅ "სხვა" ტექსტის დამუშავება
   const handleOtherTextChange = (key: string, value: string) => {
     setOtherValues((prev) => ({ ...prev, [key as OtherFieldKeys]: value }));
   };
 
-  // ✅ მრავალი საგნის არჩევის ფუნქცია
-  const handleMultiSelectChange = (selectedValue: string) => {
-    const currentSubjects = [...((answers.desiredSubjects as string[]) || [])];
+  const handleMultiSelectChange = (key: string, selectedValue: string) => {
+    const currentValues = [...((answers[key] as string[]) || [])];
+    const newValues = currentValues.includes(selectedValue)
+      ? currentValues.filter((val) => val !== selectedValue)
+      : [...currentValues, selectedValue];
 
-    const newSubjects = currentSubjects.includes(selectedValue)
-      ? currentSubjects.filter((subj) => subj !== selectedValue)
-      : [...currentSubjects, selectedValue];
-
-    setAnswers((prev) => ({
-      ...prev,
-      desiredSubjects: newSubjects,
-    }));
+    handleChange(key, newValues);
   };
 
   const handleSubjectChange = (name: string, price: number) => {
@@ -269,11 +304,8 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       const index = subjects.findIndex((s) => s.name === name);
 
       if (index >= 0) {
-        if (price === 0) {
-          subjects.splice(index, 1);
-        } else {
-          subjects[index].price = price;
-        }
+        if (price === 0) subjects.splice(index, 1);
+        else subjects[index].price = price;
       } else {
         subjects.push({ name, price });
       }
@@ -282,52 +314,162 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     });
   };
 
-  const isNextDisabled = (): boolean => {
-    const value = getCurrentValue();
+  const handleFileChange = async (key: string, files: FileList | null) => {
+    if (!files) {
+      handleChange(key, []);
+      return;
+    }
 
-    switch (current.type) {
-      case "number":
-        return !isValidNumber(value);
-      case "text":
-      case "textarea":
-        return !isNonEmptyString(value);
-      case "select":
-        // თუ "სხვა" არის არჩეული, ვამოწმებთ ტექსტურ ველს
-        if (value === "სხვა") {
-          const otherKey = current.key as OtherFieldKeys;
-          return !otherValues[otherKey] || otherValues[otherKey].trim() === "";
-        }
-        return !isNonEmptyString(value);
-      case "subjects":
-        return !hasValidSubjects();
-      case "multi-select":
-        return !hasValidDesiredSubjects();
-      default:
-        return !value;
+    const fileArray = Array.from(files);
+
+    try {
+      // Convert files to Base64
+      const base64Files = await Promise.all(
+        fileArray.map((file) => fileToBase64(file))
+      );
+
+      handleChange(key, base64Files);
+      console.log(
+        `✅ Converted ${base64Files.length} files to Base64 for ${key}`
+      );
+    } catch (error) {
+      console.error(`❌ Error converting files for ${key}:`, error);
+      // Fallback: store as regular files if conversion fails
+      handleChange(key, fileArray);
     }
   };
 
+  const getAnswerValue = <T,>(key: string, defaultValue: T): T => {
+    const val = answers[key];
+    if (val === undefined || val === null) return defaultValue;
+    return val as T;
+  };
+
+  const getStringValue = (key: string): string => {
+    return getAnswerValue(key, "");
+  };
+
+  const getBooleanValue = (key: string): boolean | undefined => {
+    return answers[key] as boolean | undefined;
+  };
+
+  const getStringArrayValue = (key: string): string[] => {
+    return getAnswerValue(key, []);
+  };
+
+  const getSubjectsValue = (): Subject[] => {
+    return getAnswerValue("subjects", []);
+  };
+
+  const getFileArrayValue = (key: string): File[] | Base64File[] => {
+    return getAnswerValue(key, []);
+  };
+
+  const selectedSubjects = getStringArrayValue("desiredSubjects");
+  const selectedAgeGroups = getStringArrayValue("preferredAgeGroups");
+
+  const isOtherSelected =
+    current &&
+    ((current.key === "educationLevel" &&
+      getStringValue(current.key) === "სხვა") ||
+      (current.key === "reason" && getStringValue(current.key) === "სხვა") ||
+      (current.key === "discoverySource" &&
+        getStringValue(current.key) === "სხვა"));
+
+  const getCurrentOtherValue = (): string => {
+    if (!current) return "";
+    const key = current.key as OtherFieldKeys;
+    return otherValues[key] || "";
+  };
+
+  const shouldShowDependentSection = (dependsOnKey: string): boolean => {
+    const dependsOnValue = answers[dependsOnKey];
+    return dependsOnValue === true;
+  };
+
+  const isNextDisabled = (): boolean => {
+    if (!current) return true;
+
+    const value = answers[current.key];
+
+    let isCurrentQuestionValid = false;
+
+    switch (current.type) {
+      case "number":
+        isCurrentQuestionValid = typeof value === "number" && value > 0;
+        break;
+      case "text":
+      case "textarea":
+        isCurrentQuestionValid =
+          typeof value === "string" && value.trim() !== "";
+        break;
+      case "select":
+        if (value === "სხვა") {
+          const otherKey = current.key as OtherFieldKeys;
+          isCurrentQuestionValid =
+            !!otherValues[otherKey] && otherValues[otherKey].trim() !== "";
+        } else {
+          isCurrentQuestionValid =
+            typeof value === "string" && value.trim() !== "";
+        }
+        break;
+      case "boolean":
+        isCurrentQuestionValid = value !== undefined;
+        break;
+      case "multi-select":
+        isCurrentQuestionValid = Array.isArray(value) && value.length > 0;
+        break;
+      case "subjects":
+        const subjects = getSubjectsValue();
+        isCurrentQuestionValid =
+          subjects.length > 0 && subjects.every((s) => s.price > 0);
+        break;
+      default:
+        isCurrentQuestionValid = !!value;
+    }
+
+    if (!isCurrentQuestionValid) return true;
+
+    if (current.key === "hasCertificate" && value === true) {
+      const certificateDescription = getStringValue("certificateDescription");
+      const certificateFiles = getFileArrayValue("certificateFiles");
+      return !certificateDescription.trim() || certificateFiles.length === 0;
+    }
+
+    if (current.key === "hasIntroVideo" && value === true) {
+      const introVideoFiles = getFileArrayValue("introVideoUrl");
+      return introVideoFiles.length === 0;
+    }
+
+    return false;
+  };
+
   const handleNext = async () => {
+    if (!current || isLoading) return;
+
+    setIsLoading(true);
     const isLastQuestion = step === questions.length - 1;
 
+    const apiAnswers = { ...answers };
+
+    // Handle other text fields
+    if (answers.educationLevel === "სხვა" && otherValues.educationLevel) {
+      apiAnswers.educationLevel = otherValues.educationLevel;
+    }
+    if (answers.reason === "სხვა" && otherValues.reason) {
+      apiAnswers.reason = otherValues.reason;
+    }
+    if (answers.discoverySource === "სხვა" && otherValues.discoverySource) {
+      apiAnswers.discoverySource = otherValues.discoverySource;
+    }
+
+    console.log("📤 Sending answers to API:", apiAnswers);
+
+    const endpoint =
+      role === "STUDENT" ? "/api/students/profile" : "/api/teachers/profile";
+
     try {
-      // ✅ მოამზადება API-სთვის - "სხვა" მნიშვნელობების გაერთიანება
-      const apiAnswers = { ...answers };
-
-      // თუ "სხვა" არის არჩეული და არის ტექსტური მნიშვნელობა, ვიყენებთ ტექსტურ მნიშვნელობას
-      if (answers.educationLevel === "სხვა" && otherValues.educationLevel) {
-        apiAnswers.educationLevel = otherValues.educationLevel;
-      }
-      if (answers.reason === "სხვა" && otherValues.reason) {
-        apiAnswers.reason = otherValues.reason;
-      }
-      if (answers.discoverySource === "სხვა" && otherValues.discoverySource) {
-        apiAnswers.discoverySource = otherValues.discoverySource;
-      }
-
-      console.log("📤 Sending answers to API:", apiAnswers);
-
-      await fetch("/api/students/profile", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -338,27 +480,32 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         }),
       });
 
-      if (isLastQuestion) router.push("/dashboard");
-      else setStep((prev) => prev + 1);
-    } catch (err) {
-      console.error(err);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Request failed");
+      }
+
+      console.log("✅ API Response:", result);
+
+      if (isLastQuestion) {
+        router.push("/dashboard");
+      } else {
+        setStep((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("❌ Error saving profile:", error);
+      alert("მონაცემების შენახვა ვერ მოხერხდა. გთხოვთ სცადოთ ხელახლა.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const totalSteps = questions.length;
-  const selectedSubjects = (answers.desiredSubjects as string[]) || [];
-
-  // ✅ შევამოწმოთ არის თუ არა "სხვა" არჩეული მიმდინარე კითხვაზე
-  const isOtherSelected =
-    (current.key === "educationLevel" && answers.educationLevel === "სხვა") ||
-    (current.key === "reason" && answers.reason === "სხვა") ||
-    (current.key === "discoverySource" && answers.discoverySource === "სხვა");
-
-  // ✅ მიმდინარე "სხვა" ველის მნიშვნელობა (უსაფრთხო წვდომა)
-  const getCurrentOtherValue = (): string => {
-    const key = current.key as OtherFieldKeys;
-    return otherValues[key] || "";
-  };
+  if (!current) {
+    return (
+      <div className="flex justify-center items-center h-64">Loading...</div>
+    );
+  }
 
   return (
     <div className="pb-4">
@@ -373,7 +520,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       <hr className="text-[#EBEBEB] pb-6 sm:pb-8" />
       <div className="px-4 md:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto lg:w-[576px] lg:mx-auto">
         <div className="flex justify-center gap-2 pb-6">
-          {Array.from({ length: totalSteps }).map((_, index) => (
+          {Array.from({ length: questions.length }).map((_, index) => (
             <div
               key={index}
               className={`
@@ -393,8 +540,9 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
             დაგვეხმარე შეგმოგთავაზოთ სწორი სასწავლო კურსი
           </p>
           <p className="text-[#737373] font-helveticaneue-medium text-sm leading-5 text-center xl:text-base">
-            დაგვეხმარეთ სწორად შეგირჩიოთ რეპეტიტორი თქვენი პირადი საჭიროებების
-            საფუძველზე
+            {role === "STUDENT"
+              ? "დაგვეხმარეთ სწორად შეგირჩიოთ რეპეტიტორი თქვენი პირადი საჭიროებების საფუძველზე"
+              : "შეავსეთ თქვენი პროფილის ინფორმაცია"}
           </p>
         </div>
         <h2
@@ -407,7 +555,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         {current.type === "text" && (
           <input
             type="text"
-            value={(answers[current.key] as string) ?? ""}
+            value={getStringValue(current.key)}
             onChange={(e) => handleChange(current.key, e.target.value)}
             className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
             text-sm leading-5 font-helveticaneue-regular
@@ -415,36 +563,39 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
           xl:text-base"
           />
         )}
+
         {current.type === "number" && (
           <input
             type="number"
-            value={(answers[current.key] as number | string) ?? ""}
-            onChange={(e) =>
-              handleChange(
-                current.key,
-                e.target.value === "" ? undefined : Number(e.target.value)
-              )
-            }
+            value={getAnswerValue<number | string>(current.key, "")}
+            onChange={(e) => {
+              const newValue =
+                e.target.value === "" ? undefined : Number(e.target.value);
+              handleChange(current.key, newValue ?? 0);
+            }}
             className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
             text-sm leading-5 font-helveticaneue-regular
           focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
           xl:text-base"
           />
         )}
+
         {current.type === "textarea" && (
           <textarea
-            value={(answers[current.key] as string) ?? ""}
+            value={getStringValue(current.key)}
             onChange={(e) => handleChange(current.key, e.target.value)}
             className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
             text-sm leading-5 font-helveticaneue-regular
           focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
           xl:text-base"
+            rows={4}
           />
         )}
+
         {current.type === "select" && (
           <div className="space-y-4">
             <select
-              value={(answers[current.key] as string) ?? ""}
+              value={getStringValue(current.key)}
               onChange={(e) => handleSelectChange(current.key, e.target.value)}
               className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
               text-sm leading-5 font-helveticaneue-regular
@@ -459,7 +610,6 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
               ))}
             </select>
 
-            {/* "სხვა" ტექსტური ველი */}
             {isOtherSelected && (
               <div className="mt-4">
                 <label className="block text-base leading-5 font-helveticaneue-regular text-black mb-2">
@@ -481,45 +631,153 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
             )}
           </div>
         )}
+
         {current.type === "multi-select" && (
           <div className="space-y-4">
-            {/* საგნების არჩევის ღილაკები */}
             <div className="grid grid-cols-2 gap-3">
-              {current.options?.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => handleMultiSelectChange(option)}
-                  className={`py-3 px-4 border rounded-lg text-sm font-medium transition-all duration-200 ${
-                    selectedSubjects.includes(option)
-                      ? "bg-[#FFD52A] border-[#FFD52A] text-[#0C0F21]"
-                      : "bg-white border-gray-300 text-gray-700 hover:border-[#FFD52A]"
-                  }`}
-                >
-                  {option}
-                </button>
-              ))}
+              {current.options?.map((option) => {
+                const isSelected =
+                  current.key === "desiredSubjects"
+                    ? selectedSubjects.includes(option)
+                    : selectedAgeGroups.includes(option);
+
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => handleMultiSelectChange(current.key, option)}
+                    className={`py-3 px-4 border rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isSelected
+                        ? "bg-[#FFD52A] border-[#FFD52A] text-[#0C0F21]"
+                        : "bg-white border-gray-300 text-gray-700 hover:border-[#FFD52A]"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
             </div>
 
-            {selectedSubjects.length === 0 && (
+            {getStringArrayValue(current.key).length === 0 && (
               <p className="text-[#737373] text-center py-4">
-                გთხოვთ აირჩიოთ მინიმუმ ერთი საგანი
+                გთხოვთ აირჩიოთ მინიმუმ ერთი ვარიანტი
               </p>
             )}
           </div>
         )}
+
+        {current.type === "boolean" && (
+          <div className="space-y-6">
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => handleChange(current.key, true)}
+                className={`flex-1 py-4 px-4 border rounded-[12px] text-sm font-medium transition-all duration-200 ${
+                  getBooleanValue(current.key) === true
+                    ? "bg-[#FFD52A] border-[#FFD52A] text-[#0C0F21]"
+                    : "bg-white border-gray-300 text-gray-700 hover:border-[#FFD52A]"
+                }`}
+              >
+                კი
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChange(current.key, false)}
+                className={`flex-1 py-4 px-4 border rounded-[12px] text-sm font-medium transition-all duration-200 ${
+                  getBooleanValue(current.key) === false
+                    ? "bg-[#FFD52A] border-[#FFD52A] text-[#0C0F21]"
+                    : "bg-white border-gray-300 text-gray-700 hover:border-[#FFD52A]"
+                }`}
+              >
+                არა
+              </button>
+            </div>
+
+            {current.key === "hasCertificate" &&
+              shouldShowDependentSection("hasCertificate") && (
+                <div className="mt-6 space-y-4 p-4 border border-[#EBEBEB] rounded-[12px] bg-gray-50">
+                  <h3 className="font-helveticaneue-medium text-[#0C0F21] text-sm">
+                    სერტიფიკატის დეტალები
+                  </h3>
+
+                  <div>
+                    <label className="block text-sm font-helveticaneue-regular text-[#0C0F21] mb-2">
+                      სერტიფიკატის აღწერა *
+                    </label>
+                    <input
+                      type="text"
+                      value={getStringValue("certificateDescription")}
+                      onChange={(e) =>
+                        handleChange("certificateDescription", e.target.value)
+                      }
+                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
+                    text-sm leading-5 font-helveticaneue-regular
+                    focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                      placeholder="მიუთითეთ სერტიფიკატის დეტალები..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-helveticaneue-regular text-[#0C0F21] mb-2">
+                      ატვირთეთ სერტიფიკატები (PDF/სურათი) *
+                    </label>
+                    <input
+                      type="file"
+                      multiple
+                      onChange={(e) =>
+                        handleFileChange("certificateFiles", e.target.files)
+                      }
+                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
+                    text-sm leading-5 font-helveticaneue-regular
+                    focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                    />
+                    <p className="text-xs text-[#737373] mt-1">
+                      მაქსიმალური ზომა: 10MB ფაილზე (PDF, JPG, PNG)
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            {current.key === "hasIntroVideo" &&
+              shouldShowDependentSection("hasIntroVideo") && (
+                <div className="mt-6 space-y-4 p-4 border border-[#EBEBEB] rounded-[12px] bg-gray-50">
+                  <h3 className="font-helveticaneue-medium text-[#0C0F21] text-sm">
+                    გაცნობითი ვიდეო
+                  </h3>
+
+                  <div>
+                    <label className="block text-sm font-helveticaneue-regular text-[#0C0F21] mb-2">
+                      ატვირთეთ გაცნობითი ვიდეო *
+                    </label>
+                    <input
+                      type="file"
+                      onChange={(e) =>
+                        handleFileChange("introVideoUrl", e.target.files)
+                      }
+                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
+                    text-sm leading-5 font-helveticaneue-regular
+                    focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                      accept="video/*"
+                    />
+                    <p className="text-xs text-[#737373] mt-1">
+                      მაქსიმალური ზომა: 40MB
+                    </p>
+                  </div>
+                </div>
+              )}
+          </div>
+        )}
+
         {current.type === "subjects" && (
           <div className="space-y-4">
             <select
               onChange={(e) => {
                 const name = e.target.value;
-                if (
-                  name &&
-                  !(answers.subjects as Subject[]).find((s) => s.name === name)
-                ) {
+                if (name && !getSubjectsValue().find((s) => s.name === name)) {
                   handleSubjectChange(name, 0);
                 }
-                e.target.value = ""; // Reset select
+                e.target.value = "";
               }}
               className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
                 text-sm leading-5 font-helveticaneue-regular
@@ -535,7 +793,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
             </select>
 
             <div className="space-y-3">
-              {((answers.subjects as Subject[]) || []).map((subject, index) => (
+              {getSubjectsValue().map((subject, index) => (
                 <div
                   key={index}
                   className="flex items-center gap-3 p-3 border border-[#EBEBEB] rounded-[12px]"
@@ -557,6 +815,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                       className="w-24 py-2 px-3 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
                         text-sm leading-5 font-helveticaneue-regular
                         focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                      min="0"
                     />
                     <span className="text-[#737373] text-sm">₾</span>
                     <button
@@ -571,7 +830,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
               ))}
             </div>
 
-            {((answers.subjects as Subject[]) || []).length === 0 && (
+            {getSubjectsValue().length === 0 && (
               <p className="text-[#737373] text-center py-4">
                 არ არის არჩეული საგანი. გთხოვთ აირჩიოთ საგანი ზემოთ მოცემული
                 სიიდან.
@@ -582,17 +841,26 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
         <button
           onClick={handleNext}
-          disabled={isNextDisabled()}
+          disabled={isNextDisabled() || isLoading}
           className={`mt-6 cursor-pointer py-4 text-center w-full rounded-[40px] 
           text-[#0C0F21] text-sm leading-5 font-helveticaneue-medium xl:text-base
-          transition-all duration-300 ease-in-out
+          transition-all duration-300 ease-in-out relative
           ${
-            isNextDisabled()
+            isNextDisabled() || isLoading
               ? "bg-gray-300 cursor-not-allowed opacity-50"
               : "bg-[#FFD52A] hover:bg-[#FFC107]"
           }`}
         >
-          {step < questions.length - 1 ? "შემდეგი" : "დასრულება"}
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-[#0C0F21] border-t-transparent rounded-full animate-spin mr-2"></div>
+              იტვირთება...
+            </div>
+          ) : step < questions.length - 1 ? (
+            "შემდეგი"
+          ) : (
+            "დასრულება"
+          )}
         </button>
       </div>
     </div>
