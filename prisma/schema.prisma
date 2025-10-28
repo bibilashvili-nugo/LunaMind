@@ -123,6 +123,18 @@ model TeacherProfile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // 🧠 კითხვებზე პასუხები
+  goal                   String? // მთავარი მიზანი (ახალი მოსწავლეები, გამოცდილება და ა.შ.)
+  experienceYears        String? // გამოცდილების ხანგრძლივობა (0-1, 2-5, 6-10, 10+)
+  preferredAgeGroups     String[] // ასაკობრივი ჯგუფები (შეიძლება რამდენიმე აირჩიოს)
+  hasCertificate         Boolean? // აქვს თუ არა სერტიფიკატი
+  certificateDescription String? // სერტიფიკატის აღწერა (თუ "კი")
+  certificateFiles       String[] // სერტიფიკატის ფაილების Cloudinary URLs
+  offersFreeIntroLesson  Boolean? // უფასო გაცნობითი გაკვეთილი
+  hasIntroVideo          Boolean? // აქვს თუ არა გაცნობითი ვიდეო
+  introVideoUrl          String? // ვიდეოს Cloudinary ბმული (40MB max)
+  howDidYouHearAboutUs   String? // როგორ გაიგო ჩვენს შესახებ
+
   teacherSubjects TeacherSubject[]
   lessons         Lesson[]
 }
