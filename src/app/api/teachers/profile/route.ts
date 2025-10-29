@@ -127,6 +127,10 @@ export async function POST(req: Request) {
       currentStep: step + 1,
     };
 
+    // ✅ ცვლადები ატვირთული ფაილების URL-ების შესანახად
+    let uploadedCertificateUrls: string[] = [];
+    let uploadedVideoUrl: string | null = null;
+
     // ✅ დამუშავება თითოეული პასუხისთვის
     for (const [key, value] of Object.entries(answers)) {
       if (value === undefined || value === null) continue;
@@ -185,19 +189,25 @@ export async function POST(req: Request) {
               const firstItem = value[0];
               if (typeof firstItem === "object" && "base64" in firstItem) {
                 const base64Files = value as Base64File[];
+                console.log(
+                  `📤 Uploading ${base64Files.length} certificate files to Cloudinary...`
+                );
                 const fileUrls = await uploadMultipleBase64Files(
                   base64Files,
                   "certificates"
                 );
-                updateData.certificateFiles = {
-                  set: fileUrls,
-                };
-                console.log(`✅ Uploaded ${fileUrls.length} certificate files`);
+
+                // 🆕 FIX: Use direct array assignment for certificateFiles
+                updateData.certificateFiles = fileUrls;
+                uploadedCertificateUrls = fileUrls;
+                console.log(`✅ UPLOADED CERTIFICATE URLS:`, fileUrls);
               } else {
                 // Already URLs or other format
-                updateData.certificateFiles = {
-                  set: value as string[],
-                };
+                console.log(
+                  `❌ Certificate files are not Base64, they are:`,
+                  typeof firstItem,
+                  firstItem
+                );
               }
             } catch (error) {
               console.error("❌ Certificate files upload failed:", error);
@@ -206,10 +216,8 @@ export async function POST(req: Request) {
                 { status: 500 }
               );
             }
-          } else if (Array.isArray(value) && value.length === 0) {
-            updateData.certificateFiles = {
-              set: [],
-            };
+          } else {
+            console.log(`❌ Certificate files are empty or not array:`, value);
           }
           break;
 
@@ -236,10 +244,12 @@ export async function POST(req: Request) {
                   "intro-videos"
                 );
                 updateData.introVideoUrl = videoUrl;
+                uploadedVideoUrl = videoUrl; // 🆕 შეინახე ატვირთული URL
                 console.log(`✅ Uploaded intro video: ${videoUrl}`);
               } else if (typeof firstItem === "string") {
                 // Already uploaded URL
                 updateData.introVideoUrl = firstItem;
+                uploadedVideoUrl = firstItem; // 🆕 შეინახე არსებული URL
               }
             } catch (error) {
               console.error("❌ Intro video upload failed:", error);
@@ -250,6 +260,7 @@ export async function POST(req: Request) {
             }
           } else if (Array.isArray(value) && value.length === 0) {
             updateData.introVideoUrl = null;
+            uploadedVideoUrl = null; // 🆕 null მნიშვნელობა
           }
           break;
 
@@ -363,8 +374,6 @@ export async function POST(req: Request) {
       }
     }
 
-    console.log("📤 Updating database with:", updateData);
-
     // ✅ განაახლე პროფილი
     const updatedProfile = await prisma.teacherProfile.update({
       where: { userId },
@@ -379,13 +388,24 @@ export async function POST(req: Request) {
         where: { userId },
         data: { completed: true },
       });
-      console.log("🎉 Profile marked as completed");
     }
 
+    console.log("🎯 Final uploaded files before response:", {
+      certificateFiles: uploadedCertificateUrls,
+      introVideoUrl: uploadedVideoUrl,
+      certificateFilesLength: uploadedCertificateUrls.length,
+      certificateFilesFirst: uploadedCertificateUrls[0],
+    });
+
+    // 🆕 დააბრუნე ატვირთული ფაილების URL-ები
     return NextResponse.json({
       success: true,
       message: "პროფილი წარმატებით განახლდა",
       currentStep: step + 1,
+      uploadedFiles: {
+        certificateFiles: uploadedCertificateUrls,
+        introVideoUrl: uploadedVideoUrl ? [uploadedVideoUrl] : [],
+      },
     });
   } catch (err) {
     console.error("❌ TeacherProfile POST error:", err);

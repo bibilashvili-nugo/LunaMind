@@ -243,6 +243,15 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
   }>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // 🆕 FIX: Store uploaded file URLs
+  const [uploadedFileUrls, setUploadedFileUrls] = useState<{
+    certificateFiles: string[];
+    introVideoUrl: string[];
+  }>({
+    certificateFiles: [],
+    introVideoUrl: [],
+  });
+
   const current = questions[step];
 
   // ფაილის გადაყვანა Base64-ში
@@ -450,6 +459,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     setIsLoading(true);
     const isLastQuestion = step === questions.length - 1;
 
+    // შექმენი ახალი ობიექტი API-სთვის
     const apiAnswers = { ...answers };
 
     // Handle other text fields
@@ -463,7 +473,53 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       apiAnswers.discoverySource = otherValues.discoverySource;
     }
 
-    console.log("📤 Sending answers to API:", apiAnswers);
+    // 🆕 FIX: Use uploaded URLs instead of Base64 data
+    if (uploadedFileUrls.certificateFiles.length > 0) {
+      apiAnswers.certificateFiles = uploadedFileUrls.certificateFiles;
+      console.log(
+        "🔄 Using uploaded certificate URLs:",
+        uploadedFileUrls.certificateFiles
+      );
+    }
+
+    if (uploadedFileUrls.introVideoUrl.length > 0) {
+      apiAnswers.introVideoUrl = uploadedFileUrls.introVideoUrl;
+      console.log(
+        "🔄 Using uploaded video URLs:",
+        uploadedFileUrls.introVideoUrl
+      );
+    }
+
+    // ✅ FIX: Remove already uploaded files from API request
+    // Certificate files - if they are already URLs, don't send them again
+    if (
+      apiAnswers.certificateFiles &&
+      Array.isArray(apiAnswers.certificateFiles)
+    ) {
+      const firstFile = apiAnswers.certificateFiles[0];
+      if (typeof firstFile === "string" && firstFile.startsWith("http")) {
+        console.log(
+          "🗑️ Removing certificateFiles from API request (already uploaded)"
+        );
+        delete apiAnswers.certificateFiles;
+      }
+    }
+
+    // Intro video - if it's already a URL, don't send it again
+    if (apiAnswers.introVideoUrl && Array.isArray(apiAnswers.introVideoUrl)) {
+      const firstVideo = apiAnswers.introVideoUrl[0];
+      if (typeof firstVideo === "string" && firstVideo.startsWith("http")) {
+        console.log(
+          "🗑️ Removing introVideoUrl from API request (already uploaded)"
+        );
+        delete apiAnswers.introVideoUrl;
+      }
+    }
+
+    console.log(
+      "📤 Sending answers to API (without duplicate files):",
+      apiAnswers
+    );
 
     const endpoint =
       role === "STUDENT" ? "/api/students/profile" : "/api/teachers/profile";
@@ -487,6 +543,31 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
       }
 
       console.log("✅ API Response:", result);
+
+      // ✅ FIX: Update uploaded file URLs state with response data
+      if (result.uploadedFiles) {
+        console.log("🔄 Updating uploaded file URLs from API response:", {
+          certificateFiles: result.uploadedFiles.certificateFiles,
+          introVideoUrl: result.uploadedFiles.introVideoUrl,
+        });
+
+        // Update the uploadedFileUrls state
+        setUploadedFileUrls({
+          certificateFiles: result.uploadedFiles.certificateFiles || [],
+          introVideoUrl: result.uploadedFiles.introVideoUrl || [],
+        });
+
+        // Also update answers state with the URLs
+        setAnswers((prev) => ({
+          ...prev,
+          certificateFiles:
+            result.uploadedFiles.certificateFiles || prev.certificateFiles,
+          introVideoUrl:
+            result.uploadedFiles.introVideoUrl || prev.introVideoUrl,
+        }));
+
+        console.log("✅ Successfully updated local state with URLs");
+      }
 
       if (isLastQuestion) {
         router.push("/dashboard");
