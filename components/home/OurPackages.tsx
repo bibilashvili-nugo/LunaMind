@@ -3,13 +3,10 @@ import Packages from "../ui/Packages";
 const OurPackages = ({ id }: { id: string }) => {
   return (
     <div
-      className="pt-[32px] flex flex-col justify-center items-center sm:pt-[44px] lg:pt-[64px]"
+      className="pt-[32px] 2xl:pt-[52px] flex flex-col justify-center items-center"
       id={id}
     >
-      <span className="text-[#0C0F21] text-[40px] leading-[40px] font-lgvanastasia-regular lg:text-[64px] lg:leading-[52px]">
-        ჩვენი პაკეტები
-      </span>
-      <div className="pt-[32px] w-full flex flex-col gap-4 lg:flex-row lg:gap-6 2xl:w-full">
+      <div className="w-full flex flex-col gap-6 lg:flex-row">
         <Packages
           color="bg-[#F6F7FB]"
           forWho="მოსწავლეებისთვის"

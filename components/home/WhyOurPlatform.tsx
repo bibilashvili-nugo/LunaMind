@@ -1,3 +1,4 @@
+import { WavyCheck } from "react-coolicons";
 import { whyOurPlatformData } from "../../constants/data";
 import { UnionCrown } from "../ui/Icons";
 
@@ -27,7 +28,7 @@ const WhyOurPlatform = ({ id }: { id: string }) => {
           ჩვენ გვჯერა, რომ ტექნოლოგიებს შეუძლიათ სწავლის გამოცდილების შეცვლა
         </p>
       </div>
-      <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-6 xl:grid-cols-12">
+      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-2 xl:grid-cols-12">
         {whyOurPlatformData?.map((item, index) => {
           let colSpan = "xl:col-span-6";
           if (index % 4 === 0) colSpan = "xl:col-span-7";
@@ -37,14 +38,22 @@ const WhyOurPlatform = ({ id }: { id: string }) => {
           return (
             <div
               key={index}
-              className={`h-[235px] 2xl:h-[305px] bg-[#F6F7FB] rounded-2xl p-4 flex flex-col gap-2 lg:p-6 ${colSpan}`}
+              className={`bg-[#F6F7FB] rounded-3xl p-6 flex flex-col gap-6 ${colSpan}`}
             >
-              <span className="text-[32px] leading-[100%] font-lgvanastasia-regular text-black lg:text-[44px] xl:text-[52px]">
-                {item?.title}
-              </span>
-              <p className="text-[#939393] text-sm leading-5">
-                {item?.description}
-              </p>
+              <div
+                className={`p-[14px] rounded-full w-fit`}
+                style={{ backgroundColor: item?.color }}
+              >
+                <WavyCheck width={24} height={24} color="white" />
+              </div>
+              <div className="flex flex-col gap-3">
+                <span className="text-[32px] leading-[100%] font-lgvanastasia-regular text-black lg:text-[44px] xl:text-[52px]">
+                  {item?.title}
+                </span>
+                <p className="text-[#939393] text-sm leading-5">
+                  {item?.description}
+                </p>
+              </div>
             </div>
           );
         })}
