@@ -37,9 +37,6 @@ export default function Home() {
         <OurPackages id="packages" />
         <HowItWorks />
         <TutorsInfo id="tutors" />
-      </div>
-
-      <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         <StudentTestimonials id="reviews" />
       </div>
       <Footer />

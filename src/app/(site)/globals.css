@@ -5,6 +5,14 @@
 }
 
 @font-face {
+  font-family: "Freeman";
+  src: url("/fonts/Freeman-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Aclonica";
   src: url("/fonts/Aclonica-Regular.ttf") format("truetype");
   font-weight: 400;
@@ -42,6 +50,10 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
+}
+
+.font-freeman-regular {
+  font-family: "Freeman";
 }
 
 .font-helveticaneue-regular {

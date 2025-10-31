@@ -1,69 +1,99 @@
-import Image from "next/image";
-import Link from "next/link";
+import React, { ReactNode } from "react";
+import { Facebook, Instagram, TikTok, Youtube } from "../ui/Icons";
+
+type SocialMediaIconsProps = {
+  children: ReactNode;
+};
+
+const liClass = "text-sm leading-5 font-helveticaneue-regular text-[#939393]";
+const spanClass =
+  "font-helveticaneue-medium text-base leading-5 text-white !font-bold";
+
+const SocialMediaIcons: React.FC<SocialMediaIconsProps> = ({ children }) => {
+  return (
+    <div className="border border-white/10 rounded-xl w-10 h-10 relative">
+      <div className="absolute inset-0 flex items-center justify-center">
+        {children}
+      </div>
+    </div>
+  );
+};
 
 const Footer = () => {
   return (
-    <div
-      className="bg-[#080A16] rounded-tl-4xl rounded-tr-4xl mt-[55px] sm:mt-[44px] lg:mt-[64px] 3xl:mt-[84px]
-      flex flex-col gap-[44px] relative overflow-hidden"
-    >
-      <div className="absolute w-[535px] h-[401px] sm:-right-80 md:-right-70 lg:-right-65 2xl:-right-60 3xl:-right-0 hidden sm:block z-0">
-        <Image src="/images/Burst.png" fill alt="burst" />
-      </div>
-      <div className="pt-[44px] px-4 flex flex-col gap-3 lg:px-[44px] lg:pt-[64px] 2xl:px-[80px] 3xl:mt-[60px] 3xl:px-[160px] relative z-10">
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden sm:block z-9 w-[180px] h-[95px] lg:hidden ">
-          <Image
-            src="/images/SpiralCircle.png"
-            alt="circle"
-            width={180}
-            height={95}
-          />
+    <div className="bg-[#080A16] w-full mt-8 md:mt-[44px] lg:mt-[52px] xl:mt-[64px] 2xl:mt-[54px] 3xl:mt-[64px] pb-10">
+      <div className="pt-[64px] px-4 md:px-6 lg:px-[44px] flex flex-col gap-8 lg:flex-row lg:gap-8 2xl:px-[80px] 2xl:gap-0 2xl:justify-between 3xl:max-w-[1600px] 3xl:gap-16 3xl:mx-auto 3xl:px-[160px]">
+        <div className="flex flex-col gap-2 2xl:w-[517px]">
+          <span className="font-freeman-regular text-[#fff] text-[32px] leading-[100%]">
+            EVECTUS
+          </span>
+          <span className="text-[#939393] text-sm leading-5">
+            ცნობილი ფაქტია, რომ გვერდის წაკითხვად შიგთავსს შეუძლია მკითხველის
+            ყურადღება მიიზიდოს და დიზაინის აღქმაში ხელი შეუშალოს. Lorem Ipsum-ის
+            გამოყენებით ვღებულობთ იმაზე მეტ-ნაკლებად სწორი გადანაწილების ტექსტს,
+            ვიდრე ერთიდაიგივე გამეორებადი სიტყვებია ხოლმე
+          </span>
         </div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden lg:block z-9 w-[254px] h-[135px]  ">
-          <Image
-            src="/images/SpiralCircle.png"
-            alt="circle"
-            width={254}
-            height={135}
-          />
-        </div>
-
-        <span className="text-white text-[40px] leading-[40px] font-lgvanastasia-regular text-center lg:text-[64px] lg:leading-[64px] relative z-10">
-          მზად ხარ დაიწყო განათლების ინოვაცია დღესვე ?
-        </span>
-        <p className="text-sm leading-5 font-helveticaneue-regular text-white/50 text-center lg:text-base lg:leading-6 relative z-10">
-          შემოუერთდით ათასობით სტუდენტსა და რეპეტიტორს ჩვენს პლატფორმაზე
-        </p>
-      </div>
-      <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center z-10">
-        <Link href="/register?role=STUDENT">
-          <span className="text-white text-[36px] leading-[100%] font-lgvanastasia-regular underline lg:text-[44px]">
-            გახდი მოსწავლე
-          </span>
-        </Link>
-        <Link href="/register?role=TEACHER">
-          <span className="text-white text-[36px] leading-[100%] font-lgvanastasia-regular underline lg:text-[44px]">
-            გახდი რეპეტიტორი
-          </span>
-        </Link>
-      </div>
-      <div className="px-4 pb-[32px] lg:px-[44px] lg:mt-[20px] 2xl:px-[80px] 3xl:px-[160px] 3xl:pt-[64px] z-10">
-        <hr className="text-white/10 pb-6" />
-        <div className="flex flex-col gap-5 lg:flex-row lg:justify-between lg:items-center">
-          <span className="font-aclonica-regular text-white text-[32px] leading-[100%]">
-            LunaMind
-          </span>
-          <span className="text-xs leading-4 text-[#939393] font-helveticaneue-regular sm:text-sm sm:leading-5">
-            © 2025 ლუნამაინდი. ყველა უფლება დაცულია
-          </span>
-          <div className="flex flex-col gap-6 sm:flex-row">
-            <span className="text-sm leading-5 underline text-white font-helveticaneue-regular">
-              გამოყენების პოლიტიკა
-            </span>
-            <span className="text-sm leading-5 underline text-white font-helveticaneue-regular">
-              წესები და პირობები
-            </span>
+        <div className="flex flex-col gap-8 sm:flex-row sm:gap-0 sm:justify-between lg:gap-8 2xl:gap-[64px]">
+          <div className="flex flex-col gap-4">
+            <span className={`${spanClass}`}>მომსახურება</span>
+            <ul className="flex flex-col gap-3">
+              <li className={`${liClass}`}>სტუდენტებისთვის</li>
+              <li className={`${liClass}`}>დაწყებითი კლასებისთვის</li>
+              <li className={`${liClass}`}>დაწყებითი კლასებისთვის</li>
+              <li className={`${liClass}`}>მასწავლებლებისთვის</li>
+            </ul>
           </div>
+          <div className="flex flex-col gap-4">
+            <span className={`${spanClass}`}>მხარდაჭერა</span>
+            <ul className="flex flex-col gap-3">
+              <li className={`${liClass}`}>კონფიდენციალურობა</li>
+              <li className={`${liClass}`}>წესები და პირობები</li>
+              <li className={`${liClass}`}>გამოყენების პოლიტიკა</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-4">
+            <span className={`${spanClass}`}>დახმარება</span>
+            <ul className="flex flex-col gap-3">
+              <li className={`${liClass}`}>(032) 2 57 56 45</li>
+              <li className={`${liClass}`}>(+995) 555 75 85 84</li>
+              <li className={`${liClass}`}>support@evectus.ge</li>
+            </ul>
+            <div className="flex gap-3">
+              <SocialMediaIcons>
+                <Facebook />
+              </SocialMediaIcons>
+              <SocialMediaIcons>
+                <Instagram />
+              </SocialMediaIcons>
+              <SocialMediaIcons>
+                <Youtube />
+              </SocialMediaIcons>
+              <SocialMediaIcons>
+                <TikTok />
+              </SocialMediaIcons>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr className="border-t border-white/10 mt-10" />
+      <div
+        className="mt-10 flex flex-col gap-5 
+      px-4 md:px-6 lg:px-[44px] lg:flex-row lg:gap-0 lg:justify-between 2xl:px-[80px] 2xl:gap-0 2xl:justify-start 3xl:max-w-[1600px] 3xl:gap-16 3xl:mx-auto 3xl:px-[160px] 3xl:justify-between"
+      >
+        <span className="text-sm leading-5 text-[#939393] font-helveticaneue-regular 2xl:w-1/2 3xl:w-full">
+          © 2025 ევექტუსი. ყველა უფლება დაცულია
+        </span>
+        <div className="flex flex-col gap-4 sm:flex-row lg:gap-6 2xl:w-1/2 3xl:w-full 3xl:justify-end">
+          <span className="text-sm leading-5 text-white font-helveticaneue-regular underline">
+            კონფიდენციალურობა
+          </span>
+          <span className="text-sm leading-5 text-white font-helveticaneue-regular underline">
+            გამოყენების პოლიტიკა
+          </span>
+          <span className="text-sm leading-5 text-white font-helveticaneue-regular underline">
+            წესები და პირობები
+          </span>
         </div>
       </div>
     </div>
