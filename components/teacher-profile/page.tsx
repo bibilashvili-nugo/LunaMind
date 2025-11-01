@@ -2,23 +2,14 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Camera } from "react-coolicons";
-import ActivityTracker from "../dashboard/ActivityTracker";
 import OurLessons from "../dashboard/OurLessons";
 import PremiumStats from "../dashboard/PremiumStats";
 import Image from "next/image";
 import Card from "../student-profile/Card";
 import LessonsHistory from "../student-profile/LessonsHistory";
-import ActivityTackSecond from "../student-profile/ActivityTackSecond";
-import LastActivity from "../student-profile/LastActivity";
 import TeacherInfo from "./TeacherInfo";
 import { useBookedLessons } from "@/hooks/useBookedLessons";
-
-type TeacherProfile = {
-  age?: number;
-  country?: string;
-  city?: string;
-  address?: string;
-};
+import { useTeacherProfile } from "@/hooks/useTeacherProfile";
 
 export type User = {
   id: string;
@@ -42,28 +33,17 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
   );
   const [activeTab, setActiveTab] = useState<Tab>("personal");
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [teacherProfile, setTeacherProfile] = useState<TeacherProfile | null>(
-    null
-  );
 
   const tabRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch teacher profile
-  useEffect(() => {
-    if (user.role !== "TEACHER") return;
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch(`/api/teachers/profile?userId=${user.id}`);
-        const data = await res.json();
-        setTeacherProfile(data.profile);
-      } catch (err) {
-        console.error("Failed to fetch teacher profile:", err);
-      }
-    };
-    fetchProfile();
-  }, [user]);
+  const {
+    data: teacherProfile,
+    isLoading,
+    isError,
+  } = useTeacherProfile(user.role === "TEACHER" ? user.id : undefined);
 
   // Tabs underline animation
   useEffect(() => {
@@ -99,6 +79,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
   const userWithProfile = teacherProfile
     ? { ...user, TeacherProfile: teacherProfile }
     : user;
+
+  if (isLoading) return <div>იტვირთება...</div>;
+  if (isError) return <div>შეცდომა პროფილის წამოღებისას</div>;
 
   return (
     <div className="lg:grid lg:grid-cols-[1fr_2fr] xl:grid-cols-[1fr_3fr] lg:gap-4 relative">
@@ -214,21 +197,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
           )}
           {activeTab === "cards" && <Card />}
           {activeTab === "lessons" && <LessonsHistory />}
-
-          {activeTab === "personal" && (
-            <>
-              <div className="sm:hidden">
-                <ActivityTackSecond />
-              </div>
-              <div className="hidden sm:block mt-4">
-                <ActivityTracker profilePage={true} teacher={true} />
-              </div>
-            </>
-          )}
         </div>
-
-        {/* Last Activity */}
-        <LastActivity />
 
         {/* Mobile sidebar */}
         <div className="md:grid md:grid-cols-2 md:gap-4 lg:hidden">
