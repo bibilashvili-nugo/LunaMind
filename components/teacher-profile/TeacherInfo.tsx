@@ -1,6 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { TrashFull } from "react-coolicons";
+import { useClickOutside } from "@/hooks/useClickOutside";
+import React, { useState, useEffect, useRef } from "react";
+import { CaretDownSm, CaretUpSm, TrashFull } from "react-coolicons";
+import toast from "react-hot-toast";
 
 // Types (უცვლელი)
 export type TeacherSubject = {
@@ -63,14 +65,6 @@ interface BooleanToggleProps {
   label?: string;
 }
 
-// Base64 ფაილის ტიპი
-interface Base64File {
-  name: string;
-  type: string;
-  size: number;
-  base64: string;
-}
-
 // Input component (უცვლელი)
 const InputTeacherInfo: React.FC<InputTeacherInfoProps> = ({
   value,
@@ -88,24 +82,19 @@ const InputTeacherInfo: React.FC<InputTeacherInfoProps> = ({
 );
 
 // Boolean toggle component (უცვლელი)
-const BooleanToggle: React.FC<BooleanToggleProps> = ({
-  value,
-  onChange,
-  label,
-}) => (
-  <div className="flex gap-2 items-center">
-    {label && <span className="font-helveticaneue-regular">{label}</span>}
+const BooleanToggle: React.FC<BooleanToggleProps> = ({ value, onChange }) => (
+  <div className="grid grid-cols-2 gap-2 items-center mt-2">
     <span
-      className={`cursor-pointer px-4 py-2 rounded-xl border ${
-        value ? "bg-[#F0C5141A] border-[#F0C514]" : "border-gray-300"
+      className={`border border-[#F0C514] rounded-xl text-sm leading-5 text-[#000000] font-helveticaneue-medium px-3 py-4 text-start ${
+        value ? "bg-[#F0C5141A]" : ""
       }`}
       onClick={onChange}
     >
       კი
     </span>
     <span
-      className={`cursor-pointer px-4 py-2 rounded-xl border ${
-        !value ? "bg-[#F0C5141A] border-[#F0C514]" : "border-gray-300"
+      className={`border border-[#F0C514] rounded-xl text-sm leading-5 text-[#000000] font-helveticaneue-medium px-3 py-4 text-start ${
+        !value ? "bg-[#F0C5141A]" : ""
       }`}
       onClick={onChange}
     >
@@ -324,13 +313,13 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
         setExistingCertificateFiles((prev) =>
           prev.filter((url) => url !== fileUrl)
         );
-        alert("სერტიფიკატი წარმატებით წაიშალა");
+        toast.success("სერტიფიკატი წარმატებით წაიშალა");
       } else {
         throw new Error(data.error || "Failed to delete certificate");
       }
     } catch (error) {
       console.error("Error deleting certificate:", error);
-      alert("სერტიფიკატის წაშლა ვერ მოხერხდა");
+      toast.error("სერტიფიკატის წაშლა ვერ მოხერხდა");
     }
   };
 
@@ -359,13 +348,13 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
       if (response.ok && data.success) {
         setExistingIntroVideoUrl(undefined);
         setIntroVideoFile(null);
-        alert("ვიდეო წარმატებით წაიშალა");
+        toast.success("ვიდეო წარმატებით წაიშალა");
       } else {
         throw new Error(data.error || "Failed to delete video");
       }
     } catch (error) {
       console.error("Error deleting video:", error);
-      alert("ვიდეოს წაშლა ვერ მოხერხდა");
+      toast.error("ვიდეოს წაშლა ვერ მოხერხდა");
     }
   };
 
@@ -450,7 +439,7 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
 
       if (data.success) {
         console.log("✅ Profile updated successfully:", data);
-        alert("პროფილი წარმატებით განახლდა!");
+        toast.success("პროფილი წარმატებით განახლდა!");
 
         // განაახლე ატვირთული ფაილების URL-ები
         if (data.uploadedCertificateUrls) {
@@ -465,17 +454,27 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
         setIntroVideoFile(null);
       } else {
         console.error("❌ Update failed:", data);
-        alert("პროფილის განახლება ვერ მოხერხდა.");
+        toast.error("პროფილის განახლება ვერ მოხერხდა.");
       }
     } catch (err: unknown) {
       console.error("💥 Update failed:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Unknown error occurred";
-      alert(`პროფილის განახლება ვერ მოხერხდა: ${errorMessage}`);
+      toast.error(`პროფილის განახლება ვერ მოხერხდა: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const educationRef = useRef<HTMLDivElement>(null);
+  const experienceRef = useRef<HTMLDivElement>(null);
+  const goalRef = useRef<HTMLDivElement>(null);
+  const hearRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(educationRef, () => setOpenEducationDropdown(false));
+  useClickOutside(experienceRef, () => setOpenExperienceDropdown(false));
+  useClickOutside(goalRef, () => setOpenGoalDropdown(false));
+  useClickOutside(hearRef, () => setOpenHearDropdown(false));
 
   return (
     <div className="mt-4 flex flex-col gap-4">
@@ -594,24 +593,31 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
       )}
 
       {/* Higher Education Dropdown (უცვლელი) */}
-      <div className="mt-4 w-full max-w-sm">
-        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular mb-2">
+      <div className="w-full max-w-lg" ref={educationRef}>
+        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
           უმაღლესი განათლება
         </h3>
-        <div className="relative">
+        <div className="relative mt-2">
           <button
             type="button"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-left text-sm font-helveticaneue-regular flex justify-between items-center"
+            className={`w-full border border-[#EBECF0]  px-2 py-[18px] text-left text-sm leading-5 font-helveticaneue-medium flex justify-between items-center
+              ${openEducationDropdown ? "rounded-t-xl" : "rounded-xl"}`}
             onClick={() => {
               setOpenEducationDropdown(!openEducationDropdown);
               closeOthers("education");
             }}
           >
             {getEducationLabel(education)}{" "}
-            <span>{openEducationDropdown ? "▲" : "▼"}</span>
+            <span>
+              {openEducationDropdown ? (
+                <CaretUpSm color="#969696" width={24} height={24} />
+              ) : (
+                <CaretDownSm color="#969696" width={24} height={24} />
+              )}
+            </span>
           </button>
           {openEducationDropdown && (
-            <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-xl shadow-lg">
+            <ul className="absolute z-10 mt-0 w-full bg-white border border-[#EBECF0] rounded-b-xl shadow-lg">
               {educationOptions.map((opt) => (
                 <li
                   key={opt}
@@ -619,8 +625,8 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
                     setEducation(opt);
                     setOpenEducationDropdown(false);
                   }}
-                  className={`px-4 py-2 text-sm cursor-pointer hover:bg-blue-100 ${
-                    education === opt ? "bg-blue-100 font-semibold" : ""
+                  className={`px-2 py-[18px] text-sm cursor-pointer font-helveticaneue-medium hover:bg-[#F0C5141A] ${
+                    education === opt ? "bg-[#F0C5141A] font-semibold" : ""
                   }`}
                 >
                   {getEducationLabel(opt)}
@@ -632,24 +638,29 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
       </div>
 
       {/* Experience Years Dropdown (უცვლელი) */}
-      <div className="mt-4 w-full max-w-sm">
-        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular mb-2">
+      <div className="w-full max-w-lg" ref={experienceRef}>
+        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
           რამდენ წლიანი გამოცდილება გაქვს სწავლების მიმართულებით?
         </h3>
-        <div className="relative">
+        <div className="relative mt-2">
           <button
             type="button"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-left text-sm font-helveticaneue-regular flex justify-between items-center"
+            className={`w-full border border-[#EBECF0]  px-2 py-[18px] text-left text-sm leading-5 font-helveticaneue-medium flex justify-between items-center
+              ${openExperienceDropdown ? "rounded-t-xl" : "rounded-xl"}`}
             onClick={() => {
               setOpenExperienceDropdown(!openExperienceDropdown);
               closeOthers("experience");
             }}
           >
             {experienceYears || "აირჩიე"}{" "}
-            <span>{openExperienceDropdown ? "▲" : "▼"}</span>
+            {openExperienceDropdown ? (
+              <CaretUpSm color="#969696" width={24} height={24} />
+            ) : (
+              <CaretDownSm color="#969696" width={24} height={24} />
+            )}
           </button>
           {openExperienceDropdown && (
-            <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-xl shadow-lg">
+            <ul className="absolute z-10 mt-0 w-full bg-white border border-[#EBECF0] rounded-b-xl shadow-lg">
               {experienceOptions.map((opt) => (
                 <li
                   key={opt}
@@ -657,8 +668,10 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
                     setExperienceYears(opt);
                     setOpenExperienceDropdown(false);
                   }}
-                  className={`px-4 py-2 text-sm cursor-pointer hover:bg-blue-100 ${
-                    experienceYears === opt ? "bg-blue-100 font-semibold" : ""
+                  className={`px-2 py-[18px] text-sm cursor-pointer font-helveticaneue-medium hover:bg-[#F0C5141A] ${
+                    experienceYears === opt
+                      ? "bg-[#F0C5141A] font-semibold"
+                      : ""
                   }`}
                 >
                   {opt}
@@ -671,7 +684,7 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
 
       {/* Preferred Age Groups Multi-Select (უცვლელი) */}
       <div>
-        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular mb-2">
+        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
           რომელ ასაკობრივ ჯგუფთან ისურვებდით მუშაობას?
         </h3>
         <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -705,18 +718,18 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
           გაქვს თუ არა სპეციალური სერთიფიკატი ან განათლება შენს სფეროში?
         </h3>
         <BooleanToggle
-          label="სერთიფიკატი"
           value={hasCertificate}
           onChange={() => setHasCertificate((prev) => !prev)}
         />
 
         {/* Certificate details section */}
         {hasCertificate && (
-          <div className="mt-6 space-y-4 p-4 border border-[#EBEBEB] rounded-[12px] bg-gray-50">
-            <h3 className="font-helveticaneue-medium text-[#0C0F21] text-sm">
-              სერტიფიკატის დეტალები
+          <div className="mt-6 space-y-5 p-5 rounded-2xl bg-gradient-to-r from-[#f9fafb] to-[#eef1f4] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <h3 className="font-helveticaneue-medium text-[#0C0F21] text-base">
+              🏅 სერტიფიკატის დეტალები
             </h3>
 
+            {/* Description */}
             <div>
               <label className="block text-sm font-helveticaneue-regular text-[#0C0F21] mb-2">
                 სერტიფიკატის აღწერა *
@@ -725,14 +738,14 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
                 type="text"
                 value={certificateDescription}
                 onChange={(e) => setCertificateDescription(e.target.value)}
-                className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
-                text-sm leading-5 font-helveticaneue-regular
-                focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-[#000000] 
+        text-sm font-helveticaneue-regular shadow-sm
+        focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300"
                 placeholder="მიუთითეთ სერტიფიკატის დეტალები..."
               />
             </div>
 
-            {/* Existing certificate files */}
+            {/* Existing certificates */}
             {existingCertificateFiles.length > 0 && (
               <div>
                 <label className="block text-sm font-helveticaneue-regular text-[#0C0F21] mb-2">
@@ -742,20 +755,26 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
                   {existingCertificateFiles.map((fileUrl, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-2 border border-gray-200 rounded-lg"
+                      className="flex items-center justify-between bg-gradient-to-r from-[#f9fafb] to-[#eef1f4] p-3 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300"
                     >
-                      <a
-                        href={fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-[#0C0F21] hover:text-blue-600"
-                      >
-                        {getFileNameFromUrl(fileUrl)}
-                      </a>
+                      <div className="flex flex-col">
+                        <a
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-helveticaneue-medium text-[#0C0F21] hover:text-blue-600 transition-colors"
+                        >
+                          📄 {getFileNameFromUrl(fileUrl)}
+                        </a>
+                        <span className="text-xs text-[#6B7280]">
+                          (დააწკაპუნეთ ნახვისთვის)
+                        </span>
+                      </div>
                       <button
                         type="button"
                         onClick={() => handleDeleteCertificate(fileUrl)}
-                        className="text-red-500 hover:text-red-700 p-1"
+                        className="flex items-center justify-center w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition-colors duration-200"
+                        title="ფაილის წაშლა"
                       >
                         <TrashFull width={16} height={16} />
                       </button>
@@ -765,7 +784,7 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
               </div>
             )}
 
-            {/* New certificate file upload */}
+            {/* Upload new certificates */}
             <div>
               <label className="block text-sm font-helveticaneue-regular text-[#0C0F21] mb-2">
                 {existingCertificateFiles.length > 0
@@ -776,9 +795,9 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
                 type="file"
                 multiple
                 onChange={handleCertificateFileChange}
-                className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
-                text-sm leading-5 font-helveticaneue-regular
-                focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-[#000000] 
+        text-sm font-helveticaneue-regular shadow-sm
+        focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300"
                 accept=".pdf,.jpg,.jpeg,.png"
               />
               <p className="text-xs text-[#737373] mt-1">
@@ -824,33 +843,34 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
 
             {/* Existing video */}
             {existingIntroVideoUrl && (
-              <div>
+              <div className="mt-4">
                 <label className="block text-sm font-helveticaneue-regular text-[#0C0F21] mb-2">
                   არსებული ვიდეო:
                 </label>
-                <div className="flex items-center justify-between p-2 border border-gray-200 rounded-lg">
-                  <div className="flex items-center gap-2">
+
+                <div className="flex items-center justify-between bg-gradient-to-r from-[#f9fafb] to-[#eef1f4] p-3 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300">
+                  <div className="flex flex-col">
                     <a
                       href={existingIntroVideoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:text-blue-800"
+                      className="text-sm font-helveticaneue-medium text-[#0C0F21] hover:text-blue-600 transition-colors"
                     >
-                      {getFileNameFromUrl(existingIntroVideoUrl)}
+                      🎥 {getFileNameFromUrl(existingIntroVideoUrl)}
                     </a>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-[#6B7280]">
                       (დააწკაპუნეთ ნახვისთვის)
                     </span>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={handleDeleteVideo}
-                      className="text-red-500 hover:text-red-700 text-sm"
-                    >
-                      წაშლა
-                    </button>
-                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleDeleteVideo}
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition-colors duration-200"
+                    title="ვიდეოს წაშლა"
+                  >
+                    <TrashFull width={16} height={16} />
+                  </button>
                 </div>
               </div>
             )}
@@ -884,24 +904,29 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
       </div>
 
       {/* Goal Dropdown (უცვლელი) */}
-      <div className="mt-4 w-full max-w-sm">
-        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular mb-2">
+      <div className="w-full max-w-lg" ref={goalRef}>
+        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
           რა არის თქვენი მთავარი მიზანი ჩვენს პლატფორმაზე?
         </h3>
-        <div className="relative">
+        <div className="relative mt-2">
           <button
             type="button"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-left text-sm font-helveticaneue-regular flex justify-between items-center"
+            className={`w-full border border-[#EBECF0]  px-2 py-[18px] text-left text-sm leading-5 font-helveticaneue-medium flex justify-between items-center
+              ${openGoalDropdown ? "rounded-t-xl" : "rounded-xl"}`}
             onClick={() => {
               setOpenGoalDropdown(!openGoalDropdown);
               closeOthers("goal");
             }}
           >
             {goal || "აირჩიე მიზანი"}{" "}
-            <span>{openGoalDropdown ? "▲" : "▼"}</span>
+            {openGoalDropdown ? (
+              <CaretUpSm color="#969696" width={24} height={24} />
+            ) : (
+              <CaretDownSm color="#969696" width={24} height={24} />
+            )}
           </button>
           {openGoalDropdown && (
-            <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-xl shadow-lg">
+            <ul className="absolute z-10 mt-0 w-full bg-white border border-[#EBECF0] rounded-b-xl shadow-lg">
               {goalOptions.map((opt) => (
                 <li
                   key={opt}
@@ -909,8 +934,8 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
                     setGoal(opt);
                     setOpenGoalDropdown(false);
                   }}
-                  className={`px-4 py-2 text-sm cursor-pointer hover:bg-blue-100 ${
-                    goal === opt ? "bg-blue-100 font-semibold" : ""
+                  className={`px-2 py-[18px] text-sm cursor-pointer font-helveticaneue-medium hover:bg-[#F0C5141A] ${
+                    goal === opt ? "bg-[#F0C5141A] font-semibold" : ""
                   }`}
                 >
                   {opt}
@@ -922,24 +947,29 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
       </div>
 
       {/* How Did You Hear About Us Dropdown (უცვლელი) */}
-      <div className="mt-4 w-full max-w-sm">
-        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular mb-2">
+      <div className="w-full max-w-lg" ref={hearRef}>
+        <h3 className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
           როგორ გაიგეთ ჩვენს შესახებ?
         </h3>
-        <div className="relative">
+        <div className="relative mt-2">
           <button
             type="button"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-left text-sm font-helveticaneue-regular flex justify-between items-center"
+            className={`w-full border border-[#EBECF0]  px-2 py-[18px] text-left text-sm leading-5 font-helveticaneue-medium flex justify-between items-center
+              ${openHearDropdown ? "rounded-t-xl" : "rounded-xl"}`}
             onClick={() => {
               setOpenHearDropdown(!openHearDropdown);
               closeOthers("hear");
             }}
           >
             {howDidYouHearAboutUs || "აირჩიე"}{" "}
-            <span>{openHearDropdown ? "▲" : "▼"}</span>
+            {openHearDropdown ? (
+              <CaretUpSm color="#969696" width={24} height={24} />
+            ) : (
+              <CaretDownSm color="#969696" width={24} height={24} />
+            )}
           </button>
           {openHearDropdown && (
-            <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-xl shadow-lg">
+            <ul className="absolute z-10 mt-0 w-full bg-white border border-[#EBECF0] rounded-b-xl shadow-lg">
               {hearAboutUsOptions.map((opt) => (
                 <li
                   key={opt}
@@ -947,9 +977,9 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
                     setHowDidYouHearAboutUs(opt);
                     setOpenHearDropdown(false);
                   }}
-                  className={`px-4 py-2 text-sm cursor-pointer hover:bg-blue-100 ${
+                  className={`px-2 py-[18px] text-sm cursor-pointer font-helveticaneue-medium hover:bg-[#F0C5141A] ${
                     howDidYouHearAboutUs === opt
-                      ? "bg-blue-100 font-semibold"
+                      ? "bg-[#F0C5141A] font-semibold"
                       : ""
                   }`}
                 >
@@ -960,14 +990,14 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
           )}
         </div>
       </div>
-
-      <div>
+      <hr className="mt-4 border border-[#F1F1F1]" />
+      <div className="flex justify-center lg:justify-end">
         <button
-          className="mt-4 px-6 py-3 bg-[#F0C514] text-black rounded-xl font-helveticaneue-medium hover:bg-[#ddb500] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-3 px-9 py-4 bg-[#F0C514] text-black rounded-[50px] text-sm leading-5 font-helveticaneue-medium hover:bg-[#ddb500] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           onClick={handleUpdate}
           disabled={isLoading}
         >
-          {isLoading ? "იტვირთება..." : "განახლება"}
+          {isLoading ? "იტვირთება..." : "ცვლილებების შენახვა"}
         </button>
       </div>
     </div>

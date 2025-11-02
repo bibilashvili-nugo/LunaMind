@@ -84,7 +84,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
   if (isError) return <div>შეცდომა პროფილის წამოღებისას</div>;
 
   return (
-    <div className="lg:grid lg:grid-cols-[1fr_2fr] xl:grid-cols-[1fr_3fr] lg:gap-4 relative">
+    <div className="lg:grid lg:grid-cols-[1fr_2fr] xl:grid-cols-[1fr_3fr] lg:gap-4 relative pb-20">
       {/* Sidebar */}
       <div className="hidden lg:flex flex-col lg:order-1 order-2 sticky top-6 h-fit self-start">
         <OurLessons
