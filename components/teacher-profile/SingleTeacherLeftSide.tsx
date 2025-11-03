@@ -1,6 +1,11 @@
 import React from "react";
-import { LinkHorizontal, Tag } from "react-coolicons";
-import { ThreeScene } from "../ThreeScene";
+import {
+  Camera,
+  FileDocument,
+  FolderOpen,
+  LinkHorizontal,
+  Tag,
+} from "react-coolicons";
 
 interface Teacher {
   id: string;
@@ -15,6 +20,9 @@ interface Teacher {
   completed: boolean;
   createdAt: Date;
   updatedAt: Date;
+  introVideoUrl?: string | null;
+  preferredAgeGroups?: string[];
+  certificateFiles?: string[];
   user: {
     id: string;
     firstName: string;
@@ -84,33 +92,8 @@ const SingleTeacherLeftSide = ({
     ? selectedSubject
     : teacher.teacherSubjects.map((subject) => subject.name).join(", ");
 
-  // მასწავლებლის აღწერა
-  const getTeacherDescription = () => {
-    const parts = [];
-
-    if (teacher.profession) {
-      parts.push(teacher.profession);
-    }
-
-    if (teacher.city) {
-      parts.push(`მუშაობს ${teacher.city}-ში`);
-    }
-
-    if (teacher.education) {
-      parts.push(`განათლება: ${teacher.education}`);
-    }
-
-    if (teacher.age) {
-      parts.push(`ასაკი: ${teacher.age} წელი`);
-    }
-
-    return parts.length > 0
-      ? `${fullName} არის ${parts.join(". ")}.`
-      : `${fullName} არის გამოცდილი მასწავლებელი.`;
-  };
-
   return (
-    <div className="bg-white p-4 rounded-2xl lg:col-span-2">
+    <div className="bg-white p-4 rounded-2xl lg:col-span-2 order-2 lg:order-1">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <span className="text-2xl leading-[100%] text-black font-helveticaneue-medium !font-bold lg:text-[32px]">
@@ -177,54 +160,134 @@ const SingleTeacherLeftSide = ({
         </div>
       )}
 
-      <div className=" w-full h-[225px] rounded-xl overflow-hidden">
-        {teacher.user.image ? (
-          <ThreeScene image={teacher.user.image} />
-        ) : (
-          <span className="text-white flex items-center justify-center h-full">
-            ფოტო არ არის
-          </span>
-        )}
+      <div className="mt-4 flex flex-col gap-3">
+        <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+          ინფორმაცია რეპეტიტორზე
+        </span>
+        <span className="text-sm leading-5 text-[#080808] font-helveticaneue-regular">
+          {teacher?.profession}
+        </span>
       </div>
 
-      <div className="mt-6 flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <span className="text-base leading-6 text-[#000000] font-helveticaneue-medium !font-bold">
-            გაკვეთილის აღწერა
-          </span>
-          <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular">
-            {teacher.profession ||
-              `${mainSubject}-ის გაკვეთილი ${fullName}-ის მიერ. პროფესიონალური მიდგომა და ინდივიდუალური ყურადღება ყველა სტუდენტის მიმართ.`}
-          </span>
-        </div>
-        <div className="flex flex-col gap-2">
-          <span className="text-base leading-6 text-[#000000] font-helveticaneue-medium !font-bold">
-            მასწავლებლის შესახებ
-          </span>
-          <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular">
-            {getTeacherDescription()}
-          </span>
-        </div>
-        <div className="flex flex-col gap-2">
-          <span className="text-base leading-6 text-[#000000] font-helveticaneue-medium !font-bold">
-            სტუდენტის კარიერის პროგრამა
-          </span>
-          <span className="text-sm leading-5 text-[#969696] font-helveticaneue-regular">
-            SCRUM PRODUCT OWNERSHIP-ის კურსის მიზანია, დამწყებ სტუდენტებს
-            გააცნოს Product Owner-ის როლი, SCRUM-ის მუშაობის პრინციპები და
-            პროდუქტის განვითარებისა და მართვის პრაქტიკული ტექნიკები. კურსი
-            ფოკუსირებულია გამოცდილებით სწავლაზე, რეალურ მაგალითებსა და
-            ინტერაქტიულ სავარჯიშოებზე, რათა სტუდენტებმა მარტივად აითვისონ
-            პროდუქტის მართვის საფუძვლები.
-          </span>
+      <div className="w-full mt-4 rounded-xl overflow-hidden aspect-video bg-black">
+        {teacher.introVideoUrl ? (
+          <video
+            className="w-full h-full object-cover"
+            src={teacher.introVideoUrl}
+            controls
+            poster={teacher.user.image}
+          />
+        ) : (
+          <div className="bg-[#EBECF0] flex flex-col items-center justify-center w-full h-full">
+            <div className="bg-white rounded-full px-5 py-[20.5px]">
+              <Camera width={24} height={24} color="black" />
+            </div>
+            <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium mt-[10px]">
+              შესავალი ვიდეო არ არის დამატებული
+            </span>
+            <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular mt-1">
+              ამ რეპეტიტორს ჯერ არ აქვს შესავალი ვიდეო
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="mt-4">
+        <span className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
+          სერტიფიკატები
+        </span>
+        <div className="mt-3">
+          {teacher.certificateFiles && teacher.certificateFiles.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {teacher.certificateFiles.map((file, index) => (
+                <div key={index}>
+                  <a href={file} target="_blank" rel="noopener noreferrer">
+                    <div className="flex items-center gap-3">
+                      <div className="py-[13px] px-[15px] bg-[#3E74FF1A] rounded-xl w-fit">
+                        <FileDocument width={24} height={24} color="#3E74FF" />
+                      </div>
+                      <span className="text-[#3E74FF] text-sm leading-5 underline font-helveticaneue-regular !font-bold">
+                        სერტიფიკატის დასახელება
+                      </span>
+                    </div>
+                  </a>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span className="text-sm text-[#969696]">
+              სერტიფიკატები არ არის ატვირთული
+            </span>
+          )}
         </div>
       </div>
-      <div className="flex flex-col mt-3 rounded-xl p-3 gap-1 bg-[#ECF1FF]">
-        <span className="text-xs leading-4 text-[#969696] font-helveticaneue-regular">
+      <div className="mt-4">
+        <span className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
+          განათლება
+        </span>
+        <div className="bg-[#EBECF0] rounded-xl mt-3 px-4 py-[32px] flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="bg-[#F04F14] p-[10px] rounded-xl w-fit">
+            <FolderOpen width={24} height={24} color="white" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm leading-5 text-black font-helveticaneue-medium !font-bold">
+              {teacher?.education} - სამართალმცოდნე
+            </span>
+            <span className="text-sm leading-5 text-black font-helveticaneue-regular">
+              ივანე ჯავახიშვილის თბილისის სახელმწიფო უნივერსიტეტი
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <span className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
+          დამატებითი ინფორმაცია
+        </span>
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-1 bg-[#EBECF0] rounded-xl px-4 py-[32px]">
+            <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+              აკადემიური ხარისხი
+            </span>
+            <span className="text-sm leading-5 text-black font-helveticaneue-medium !font-bold">
+              მაგისტრი
+            </span>
+          </div>
+          <div className="flex flex-col gap-1 bg-[#EBECF0] rounded-xl px-4 py-[32px]">
+            <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+              უნივერსიტეტი
+            </span>
+            <span className="text-sm leading-5 text-black font-helveticaneue-medium !font-bold">
+              თსუ-ს იურიდიული ფაკულტეტი
+            </span>
+          </div>
+          <div className="flex flex-col gap-1 bg-[#EBECF0] rounded-xl px-4 py-[32px]">
+            <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+              ფოკუსირებული სფერო
+            </span>
+            <span className="text-sm leading-5 text-black font-helveticaneue-medium !font-bold">
+              {teacher.preferredAgeGroups?.join(", ")}
+            </span>
+          </div>
+          <div className="flex flex-col gap-1 bg-[#EBECF0] rounded-xl px-4 py-[32px]">
+            <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
+              პლატფორმას შემოუერთდა
+            </span>
+            <span className="text-sm leading-5 text-black font-helveticaneue-medium !font-bold">
+              {new Date(teacher.createdAt).toLocaleDateString("ka-GE", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 bg-[#ECF1FF] rounded-xl p-3 flex flex-col gap-1">
+        <span className="text-[#969696] text-xs leading-4 font-helveticaneue-regular">
           კონსულტაციისთვის დაგვიკავშირდი
         </span>
-        <span className="text-sm leading-5 text-[#3E74FF] font-helveticaneue-medium !font-bold">
-          {teacher.user.phoneNumber} - {teacher.user.email}
+        <span className="text-[#3E74FF] text-sm leading-5 font-helveticaneue-regular !font-bold">
+          +995 557 55 55 55 - 032 2 57 57 57 - info@domaincom
         </span>
       </div>
     </div>

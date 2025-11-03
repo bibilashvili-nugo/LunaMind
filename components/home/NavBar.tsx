@@ -87,10 +87,10 @@ const NavBar = () => {
       <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         <div className="flex items-center justify-between pt-6">
           <div
-            className="text-2xl leading-[100%] font-aclonica-regular xl:text-[32px] cursor-pointer"
+            className="text-2xl leading-[100%] font-freeman-regular xl:text-[32px] cursor-pointer"
             onClick={(e) => handleScrollClick(e, "#home")}
           >
-            LunaMind
+            EVECTUS
           </div>
 
           <ul className="flex bg-[#F6F7FB] rounded-[50px] p-1">

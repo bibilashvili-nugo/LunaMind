@@ -12,8 +12,6 @@
     "@mux/mux-player": "^3.6.0",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@prisma/client": "^6.16.1",
-    "@react-three/drei": "^10.7.6",
-    "@react-three/fiber": "^9.4.0",
     "@tanstack/react-query": "^5.90.5",
     "@tanstack/react-query-devtools": "^5.90.2",
     "bcrypt": "^6.0.0",
@@ -31,8 +29,7 @@
     "react-coolicons": "^3.1.0",
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.6.0",
-    "swiper": "^11.2.10",
-    "three": "^0.180.0"
+    "swiper": "^11.2.10"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { WavyCheck } from "react-coolicons";
 import { UnionCrown } from "../ui/Icons";
+import { useResponsiveSlice } from "@/hooks/useResponsiveSlice";
 
 // Types
 type TeacherSubject = {
@@ -50,9 +51,6 @@ const TutorsInfo = ({ id }: { id: string }) => {
   const { data: teacherList, isLoading, isError } = useTeachers();
   const router = useRouter();
 
-  if (isLoading) return <div>ჩატვირთვა...</div>;
-  if (isError) return <div>გაიშვება შეცდომა</div>;
-
   // Flatten teachers with subjects
   const teachersWithSubjects: TeacherWithCurrentSubject[] =
     teacherList?.teachers
@@ -65,6 +63,11 @@ const TutorsInfo = ({ id }: { id: string }) => {
           currentSubject: subject,
         }))
       ) || [];
+
+  const displayedTeachers = useResponsiveSlice(teachersWithSubjects, 4, 6);
+
+  if (isLoading) return <div>ჩატვირთვა...</div>;
+  if (isError) return <div>გაიშვება შეცდომა</div>;
 
   // Get first lesson duration for display
   const getLessonDuration = (teacher: TeacherWithCurrentSubject) => {
@@ -94,7 +97,7 @@ const TutorsInfo = ({ id }: { id: string }) => {
         </span>
       </div>
       <div className="flex flex-col gap-6 md:gap-8 lg:grid lg:grid-cols-2 lg:gap-6 xl:grid-cols-3 h-fit xl:mt-8">
-        {teachersWithSubjects.map((item, index) => (
+        {displayedTeachers.map((item, index) => (
           <div
             className="hover:shadow-md transition-shadow"
             key={`${item.id}-${index}`}
