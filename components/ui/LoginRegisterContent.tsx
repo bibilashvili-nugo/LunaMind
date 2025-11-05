@@ -7,9 +7,9 @@ import { Hide, Show } from "react-coolicons";
 export const LoginRegisterContentHeader = () => {
   return (
     <div className="flex items-center justify-between 3xl:pr-[192px]">
-      <span className="text-2xl text-[#0C0F21] font-aclonica-regular">
-        LunaMind
-      </span>
+      <Link href={"/"} className="text-2xl text-[#0C0F21] font-freeman-regular">
+        EVECTUS
+      </Link>
     </div>
   );
 };

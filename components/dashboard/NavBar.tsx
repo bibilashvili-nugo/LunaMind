@@ -13,7 +13,7 @@ import {
   UserCircle,
   UsersGroup,
 } from "react-coolicons";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useLogout } from "@/hooks/useLogout";
 import { useClickOutside } from "@/hooks/useClickOutside";
 
@@ -49,7 +49,6 @@ type NavBarProps = {
 
 const NavBar: FC<NavBarProps> = ({ user }) => {
   const pathname = usePathname();
-  const router = useRouter();
   const { logout } = useLogout();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -67,21 +66,17 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
     return `${baseLink}#${tab}`;
   };
 
-  const handleGoMainPage = () => {
-    router.push("/");
-  };
-
   return (
     <div
       className="pt-8 text-center sm:text-start 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto lg:pt-[28px] lg:flex lg:justify-between lg:items-center
     xl:pt-8 w-full"
     >
-      <span
+      <Link
+        href={"/"}
         className="text-[32px] leading-[100%] text-[#0C0F21] font-freeman-regular lg:w-2/5 cursor-pointer"
-        onClick={handleGoMainPage}
       >
         EVECTUS
-      </span>
+      </Link>
 
       <ul
         className="flex items-center fixed bottom-0 left-1/2 -translate-x-1/2 w-fit justify-center bg-[#EBECF0] p-3 rounded-[60px] z-50

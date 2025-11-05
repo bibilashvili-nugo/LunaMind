@@ -1,12 +1,23 @@
-import { CircleWarning } from "react-coolicons";
+import {
+  BookOpen,
+  CalendarCheck,
+  CalendarRemove,
+  FileCheck,
+  MapPin,
+  UsersGroup,
+} from "react-coolicons";
+
+interface TeacherAboutLiContentProps {
+  desc: string;
+  explain: string | number | null | string[];
+  icon: React.ReactNode;
+}
 
 const TeacherAboutLiContent = ({
   desc,
   explain,
-}: {
-  desc: string;
-  explain: string | number | null | string[];
-}) => {
+  icon,
+}: TeacherAboutLiContentProps) => {
   const displayValue = Array.isArray(explain)
     ? desc === "სერტიფიკატი"
       ? explain.length > 0
@@ -17,7 +28,7 @@ const TeacherAboutLiContent = ({
 
   return (
     <li className="flex items-center gap-3">
-      <CircleWarning width={24} height={24} color="#737373" />
+      {icon}
       <div className="flex flex-col gap-1">
         <span className="text-xs leading-4 text-[#737373] font-helveticaneue-regular">
           {desc}
@@ -51,18 +62,36 @@ const TeacherAbout = ({
         ინფორმაცია
       </span>
       <ul className="mt-5 flex flex-col gap-2">
-        <TeacherAboutLiContent desc="ასაკი" explain={age} />
-        <TeacherAboutLiContent desc="ქალაქი" explain={city} />
-        <TeacherAboutLiContent desc="უმაღლესი განათლება" explain={education} />
+        <TeacherAboutLiContent
+          desc="ასაკი"
+          explain={age}
+          icon={<CalendarRemove width={24} height={24} color="#737373" />}
+        />
+        <TeacherAboutLiContent
+          desc="ქალაქი"
+          explain={city}
+          icon={<MapPin width={24} height={24} color="#737373" />}
+        />
+        <TeacherAboutLiContent
+          desc="უმაღლესი განათლება"
+          explain={education}
+          icon={<BookOpen width={24} height={24} color="#737373" />}
+        />
         <TeacherAboutLiContent
           desc="გამოცდილება (წლები)"
           explain={experienceYears}
+          icon={<CalendarCheck width={24} height={24} color="#737373" />}
         />
         <TeacherAboutLiContent
           desc="ასაკობრივი ჯგუფი"
           explain={preferredAgeGroups}
+          icon={<UsersGroup width={24} height={24} color="#737373" />}
         />
-        <TeacherAboutLiContent desc="სერტიფიკატი" explain={certificateFiles} />
+        <TeacherAboutLiContent
+          desc="სერტიფიკატი"
+          explain={certificateFiles}
+          icon={<FileCheck width={24} height={24} color="#737373" />}
+        />
       </ul>
     </div>
   );

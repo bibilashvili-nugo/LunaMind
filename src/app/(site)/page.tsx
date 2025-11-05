@@ -12,13 +12,16 @@ import TutorsType from "../../../components/home/TutorsType";
 import WhyOurPlatform from "../../../components/home/WhyOurPlatform";
 import VideoLesson from "../../../components/ui/VideoLesson";
 import TutorsInfo from "../../../components/home/TutorsInfo";
+import { getCurrentUser } from "@/lib/session";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+  const userImage = user?.image || null;
   return (
     <>
       <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
-        <div className="hidden lg:block">
-          <NavBar />
+        <div className="">
+          <NavBar userImage={userImage} />
         </div>
         <Hero id="home" />
         <div className="lg:flex lg:gap-6">

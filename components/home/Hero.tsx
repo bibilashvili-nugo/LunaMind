@@ -6,8 +6,8 @@ const Hero = ({ id }: { id: string }) => {
       className="flex flex-col items-center justify-center pb-6 lg:mt-[100px]"
       id={id}
     >
-      <span className="font-aclonica-regular text-2xl leading-[0] text-[#0C0F21] pt-8 pb-6 sm:text-[32px] sm:pb-8 lg:hidden">
-        LunaMind
+      <span className="font-freeman-regular text-2xl leading-[0] text-[#0C0F21] pt-8 pb-6 sm:text-[32px] sm:pb-8 lg:hidden">
+        EVECTUS
       </span>
 
       <div>

@@ -21,7 +21,7 @@ const SocialMediaIcons: React.FC<SocialMediaIconsProps> = ({ children }) => {
 
 const Footer = () => {
   return (
-    <div className="bg-[#080A16] w-full mt-8 md:mt-[44px] lg:mt-[52px] xl:mt-[64px] 2xl:mt-[54px] 3xl:mt-[64px] pb-10">
+    <div className="bg-[#080A16] w-full mt-8 md:mt-[44px] lg:mt-[52px] xl:mt-[64px] 2xl:mt-[54px] 3xl:mt-[64px] pb-20 lg:pb-10">
       <div className="pt-[64px] px-4 md:px-6 lg:px-[44px] flex flex-col gap-8 lg:flex-row lg:gap-8 2xl:px-[80px] 2xl:gap-0 2xl:justify-between 3xl:max-w-[1600px] 3xl:gap-16 3xl:mx-auto 3xl:px-[160px]">
         <div className="flex flex-col gap-2 2xl:w-[517px]">
           <span className="font-freeman-regular text-[#fff] text-[32px] leading-[100%]">
