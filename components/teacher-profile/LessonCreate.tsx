@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { CaretDownSm, CaretUpSm, Check } from "react-coolicons";
+import { useClickOutside } from "@/hooks/useClickOutside";
+import React, { useEffect, useRef, useState } from "react";
+import { AddPlus, CaretDownSm, CaretUpSm, TrashFull } from "react-coolicons";
 import toast from "react-hot-toast";
 
 const days = [
@@ -17,15 +18,11 @@ const days = [
 interface Lesson {
   id: string;
   subject: string;
-  date: string;
+  day: string;
   time: string;
   duration: number;
   comment?: string;
-  teacher: {
-    id: string;
-    firstName: string;
-    lastName: string;
-  };
+  link?: string;
 }
 
 interface TeacherSubject {
@@ -36,6 +33,7 @@ interface TeacherSubject {
 
 interface LessonCreateProps {
   teacherId?: string;
+  teacherProfileId?: string;
   setModalOpen?: (open: boolean) => void;
   onLessonCreated?: (lesson: Lesson) => void;
 }
@@ -47,89 +45,139 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
 }) => {
   const [subjects, setSubjects] = useState<TeacherSubject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [time, setTime] = useState("");
-  const [duration, setDuration] = useState("");
+  const [selectedTimes, setSelectedTimes] = useState<
+    { day: string; start: string; end: string }[]
+  >([{ day: "", start: "16:00", end: "17:00" }]);
   const [comment, setComment] = useState("");
+  const [meetingLink, setMeetingLink] = useState("");
   const [openSubject, setOpenSubject] = useState(false);
-  const [openDay, setOpenDay] = useState(false);
+  const subjectRef = useRef<HTMLDivElement>(null);
 
-  // ✅ Fetch subjects from backend
+  useClickOutside(subjectRef, () => setOpenSubject(false));
+
+  const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
         const res = await fetch("/api/teachers/subjects");
         if (!res.ok) throw new Error("Failed to fetch subjects");
-
         const data: TeacherSubject[] = await res.json();
         setSubjects(data);
       } catch (error) {
-        console.error("Error loading subjects:", error);
+        console.error(error);
         toast.error("საგნების ჩამოტვირთვა ვერ მოხერხდა");
       }
     };
-
     fetchSubjects();
   }, []);
 
-  const toggleDay = (day: string) => {
-    setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+  const addTimeRow = () => {
+    setSelectedTimes((prev) => [
+      ...prev,
+      { day: "", start: "16:00", end: "17:00" },
+    ]);
+  };
+
+  const removeTimeRow = (index: number) => {
+    setSelectedTimes((prev) => {
+      if (prev.length === 1) {
+        toast.error("მინიმუმ ერთი განრიგი აუცილებელია");
+        return prev;
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleTimeChange = (
+    index: number,
+    field: "day" | "start" | "end",
+    value: string
+  ) => {
+    const cleanValue = field === "day" ? value : value.replace(/[^0-9:]/g, "");
+    setSelectedTimes((prev) =>
+      prev.map((row, i) => {
+        if (i !== index) return row;
+        const newRow = { ...row, [field]: cleanValue };
+        if (newRow.start.match(timeRegex) && newRow.end.match(timeRegex)) {
+          const [startH, startM] = newRow.start.split(":").map(Number);
+          const [endH, endM] = newRow.end.split(":").map(Number);
+          const startTotal = startH * 60 + startM;
+          const endTotal = endH * 60 + endM;
+          if (startTotal > endTotal) {
+            if (field === "start") newRow.end = newRow.start;
+            if (field === "end") newRow.start = newRow.end;
+          }
+        }
+        return newRow;
+      })
     );
   };
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9:]/g, "");
-    if (value.length === 2 && !value.includes(":")) setTime(value + ":");
-    else if (value.length <= 5) setTime(value);
+  const calculateDuration = (start: string, end: string) => {
+    const [startH, startM] = start.split(":").map(Number);
+    const [endH, endM] = end.split(":").map(Number);
+    return endH * 60 + endM - (startH * 60 + startM);
   };
 
-  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.,]/g, "").replace(",", ".");
-    setDuration(value);
-  };
+  const isRowValid = (row: { day: string; start: string; end: string }) =>
+    row.day && timeRegex.test(row.start) && timeRegex.test(row.end);
+
+  const isSubmitDisabled =
+    !teacherId ||
+    !selectedSubject ||
+    !meetingLink ||
+    selectedTimes.length === 0 ||
+    selectedTimes.some((row) => !isRowValid(row));
 
   const handleSubmit = async () => {
-    if (
-      !selectedSubject ||
-      selectedDays.length === 0 ||
-      !time.match(/^\d{2}:\d{2}$/) ||
-      !duration
-    ) {
+    if (isSubmitDisabled) {
       toast.error("გთხოვთ შეავსოთ ყველა ველი სწორად");
       return;
     }
 
     try {
+      // ✅ FIXED: Collect all unique days from selectedTimes
+      const uniqueDays = [...new Set(selectedTimes.map((row) => row.day))];
+
+      const payload = {
+        teacherId,
+        subject: selectedSubject,
+        days: uniqueDays,
+        time: selectedTimes[0].start,
+        duration: calculateDuration(
+          selectedTimes[0].start,
+          selectedTimes[0].end
+        ),
+        comment: comment || undefined,
+        link: meetingLink,
+      };
+
       const res = await fetch("/api/teachers/createLesson", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          teacherId,
-          subject: selectedSubject,
-          days: selectedDays,
-          time,
-          duration,
-          comment,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const data: Lesson = await res.json();
-
       if (!res.ok) {
-        console.error(data);
-        toast.error("გაკვეთილის შექმნა ვერ მოხერხდა");
+        const error = await res.json();
+        console.error("API Error:", error);
+        toast.error(error.error || "გაკვეთილის შექმნა ვერ მოხერხდა");
         return;
       }
 
-      if (onLessonCreated) onLessonCreated(data);
+      const data: Lesson[] = await res.json();
 
-      toast.success("გაკვეთილი წარმატებით შეიქმნა!");
+      // Call onLessonCreated for each created lesson
+      if (onLessonCreated) {
+        data.forEach((lesson) => onLessonCreated(lesson));
+      }
+
+      toast.success(`გაკვეთილი წარმატებით შეიქმნა! (${data.length} ჩანაწერი)`);
       setSelectedSubject(null);
-      setSelectedDays([]);
-      setTime("");
-      setDuration("");
+      setSelectedTimes([{ day: "", start: "16:00", end: "17:00" }]);
       setComment("");
+      setMeetingLink("");
       if (setModalOpen) setModalOpen(false);
     } catch (error) {
       console.error(error);
@@ -138,28 +186,26 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
   };
 
   return (
-    <div className="mt-6 w-full">
+    <div className="mt-6 w-full h-fit">
       <span className="font-helveticaneue-medium !font-bold px-4">
         გაკვეთილის ჩანიშვნა
       </span>
       <hr className="mt-4 text-[#EBECF0]" />
 
       {/* SUBJECT */}
-      <div className="relative mt-4 px-4">
+      <div className="relative mt-4 px-4" ref={subjectRef}>
         <button
-          onClick={() => {
-            setOpenSubject(!openSubject);
-            setOpenDay(false);
-          }}
-          className="w-full text-left border border-[#F1F1F1] rounded-xl p-3 bg-white flex justify-between items-center"
+          onClick={() => setOpenSubject(!openSubject)}
+          className={`w-full text-left border border-[#F1F1F1] p-3 bg-white flex justify-between items-center cursor-pointer
+            ${openSubject ? "rounded-t-xl border-b-0" : "rounded-xl"}`}
         >
           <span className="text-sm leading-5 text-black font-helveticaneue-medium break-words whitespace-normal">
-            {selectedSubject || "მიუთითეთ საგანი რომელსაც ასწავლით"}
+            {selectedSubject || "აირჩიეთ გაკვეთილი"}
           </span>
           <span>{openSubject ? <CaretUpSm /> : <CaretDownSm />}</span>
         </button>
         {openSubject && (
-          <div className="absolute w-full bg-white border border-[#F1F1F1] rounded-xl mt-1 max-h-60 overflow-y-auto z-10">
+          <div className="absolute inset-x-4 bg-white border border-[#F1F1F1] max-h-60 overflow-y-auto z-100 rounded-b-xl">
             {subjects.map((subject) => (
               <div
                 key={subject.id}
@@ -176,91 +222,95 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
         )}
       </div>
 
-      {/* DAYS */}
-      <div className="relative mt-4 px-4">
-        <button
-          onClick={() => {
-            setOpenDay(!openDay);
-            setOpenSubject(false);
-          }}
-          className="w-full text-left border border-[#F1F1F1] rounded-xl p-3 bg-white flex justify-between items-center"
-        >
-          <span className="text-sm leading-5 text-black font-helveticaneue-medium break-words whitespace-normal">
-            {selectedDays.length > 0
-              ? selectedDays.join(", ")
-              : "მიუთითეთ კვირის დღეები"}
+      {/* COMMENT - ONLY THIS IS OPTIONAL */}
+      <div className="mt-4 px-4">
+        <div className="border border-[#F1F1F1] rounded-xl relative overflow-hidden">
+          <p className="text-xs leading-4 font-helveticaneue-regular absolute left-3 pt-[10px] text-[#737373] z-20 bg-white">
+            აღწერა (სურვილისამებრ)
+          </p>
+          <textarea
+            placeholder="შეიყვანეთ კომენტარი (სურვილისამებრ)"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            className="w-full px-3 pt-[26px] text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-gray-400 resize-none h-24"
+          />
+        </div>
+      </div>
+
+      {/* TIMES */}
+      <div className="mt-4 px-4">
+        <div className="flex justify-between items-center">
+          <span className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
+            შეხვედრის დრო
           </span>
-          <span>{openDay ? <CaretUpSm /> : <CaretDownSm />}</span>
-        </button>
-        {openDay && (
-          <div className="absolute w-full bg-white border border-[#F1F1F1] rounded-xl mt-1 max-h-60 overflow-y-auto z-10">
-            {days.map((day) => (
-              <div
-                key={day}
-                onClick={() => toggleDay(day)}
-                className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 text-sm"
-              >
-                <span>{day}</span>
-                {selectedDays.includes(day) && (
-                  <Check className="w-4 h-4 text-[#F0C514]" />
-                )}
-              </div>
-            ))}
+          <button onClick={addTimeRow} className="flex items-center gap-1">
+            <AddPlus color="#0077FF" width={20} height={20} />
+            <span className="text-sm leading-5 text-[#0077FF] font-helveticaneue-regular">
+              ახალი განრიგი
+            </span>
+          </button>
+        </div>
+
+        {selectedTimes.map((row, index) => (
+          <div key={index} className="flex items-center gap-2 mt-3">
+            <select
+              value={row.day}
+              onChange={(e) => handleTimeChange(index, "day", e.target.value)}
+              className="flex-1 border border-[#EBECF0] focus:outline-0 rounded-xl px-3 py-3 bg-white text-sm leading-5 text-[#000000] font-helveticaneue-medium"
+            >
+              <option value="">დღე</option>
+              {days.map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="text"
+              placeholder="დაწყება hh:mm"
+              value={row.start}
+              onChange={(e) => handleTimeChange(index, "start", e.target.value)}
+              className="w-24 border border-[#EBECF0] focus:outline-0 rounded-xl px-3 py-3 bg-white text-sm leading-5 text-[#000000] font-helveticaneue-medium placeholder:text-[#A1A1A1]"
+            />
+
+            <input
+              type="text"
+              placeholder="დასრულება hh:mm"
+              value={row.end}
+              onChange={(e) => handleTimeChange(index, "end", e.target.value)}
+              className="w-24 border border-[#EBECF0] focus:outline-0 rounded-xl px-3 py-3 bg-white text-sm leading-5 text-[#000000] font-helveticaneue-medium placeholder:text-[#A1A1A1]"
+            />
+
+            <button onClick={() => removeTimeRow(index)}>
+              <TrashFull color="#D80303" width={24} height={24} />
+            </button>
           </div>
-        )}
+        ))}
       </div>
 
-      {/* TIME */}
+      {/* MEETING LINK - NOW REQUIRED */}
       <div className="mt-4 px-4">
-        <input
-          type="text"
-          placeholder="მიუთითეთ შეხვედრის დრო"
-          value={time}
-          onChange={handleTimeChange}
-          className="w-full border border-[#F1F1F1] rounded-xl p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-gray-400"
-          maxLength={5}
-        />
-      </div>
-
-      {/* DURATION */}
-      <div className="mt-4 px-4 relative">
-        <input
-          type="text"
-          placeholder="შეიყვანეთ შეხვედრის ხანგრძლივობა"
-          value={duration}
-          onChange={handleDurationChange}
-          className="w-full border border-[#F1F1F1] rounded-xl p-3 pr-12 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-gray-400"
-        />
-        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-          საათი
-        </span>
-      </div>
-
-      {/* COMMENT */}
-      <div className="mt-4 px-4">
-        <textarea
-          placeholder="შეიყვანეთ კომენტარი (სურვილისამებრ)"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          className="w-full border border-[#F1F1F1] rounded-xl p-3 text-sm font-helveticaneue-medium text-[#080808] bg-white focus:outline-none placeholder-gray-400 resize-none h-24"
-        />
+        <div className="border border-[#F1F1F1] rounded-xl relative overflow-hidden">
+          <p className="text-xs leading-4 font-helveticaneue-regular absolute left-3 pt-[10px] text-[#737373] z-20 bg-white">
+            შეხვედრის ლინკი
+          </p>
+          <textarea
+            placeholder="შეიყვანეთ შეხვედრის ლინკი"
+            value={meetingLink}
+            onChange={(e) => setMeetingLink(e.target.value)}
+            className="w-full px-3 pt-[26px] text-sm font-helveticaneue-medium text-[#0077FF] bg-white focus:outline-none placeholder-gray-400 resize-none h-24"
+          />
+        </div>
       </div>
 
       {/* SUBMIT */}
       <div className="px-4">
         <button
           onClick={handleSubmit}
-          disabled={
-            !selectedSubject ||
-            selectedDays.length === 0 ||
-            !time.match(/^\d{2}:\d{2}$/) ||
-            !duration
-          }
+          disabled={isSubmitDisabled}
           className={`mt-5 w-full py-3 rounded-xl font-helveticaneue-medium text-white transition ${
-            selectedSubject &&
-            selectedDays.length > 0 &&
-            time.match(/^\d{2}:\d{2}$/) &&
-            duration
+            !isSubmitDisabled
               ? "bg-[#F0C514] hover:bg-[#e6b800]"
               : "bg-gray-300 cursor-not-allowed"
           }`}

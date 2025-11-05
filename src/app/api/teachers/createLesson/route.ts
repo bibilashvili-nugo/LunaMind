@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // შენი prisma client
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    const { teacherId, subject, days, time, duration, comment } =
+    const {
+      teacherId,
+      subject,
+      days,
+      time,
+      duration,
+      comment,
+      link,
+    } = // ✅ დავამატე link
       await req.json();
 
     if (!teacherId || !subject || !days || !time || !duration) {
@@ -45,13 +53,14 @@ export async function POST(req: NextRequest) {
       return prisma.lesson.create({
         data: {
           teacherId,
-          teacherProfileId: teacherProfile.id, // ✅ ეს იყო საჭირო
+          teacherProfileId: teacherProfile.id,
           subject,
           day,
           date: lessonDate,
           time,
           duration: parseFloat(duration),
           comment,
+          link, // ✅ ახლა ლინკიც ინახება
         },
       });
     });
