@@ -3,7 +3,6 @@ import ActivityTracker from "./ActivityTracker";
 import FutureLessons from "./FutureLessons";
 import NavBar from "./NavBar";
 import OurLessons from "./OurLessons";
-import PremiumStats from "./PremiumStats";
 
 type TeacherUser = {
   id: string;
@@ -25,17 +24,15 @@ const TeacherProfile: React.FC<TeacherPageProps> = ({ user }) => {
         <ActivityTracker teacher={true} teacherId={user?.id} />
         <OurLessons teacher={true} lessons={lessons} />
         <FutureLessons teacher={true} teacherId={user?.id} />
-        <PremiumStats />
       </div>
-      <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
+      <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:mt-6">
         <div className="lg:col-span-1 flex flex-col gap-4 sticky top-6 h-fit self-start">
           <OurLessons teacher={true} lessons={lessons} />
         </div>
-        <div className="lg:col-span-2 flex flex-col gap-4">
+        <div className="lg:col-span-2 xl:col-span-3 flex flex-col gap-4">
           <ActivityTracker teacher={true} teacherId={user?.id} />
-          <div className="xl:grid xl:grid-cols-3 gap-4">
+          <div className="xl:grid xl:grid-cols-1 gap-4">
             <FutureLessons teacher={true} teacherId={user?.id} />
-            <PremiumStats />
           </div>
         </div>
       </div>

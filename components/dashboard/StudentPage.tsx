@@ -3,7 +3,6 @@ import ActivityTracker from "./ActivityTracker";
 import FutureLessons from "./FutureLessons";
 import NavBar from "./NavBar";
 import OurLessons from "./OurLessons";
-import PremiumStats from "./PremiumStats";
 import RepetitorSwiper from "./RepetitorSwiper";
 import Review from "./Review";
 
@@ -27,20 +26,18 @@ const StudentPage: React.FC<StudentPageProps> = ({ user }) => {
         <ActivityTracker studentId={user.id} />
         <OurLessons lessons={lessons} />
         <FutureLessons studentId={user.id} />
-        <PremiumStats />
         <RepetitorSwiper />
         <Review studentId={user.id} />
       </div>
-      <div className="hidden lg:grid lg:grid-cols-3 gap-4 lg:mt-6">
+      <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:mt-6">
         <div className="lg:col-span-1 flex flex-col gap-4 sticky lg:static top-6 h-fit self-start">
           <OurLessons lessons={lessons} />
           <Review studentId={user.id} />
         </div>
-        <div className="lg:col-span-2 flex flex-col gap-4">
+        <div className="lg:col-span-2 xl:col-span-3 flex flex-col gap-4">
           <ActivityTracker studentId={user.id} />
-          <div className="xl:grid xl:grid-cols-3 gap-4">
+          <div className="xl:grid xl:grid-cols-1 gap-4">
             <FutureLessons studentId={user.id} />
-            <PremiumStats />
           </div>
           <div className="hidden xl:block">
             <RepetitorSwiper />
