@@ -4,8 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import StudentInfo from "../student-profile/StudentInfo";
 import Card from "../student-profile/Card";
 import LessonsHistory from "../student-profile/LessonsHistory";
-import ActivityTackSecond from "../student-profile/ActivityTackSecond";
-import ActivityTracker from "../dashboard/ActivityTracker";
 
 export type Tab = "personal" | "cards" | "lessons";
 
@@ -99,17 +97,6 @@ const TabsContent: React.FC<TabsContentProps> = ({
       )}
       {activeTab === "cards" && <Card />}
       {activeTab === "lessons" && <LessonsHistory />}
-
-      {activeTab === "personal" && (
-        <>
-          <div className="sm:hidden">
-            <ActivityTackSecond />
-          </div>
-          <div className="hidden sm:block mt-4">
-            <ActivityTracker profilePage={true} studentId={user.id} />
-          </div>
-        </>
-      )}
     </div>
   );
 };

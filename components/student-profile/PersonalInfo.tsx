@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "react-coolicons";
 import OurLessons from "../dashboard/OurLessons";
 import PremiumStats from "../dashboard/PremiumStats";
-import LastActivity from "./LastActivity";
 import Image from "next/image";
 import TabsContent from "../ui/TabsContent";
 import { useBookedLessons } from "@/hooks/useBookedLessons";
@@ -152,8 +151,6 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ user }) => {
             setFullName={setFullName}
           />
         </div>
-
-        <LastActivity />
 
         <div className="md:grid md:grid-cols-2 md:gap-4 lg:hidden">
           <OurLessons profilePage={true} lessons={lessons} />
