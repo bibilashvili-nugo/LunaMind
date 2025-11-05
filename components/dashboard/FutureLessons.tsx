@@ -4,33 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import NoContent from "../ui/NoContent";
 import { LessonCreate } from "../teacher-profile/LessonCreate";
+import { LessonEdit } from "../teacher-profile/LessonEdit";
 import { useBookedLessons } from "@/hooks/useBookedLessons";
 import toast from "react-hot-toast";
 import Image from "next/image";
-import { Check, TrashFull } from "react-coolicons";
+import { EditPencil01, TrashFull } from "react-coolicons";
 
-interface Lesson {
-  id: string;
-  subject: string;
-  date: string;
-  time: string;
-  duration: number;
-  price?: number;
-  comment?: string;
-  link?: string;
-  teacher: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    image?: string;
-  };
-  student: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    image?: string;
-  };
-}
+// იმპორტი ორივე ინტერფეისი
+import type { Lesson, BookedLesson } from "../../types/lesson";
 
 interface FutureLessonsBoxTimeProps {
   duration?: number;
@@ -70,11 +51,15 @@ const FutureLessonsBoxContent = ({
   teacher = false,
   lesson,
   booked = false,
+  onDeleteLesson,
+  onEditLesson,
 }: {
   teacher?: boolean;
-  lesson: Lesson;
-  onOpenMeetingLink: (lesson: Lesson) => void;
+  lesson: Lesson | BookedLesson;
+  onOpenMeetingLink: (lesson: Lesson | BookedLesson) => void;
   booked?: boolean;
+  onDeleteLesson: (lessonId: string) => void;
+  onEditLesson: (lesson: Lesson) => void;
 }) => {
   const fullNameTeacher = `${lesson.teacher?.firstName || ""} ${
     lesson.teacher?.lastName || ""
@@ -90,10 +75,28 @@ const FutureLessonsBoxContent = ({
       toast.error("შეხვედრის ლინკი ჯერ არ არის მითითებული");
     }
   };
+
+  const handleDeleteClick = async () => {
+    try {
+      onDeleteLesson(lesson.id);
+    } catch (error) {
+      console.error("Error deleting lesson:", error);
+    }
+  };
+
+  const handleEditClick = () => {
+    // მხოლოდ Lesson-ს შეგვიძლია ედითი, BookedLesson-ს არა
+    if ("day" in lesson) {
+      onEditLesson(lesson as Lesson);
+    } else {
+      toast.error("დაჯავშნილი გაკვეთილის რედაქტირება შეუძლებელია");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:gap-0 sm:justify-between">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11  rounded-full">
+        <div className="w-11 h-11 rounded-full">
           <Image
             width={44}
             height={44}
@@ -126,10 +129,16 @@ const FutureLessonsBoxContent = ({
         </div>
       ) : teacher ? (
         <div className="flex gap-3 sm:flex-row sm:gap-2">
-          <button className="bg-[#49B02C] w-fit rounded-[48px] py-2 px-10 cursor-pointer">
-            <Check width={24} height={24} color="white" />
+          <button
+            className="bg-[#F0C514] w-fit rounded-[48px] py-2 px-10 cursor-pointer"
+            onClick={handleEditClick}
+          >
+            <EditPencil01 width={24} height={24} color="white" />
           </button>
-          <button className="bg-[#D80303] w-fit rounded-[48px] py-2 px-10 cursor-pointer">
+          <button
+            className="bg-[#D80303] w-fit rounded-[48px] py-2 px-10 cursor-pointer"
+            onClick={handleDeleteClick}
+          >
             <TrashFull width={24} height={24} color="white" />
           </button>
         </div>
@@ -150,11 +159,15 @@ const FutureLessonsBox = ({
   lesson,
   onOpenMeetingLink,
   booked = false,
+  onDeleteLesson,
+  onEditLesson,
 }: {
   teacher?: boolean;
-  lesson: Lesson;
-  onOpenMeetingLink: (lesson: Lesson) => void;
+  lesson: Lesson | BookedLesson;
+  onOpenMeetingLink: (lesson: Lesson | BookedLesson) => void;
   booked?: boolean;
+  onDeleteLesson: (lessonId: string) => void;
+  onEditLesson: (lesson: Lesson) => void;
 }) => {
   const months = [
     "იანვარი",
@@ -202,6 +215,8 @@ const FutureLessonsBox = ({
         lesson={lesson}
         onOpenMeetingLink={onOpenMeetingLink}
         booked={booked}
+        onDeleteLesson={onDeleteLesson}
+        onEditLesson={onEditLesson}
       />
     </div>
   );
@@ -219,12 +234,19 @@ const FutureLessons = ({
   const [formattedDate, setFormattedDate] = useState("");
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [meetingModalOpen, setMeetingModalOpen] = useState(false);
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [selectedLesson, setSelectedLesson] = useState<
+    Lesson | BookedLesson | null
+  >(null);
+  const [selectedLessonForEdit, setSelectedLessonForEdit] =
+    useState<Lesson | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const editModalRef = useRef<HTMLDivElement | null>(null);
   const meetingModalRef = useRef<HTMLDivElement | null>(null);
 
   useClickOutside(modalRef, () => setModalOpen(false));
+  useClickOutside(editModalRef, () => setEditModalOpen(false));
   useClickOutside(meetingModalRef, () => setMeetingModalOpen(false));
 
   const { data: bookedLessons } = useBookedLessons({
@@ -254,7 +276,6 @@ const FutureLessons = ({
     setFormattedDate(formatted);
   }, []);
 
-  // FutureLessons კომპონენტში
   useEffect(() => {
     const fetchLessons = async () => {
       if (!studentId && !teacher) return;
@@ -289,9 +310,51 @@ const FutureLessons = ({
     fetchLessons();
   }, [teacher, studentId, teacherId]);
 
-  const handleOpenMeetingLink = (lesson: Lesson) => {
+  const handleOpenMeetingLink = (lesson: Lesson | BookedLesson) => {
     setSelectedLesson(lesson);
     setMeetingModalOpen(true);
+  };
+
+  const handleDeleteLesson = async (lessonId: string) => {
+    try {
+      const res = await fetch("/api/teachers/deleteLesson", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ lessonId }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to delete lesson");
+      }
+
+      // წაშლის შემდეგ განაახლე სია
+      setLessons((prev) => prev.filter((lesson) => lesson.id !== lessonId));
+      toast.success("გაკვეთილი წარმატებით წაიშალა");
+    } catch (error) {
+      console.error("Error deleting lesson:", error);
+      toast.error("გაკვეთილის წაშლა ვერ მოხერხდა");
+    }
+  };
+
+  const handleEditLesson = (lesson: Lesson) => {
+    setSelectedLessonForEdit(lesson);
+    setEditModalOpen(true);
+  };
+
+  const handleLessonUpdated = (updatedLesson: Lesson) => {
+    setLessons((prev) =>
+      prev.map((lesson) =>
+        lesson.id === updatedLesson.id ? updatedLesson : lesson
+      )
+    );
+    toast.success("გაკვეთილი წარმატებით განახლდა");
+  };
+
+  const handleLessonCreated = (newLesson: Lesson) => {
+    setLessons((prev) => [...prev, newLesson]);
   };
 
   const upcomingBookedLessons =
@@ -340,6 +403,8 @@ const FutureLessons = ({
                     lesson={lesson}
                     onOpenMeetingLink={handleOpenMeetingLink}
                     booked={true}
+                    onDeleteLesson={handleDeleteLesson}
+                    onEditLesson={handleEditLesson}
                   />
                 ))
             )}
@@ -384,6 +449,8 @@ const FutureLessons = ({
                 teacher={teacher}
                 lesson={lesson}
                 onOpenMeetingLink={handleOpenMeetingLink}
+                onDeleteLesson={handleDeleteLesson}
+                onEditLesson={handleEditLesson}
               />
             ))
           )}
@@ -396,9 +463,36 @@ const FutureLessons = ({
               ref={modalRef}
               className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
             >
-              <LessonCreate teacherId={teacherId} setModalOpen={setModalOpen} />
+              <LessonCreate
+                teacherId={teacherId}
+                setModalOpen={setModalOpen}
+                onLessonCreated={handleLessonCreated}
+              />
               <button
                 onClick={() => setModalOpen(false)}
+                className="absolute top-3 right-6 text-black text-lg font-bold"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* გაკვეთილის რედაქტირების მოდალი */}
+        {editModalOpen && selectedLessonForEdit && (
+          <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-[#00000099]">
+            <div
+              ref={editModalRef}
+              className="relative w-full lg:max-w-lg mx-0 lg:mx-4 rounded-t-2xl lg:rounded-2xl bg-white overflow-auto h-[570px] lg:h-[592px]"
+            >
+              <LessonEdit
+                lesson={selectedLessonForEdit}
+                teacherId={teacherId}
+                setModalOpen={setEditModalOpen}
+                onLessonUpdated={handleLessonUpdated}
+              />
+              <button
+                onClick={() => setEditModalOpen(false)}
                 className="absolute top-3 right-6 text-black text-lg font-bold"
               >
                 ×

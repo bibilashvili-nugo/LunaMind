@@ -1,3 +1,4 @@
+// components/teacher-profile/LessonEdit.tsx
 "use client";
 
 import { useClickOutside } from "@/hooks/useClickOutside";
@@ -22,31 +23,54 @@ interface TeacherSubject {
   price: number;
 }
 
-interface LessonCreateProps {
+interface LessonEditProps {
+  lesson: Lesson;
   teacherId?: string;
-  teacherProfileId?: string;
   setModalOpen?: (open: boolean) => void;
-  onLessonCreated?: (lesson: Lesson) => void;
+  onLessonUpdated?: (lesson: Lesson) => void;
 }
 
-export const LessonCreate: React.FC<LessonCreateProps> = ({
+export const LessonEdit: React.FC<LessonEditProps> = ({
+  lesson,
   teacherId,
   setModalOpen,
-  onLessonCreated,
+  onLessonUpdated,
 }) => {
   const [subjects, setSubjects] = useState<TeacherSubject[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(
+    lesson.subject
+  );
   const [selectedTimes, setSelectedTimes] = useState<
     { day: string; start: string; end: string }[]
-  >([{ day: "", start: "16:00", end: "17:00" }]);
-  const [comment, setComment] = useState("");
-  const [meetingLink, setMeetingLink] = useState("");
+  >([
+    {
+      day: lesson.day,
+      start: lesson.time,
+      end: calculateEndTime(lesson.time, lesson.duration),
+    },
+  ]);
+  const [comment, setComment] = useState(lesson.comment || "");
+  const [meetingLink, setMeetingLink] = useState(lesson.link || "");
   const [openSubject, setOpenSubject] = useState(false);
   const subjectRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(subjectRef, () => setOpenSubject(false));
 
   const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+
+  // Helper function to calculate end time from start time and duration
+  function calculateEndTime(start: string, duration: number): string {
+    const [startH, startM] = start.split(":").map(Number);
+    const startTotal = startH * 60 + startM;
+    const endTotal = startTotal + duration;
+
+    const endH = Math.floor(endTotal / 60);
+    const endM = endTotal % 60;
+
+    return `${endH.toString().padStart(2, "0")}:${endM
+      .toString()
+      .padStart(2, "0")}`;
+  }
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -128,10 +152,10 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
     }
 
     try {
-      // ✅ FIXED: Collect all unique days from selectedTimes
       const uniqueDays = [...new Set(selectedTimes.map((row) => row.day))];
 
       const payload = {
+        lessonId: lesson.id,
         teacherId,
         subject: selectedSubject,
         days: uniqueDays,
@@ -144,8 +168,8 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
         link: meetingLink,
       };
 
-      const res = await fetch("/api/teachers/createLesson", {
-        method: "POST",
+      const res = await fetch("/api/teachers/updateLesson", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -153,22 +177,16 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
       if (!res.ok) {
         const error = await res.json();
         console.error("API Error:", error);
-        toast.error(error.error || "გაკვეთილის შექმნა ვერ მოხერხდა");
+        toast.error(error.error || "გაკვეთილის განახლება ვერ მოხერხდა");
         return;
       }
 
-      const data: Lesson[] = await res.json();
+      const updatedLesson: Lesson = await res.json();
 
-      // Call onLessonCreated for each created lesson
-      if (onLessonCreated) {
-        data.forEach((lesson) => onLessonCreated(lesson));
+      if (onLessonUpdated) {
+        onLessonUpdated(updatedLesson);
       }
 
-      toast.success(`გაკვეთილი წარმატებით შეიქმნა! (${data.length} ჩანაწერი)`);
-      setSelectedSubject(null);
-      setSelectedTimes([{ day: "", start: "16:00", end: "17:00" }]);
-      setComment("");
-      setMeetingLink("");
       if (setModalOpen) setModalOpen(false);
     } catch (error) {
       console.error(error);
@@ -179,7 +197,7 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
   return (
     <div className="mt-6 w-full h-fit">
       <span className="font-helveticaneue-medium !font-bold px-4">
-        გაკვეთილის ჩანიშვნა
+        გაკვეთილის რედაქტირება
       </span>
       <hr className="mt-4 text-[#EBECF0]" />
 
@@ -213,7 +231,7 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
         )}
       </div>
 
-      {/* COMMENT - ONLY THIS IS OPTIONAL */}
+      {/* COMMENT */}
       <div className="mt-4 px-4">
         <div className="border border-[#F1F1F1] rounded-xl relative overflow-hidden">
           <p className="text-xs leading-4 font-helveticaneue-regular absolute left-3 pt-[10px] text-[#737373] z-20 bg-white">
@@ -280,7 +298,7 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
         ))}
       </div>
 
-      {/* MEETING LINK - NOW REQUIRED */}
+      {/* MEETING LINK */}
       <div className="mt-4 px-4">
         <div className="border border-[#F1F1F1] rounded-xl relative overflow-hidden">
           <p className="text-xs leading-4 font-helveticaneue-regular absolute left-3 pt-[10px] text-[#737373] z-20 bg-white">
@@ -306,7 +324,7 @@ export const LessonCreate: React.FC<LessonCreateProps> = ({
               : "bg-gray-300 cursor-not-allowed"
           }`}
         >
-          ჩანიშვნა
+          განახლება
         </button>
       </div>
     </div>
