@@ -9,6 +9,7 @@ import {
 import SpinContent from "../../../../components/ui/SpinContent";
 import { useRouter } from "next/navigation";
 import { Check } from "react-coolicons";
+import { toast } from "react-hot-toast";
 
 interface CheckEmailResponse {
   exists: boolean;
@@ -26,6 +27,12 @@ interface ResetPasswordResponse {
   message: string;
 }
 
+// Password validation function
+export const isValidPassword = (password: string) => {
+  // მინიმუმ 8 სიმბოლო, ერთი დიდი ასო, ერთი ციფრი
+  return /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
+};
+
 const PasswordRecieve: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [isValidEmail, setIsValidEmail] = useState<boolean>(false);
@@ -38,6 +45,7 @@ const PasswordRecieve: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [countdown, setCountdown] = useState<number>(0);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
 
   const router = useRouter();
 
@@ -77,6 +85,25 @@ const PasswordRecieve: React.FC = () => {
     return () => clearInterval(interval);
   }, [countdown]);
 
+  // ✅ Validate password and set errors
+  useEffect(() => {
+    const errors: string[] = [];
+
+    if (newPassword) {
+      if (newPassword.length < 8) {
+        errors.push("პაროლი უნდა შეიცავდეს მინიმუმ 8 სიმბოლოს");
+      }
+      if (!/(?=.*[A-Z])/.test(newPassword)) {
+        errors.push("პაროლი უნდა შეიცავდეს მინიმუმ 1 დიდ ასოს");
+      }
+      if (!/(?=.*\d)/.test(newPassword)) {
+        errors.push("პაროლი უნდა შეიცავდეს მინიმუმ 1 ციფრს");
+      }
+    }
+
+    setPasswordErrors(errors);
+  }, [newPassword]);
+
   // ✅ Request OTP
   const handleRequestOtp = async () => {
     setLoading(true);
@@ -91,9 +118,12 @@ const PasswordRecieve: React.FC = () => {
       if (!res.ok) throw new Error(data.message);
       setOtpRequested(true);
       setCountdown(60);
+      toast.success("ერთჯერადი კოდი გამოგზავნილია თქვენს ელ.ფოსტაზე");
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
-      else setError("Something went wrong");
+      const errorMessage =
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -102,7 +132,9 @@ const PasswordRecieve: React.FC = () => {
   // ✅ Verify OTP
   const handleVerifyOtp = async () => {
     if (!otp) {
-      setError("Enter OTP");
+      const errorMsg = "გთხოვთ, შეიყვანოთ ერთჯერადი კოდი";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
     setLoading(true);
@@ -118,9 +150,12 @@ const PasswordRecieve: React.FC = () => {
         throw new Error(data.message || "OTP invalid");
       }
       setOtpVerified(true);
+      toast.success("კოდი დადასტურებულია! შეგიძლიათ შეცვალოთ პაროლი");
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
-      else setError("Something went wrong");
+      const errorMessage =
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -129,9 +164,19 @@ const PasswordRecieve: React.FC = () => {
   // ✅ Reset Password
   const handleResetPassword = async () => {
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      const errorMsg = "პაროლები არ ემთხვევა ერთმანეთს";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
+
+    if (!isValidPassword(newPassword)) {
+      const errorMsg = "გთხოვთ, შეიყვანოთ ძლიერი პაროლი";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
@@ -145,6 +190,7 @@ const PasswordRecieve: React.FC = () => {
 
       // ✅ Show modal instead of alert
       setShowModal(true);
+      toast.success("პაროლი წარმატებით შეიცვალა!");
 
       // Reset form
       setOtpRequested(false);
@@ -154,9 +200,12 @@ const PasswordRecieve: React.FC = () => {
       setConfirmPassword("");
       setEmail("");
       setIsValidEmail(false);
+      setPasswordErrors([]);
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
-      else setError("Something went wrong");
+      const errorMessage =
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -274,22 +323,70 @@ const PasswordRecieve: React.FC = () => {
         {otpVerified && (
           <>
             <div className="flex flex-col mt-6 gap-[20px] sm:gap-3">
-              <LoginRegisterContentInputPassword
-                placeholder="ახალი პაროლი"
-                value={newPassword}
-                onChange={handleChange(setNewPassword)}
-              />
+              <div>
+                <LoginRegisterContentInputPassword
+                  placeholder="ახალი პაროლი"
+                  value={newPassword}
+                  onChange={handleChange(setNewPassword)}
+                />
+                {/* Password requirements */}
+                {newPassword && (
+                  <div className="mt-2 space-y-1">
+                    {passwordErrors.map((error, index) => (
+                      <p key={index} className="text-red-500 text-xs">
+                        • {error}
+                      </p>
+                    ))}
+                    {passwordErrors.length === 0 && (
+                      <p className="text-green-500 text-xs">
+                        ✓ პაროლი აკმაყოფილებს ყველა მოთხოვნას
+                      </p>
+                    )}
+                  </div>
+                )}
+                {!newPassword && (
+                  <div className="mt-2 space-y-1">
+                    <p className="text-gray-500 text-xs">• მინიმუმ 8 სიმბოლო</p>
+                    <p className="text-gray-500 text-xs">
+                      • მინიმუმ 1 დიდი ასო
+                    </p>
+                    <p className="text-gray-500 text-xs">• მინიმუმ 1 ციფრი</p>
+                  </div>
+                )}
+              </div>
+
               <LoginRegisterContentInputPassword
                 placeholder="გაიმეორეთ ახალი პაროლი"
                 value={confirmPassword}
                 onChange={handleChange(setConfirmPassword)}
               />
+              {/* Password match indicator */}
+              {confirmPassword && (
+                <div className="mt-1">
+                  {newPassword === confirmPassword ? (
+                    <p className="text-green-500 text-xs">
+                      ✓ პაროლები ემთხვევა
+                    </p>
+                  ) : (
+                    <p className="text-red-500 text-xs">
+                      ✗ პაროლები არ ემთხვევა
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
             <button
-              disabled={loading}
+              disabled={
+                loading ||
+                !isValidPassword(newPassword) ||
+                newPassword !== confirmPassword
+              }
               onClick={handleResetPassword}
-              className="bg-[#FFD52A] py-4 w-full rounded-[40px] text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium mt-6
-              xl:text-base xl:leading-6"
+              className={`mt-6 py-4 w-full rounded-[40px] text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium ${
+                isValidPassword(newPassword) && newPassword === confirmPassword
+                  ? "bg-[#FFD52A] cursor-pointer"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              } xl:text-base xl:leading-6`}
             >
               {loading ? "მიმდინარეობს..." : "პაროლის შეცვლა"}
             </button>
