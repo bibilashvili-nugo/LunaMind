@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export const useResponsiveSlice = <T>(
-  array: T[],
+  array: T[] = [],
   smallCount: number,
   largeCount: number,
   lgBreakpoint = 1024
@@ -17,5 +17,5 @@ export const useResponsiveSlice = <T>(
 
   const count =
     windowWidth && windowWidth >= lgBreakpoint ? largeCount : smallCount;
-  return array.slice(0, count);
+  return array.slice(0, count) || [];
 };
