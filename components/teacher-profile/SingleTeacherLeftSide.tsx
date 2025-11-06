@@ -11,9 +11,7 @@ interface Teacher {
   id: string;
   userId: string;
   age: number | null;
-  country: string | null;
   city: string | null;
-  address: string | null;
   profession: string | null;
   education: string | null;
   currentStep: number;
