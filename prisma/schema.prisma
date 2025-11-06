@@ -112,9 +112,7 @@ model TeacherProfile {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   age        Int?
-  country    String?
   city       String?
-  address    String?
   profession String? // პროფესიული ინფორმაცია
   education  TeacherEducation? // უმაღლესი განათლება
 

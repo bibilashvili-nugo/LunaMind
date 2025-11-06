@@ -59,9 +59,7 @@ export async function PATCH(req: NextRequest) {
 
     // ✅ Extract TeacherProfile info
     const age = formData.get("age") ? Number(formData.get("age")) : null;
-    const country = formData.get("country") as string | null;
     const city = formData.get("city") as string | null;
-    const address = formData.get("address") as string | null;
 
     const educationValue = formData.get("education") as
       | keyof typeof TeacherEducation
@@ -131,9 +129,7 @@ export async function PATCH(req: NextRequest) {
           upsert: {
             create: {
               age: age || undefined,
-              country,
               city,
-              address,
               education: educationValue
                 ? (educationValue as TeacherEducation)
                 : undefined,
@@ -156,9 +152,7 @@ export async function PATCH(req: NextRequest) {
             },
             update: {
               age: age || undefined,
-              country,
               city,
-              address,
               education: educationValue
                 ? (educationValue as TeacherEducation)
                 : undefined,

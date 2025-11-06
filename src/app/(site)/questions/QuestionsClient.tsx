@@ -128,14 +128,7 @@ const studentQuestions: Question[] = [
 
 const teacherQuestions: Question[] = [
   { key: "age", label: "რამდენი წლის ხარ?", type: "number" },
-  {
-    key: "country",
-    label: "ქვეყანა",
-    type: "select",
-    options: ["საქართველო", "აშშ", "გერმანია"],
-  },
   { key: "city", label: "ქალაქი", type: "text" },
-  { key: "address", label: "ზუსტი მისამართი", type: "text" },
   { key: "profession", label: "პროფესიული ინფორმაცია", type: "textarea" },
   {
     key: "education",
@@ -673,13 +666,23 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                 return;
               }
 
-              // შეზღუდე 1-100-მდე
-              if (numValue < 1) {
-                handleChange(current.key, 1);
+              // შეზღუდე 14-100-მდე
+              if (numValue < 14) {
+                handleChange(current.key, 14);
               } else if (numValue > 100) {
                 handleChange(current.key, 100);
               } else {
-                handleChange(current.key, numValue); // numValue ყოველთვის integer-ია
+                handleChange(current.key, numValue);
+              }
+            }}
+            onBlur={(e) => {
+              // როცა მომხმარებელი input-ს ტოვებს, შევამოწმოთ მინიმალური მნიშვნელობა
+              const value = e.target.value;
+              if (value === "") return;
+
+              const numValue = parseInt(value, 10);
+              if (numValue < 14) {
+                handleChange(current.key, 14);
               }
             }}
             onKeyDown={(e) => {
@@ -690,7 +693,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
             }}
             pattern="[0-9]*"
             inputMode="numeric"
-            placeholder="შეიყვანეთ ასაკი (მხოლოდ ციფრები 100-მდე)"
+            placeholder="14-100"
             className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
     text-sm leading-5 font-helveticaneue-regular
     focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
@@ -875,7 +878,8 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                       }
                       className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
                     text-sm leading-5 font-helveticaneue-regular
-                    focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                    focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+                    xl:text-base"
                       accept="video/*"
                     />
                     <p className="text-xs text-[#737373] mt-1">

@@ -14,9 +14,7 @@ export type TeacherSubject = {
 
 type TeacherProfile = {
   age?: number;
-  country?: string;
   city?: string;
-  address?: string;
   teacherSubjects?: TeacherSubject[];
   education?: "BACHELOR" | "MASTER" | "DOCTORATE" | "OTHER";
   experienceYears?: "0-1" | "2-5" | "6-10" | "10+";
@@ -141,9 +139,7 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
   const [age, setAge] = useState(profile?.age?.toString() || "");
   const [phone, setPhone] = useState(user.phoneNumber || "");
   const [email, setEmail] = useState(user.email || "");
-  const [country, setCountry] = useState(profile?.country || "");
   const [city, setCity] = useState(profile?.city || "");
-  const [address, setAddress] = useState(profile?.address || "");
 
   // Subjects (უცვლელი)
   const [subjects, setSubjects] = useState<TeacherSubject[]>(
@@ -376,9 +372,7 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
 
       // TeacherProfile data
       if (age) formData.append("age", age);
-      if (country) formData.append("country", country);
       if (city) formData.append("city", city);
-      if (address) formData.append("address", address);
       if (education) formData.append("education", education);
       if (experienceYears) formData.append("experienceYears", experienceYears);
       formData.append("preferredAgeGroups", JSON.stringify(preferredAgeGroups));
@@ -501,19 +495,9 @@ const TeacherInfo: React.FC<TeacherInfoProps> = ({
       </div>
       <div className="flex flex-col gap-4 sm:flex-row">
         <InputTeacherInfo
-          value={country}
-          onChange={setCountry}
-          placeholder="ქვეყანა"
-        />
-        <InputTeacherInfo
           value={city}
           onChange={setCity}
           placeholder="ქალაქი"
-        />
-        <InputTeacherInfo
-          value={address}
-          onChange={setAddress}
-          placeholder="მისამართი"
         />
       </div>
 

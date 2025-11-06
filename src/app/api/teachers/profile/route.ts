@@ -312,24 +312,10 @@ export async function POST(req: Request) {
           }
           break;
 
-        case "country":
-          if (typeof value === "string" && value.trim() !== "") {
-            updateData.country = value;
-            console.log(`✅ Saved country: ${value}`);
-          }
-          break;
-
         case "city":
           if (typeof value === "string" && value.trim() !== "") {
             updateData.city = value;
             console.log(`✅ Saved city: ${value}`);
-          }
-          break;
-
-        case "address":
-          if (typeof value === "string" && value.trim() !== "") {
-            updateData.address = value;
-            console.log(`✅ Saved address: ${value}`);
           }
           break;
 
