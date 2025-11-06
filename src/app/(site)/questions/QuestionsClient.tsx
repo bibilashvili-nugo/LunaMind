@@ -594,8 +594,8 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         className="flex justify-between items-center mt-8 pb-4 md:pb-6
       px-4 md:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto"
       >
-        <div className="text-2xl leading-[100%] font-aclonica-regular xl:text-[32px] cursor-pointer px-2 sm:px-0">
-          LunaMind
+        <div className="text-2xl leading-[100%] font-freeman-regular xl:text-[32px] cursor-pointer px-2 sm:px-0">
+          Evectus
         </div>
       </div>
       <hr className="text-[#EBEBEB] pb-6 sm:pb-8" />
@@ -647,17 +647,54 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
         {current.type === "number" && (
           <input
-            type="number"
+            type="text"
             value={getAnswerValue<number | string>(current.key, "")}
             onChange={(e) => {
-              const newValue =
-                e.target.value === "" ? undefined : Number(e.target.value);
-              handleChange(current.key, newValue ?? 0);
+              let value = e.target.value;
+
+              // დავუშვათ მხოლოდ ციფრები (ათწილადის წერტილის გარეშე)
+              value = value.replace(/[^\d]/g, "");
+
+              // წაშალე წინა ნულები
+              value = value.replace(/^0+/, "");
+
+              // თუ ცარიელია, გაგზავნე ცარიელი სტრინგი
+              if (value === "") {
+                handleChange(current.key, "");
+                return;
+              }
+
+              // გადაიყვანე რიცხვად
+              const numValue = parseInt(value, 10);
+
+              // დამატებითი ვალიდაცია - თუ NaN არის
+              if (isNaN(numValue)) {
+                handleChange(current.key, "");
+                return;
+              }
+
+              // შეზღუდე 1-100-მდე
+              if (numValue < 1) {
+                handleChange(current.key, 1);
+              } else if (numValue > 100) {
+                handleChange(current.key, 100);
+              } else {
+                handleChange(current.key, numValue); // numValue ყოველთვის integer-ია
+              }
             }}
+            onKeyDown={(e) => {
+              // აკრძალე წერტილის და მინუსის შეყვანა
+              if (e.key === "." || e.key === "-" || e.key === ",") {
+                e.preventDefault();
+              }
+            }}
+            pattern="[0-9]*"
+            inputMode="numeric"
+            placeholder="შეიყვანეთ ასაკი (მხოლოდ ციფრები 100-მდე)"
             className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
-            text-sm leading-5 font-helveticaneue-regular
-          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
-          xl:text-base"
+    text-sm leading-5 font-helveticaneue-regular
+    focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+    xl:text-base"
           />
         )}
 
