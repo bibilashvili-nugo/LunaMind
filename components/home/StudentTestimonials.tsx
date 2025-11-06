@@ -60,14 +60,11 @@ const StudentTestimonials = ({ id }: { id: string }) => {
               className="absolute inset-0 flex flex-col items-end justify-end text-right text-white p-4 sm:p-8 lg:p-6
              xl:py-8 2xl:px-[32px] 2xl:py-[44px] 3xl:px-[40px]"
             >
-              <span className="text-[44px] leading-[100%] font-spacegrotesk-bold sm:text-[54px]">
-                92%
+              <span className="text-[28px] leading-8 text-white font-lgvanastasia-regular sm:text-[32px]">
+                შეისწავლე ყველაფერი
               </span>
               <span className="text-[28px] leading-8 text-white font-lgvanastasia-regular sm:text-[32px]">
-                კმაყოფილი შეფასება რეალური
-              </span>
-              <span className="text-[28px] leading-8 text-white font-lgvanastasia-regular sm:text-[32px]">
-                სტუდენტებისგან
+                ერთ სივრცეში
               </span>
             </div>
           </div>

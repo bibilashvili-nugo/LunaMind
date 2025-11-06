@@ -6,3 +6,5 @@ export const isValidPassword = (password: string) => {
 };
 // ტელეფონის ვალიდაცია: მხოლოდ ციფრები, 9-15 სიმბოლო
 export const isValidPhone = (phone: string) => /^[0-9]{9,15}$/.test(phone);
+
+export const fullNameRegex = /^[ა-ჰ]{3,}\s[ა-ჰ]{3,}$/;
