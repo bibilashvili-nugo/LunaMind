@@ -19,7 +19,7 @@ export default async function Home() {
   const userImage = user?.image || null;
   return (
     <>
-      <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
+      <div className="px-4 sm:px-6 lg:px-11 3xl:px-40 max-w-[1920px] 3xl:mx-auto">
         <div className="">
           <NavBar userImage={userImage} />
         </div>

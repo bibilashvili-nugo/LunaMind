@@ -134,7 +134,12 @@ const teacherQuestions: Question[] = [
     key: "education",
     label: "რა არის თქვენი უმაღლესი განათლება?",
     type: "select",
-    options: ["BACHELOR", "MASTER", "DOCTORATE", "OTHER"],
+    options: [
+      "ბაკალავრის ხარისხი",
+      "მაგისტრის ხარისხი",
+      "დოქტორის ხარისხი",
+      "სხვა",
+    ],
   },
   { key: "subjects", label: "აირჩიეთ საგნები და ფასები", type: "subjects" },
   {
@@ -142,7 +147,7 @@ const teacherQuestions: Question[] = [
     label: "რა არის თქვენი მთავარი მიზანი ჩვენს პლატფორმაზე?",
     type: "select",
     options: [
-      "ახალი მოსწავლეების მოვნა",
+      "ახალი მოსწავლეების პოვნა",
       "გამოცდილების გაზიარება",
       "დამატებითი შემოსავლის მიღება",
       "პროფესიული ზრდა, განვითარება",
@@ -585,14 +590,14 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
     <div className="pb-4">
       <div
         className="flex justify-between items-center mt-8 pb-4 md:pb-6
-      px-4 md:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto"
+      px-4 md:px-6 lg:px-11 3xl:px-40 max-w-[1920px] 3xl:mx-auto"
       >
         <div className="text-2xl leading-[100%] font-freeman-regular xl:text-[32px] cursor-pointer px-2 sm:px-0">
           Evectus
         </div>
       </div>
       <hr className="text-[#EBEBEB] pb-6 sm:pb-8" />
-      <div className="px-4 md:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto lg:w-[576px] lg:mx-auto">
+      <div className="px-4 md:px-6 lg:px-11 3xl:px-40 max-w-[1920px] 3xl:mx-auto lg:w-xl lg:mx-auto">
         <div className="flex justify-center gap-2 pb-6">
           {Array.from({ length: questions.length }).map((_, index) => (
             <div
@@ -602,8 +607,8 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                 transition-all duration-300 ease-in-out
                 ${
                   index === step
-                    ? "bg-[#FFD52A] w-[48px]"
-                    : "bg-gray-300 w-8 md:w-[42px] lg:w-[60px] xl:w-[80px]"
+                    ? "bg-[#FFD52A] w-12"
+                    : "bg-gray-300 w-8 md:w-[42px] lg:w-[60px] xl:w-20"
                 }
                 `}
             />
@@ -629,12 +634,35 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
         {current.type === "text" && (
           <input
             type="text"
+            placeholder="შეიყვანეთ ქართულად"
             value={getStringValue(current.key)}
-            onChange={(e) => handleChange(current.key, e.target.value)}
-            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
-            text-sm leading-5 font-helveticaneue-regular
-          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
-          xl:text-base"
+            onChange={(e) => {
+              let value = e.target.value;
+
+              // დავუშვათ მხოლოდ ქართული ასოები, სფეისი და დეფისი
+              value = value.replace(/[^ა-ჰ\s\-]/g, "");
+
+              handleChange(current.key, value);
+            }}
+            onKeyDown={(e) => {
+              // აკრძალე არა-ქართული სიმბოლოების შეყვანა
+              if (
+                !/^[ა-ჰ\s\-]$/.test(e.key) &&
+                e.key !== "Backspace" &&
+                e.key !== "Delete" &&
+                e.key !== "Tab" &&
+                e.key !== "ArrowLeft" &&
+                e.key !== "ArrowRight" &&
+                e.key !== "Home" &&
+                e.key !== "End"
+              ) {
+                e.preventDefault();
+              }
+            }}
+            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-xl text-[#000000] 
+      text-sm leading-5 font-helveticaneue-regular
+      focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+      xl:text-base"
           />
         )}
 
@@ -645,11 +673,24 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
             onChange={(e) => {
               let value = e.target.value;
 
-              // დავუშვათ მხოლოდ ციფრები (ათწილადის წერტილის გარეშე)
+              // დავუშვათ მხოლოდ ციფრები
               value = value.replace(/[^\d]/g, "");
 
-              // წაშალე წინა ნულები
-              value = value.replace(/^0+/, "");
+              // არ დაუშვას 100-ზე მეტი რიცხვის შეყვანა
+              if (value.length >= 3) {
+                // ნება დართეთ მხოლოდ "100"-ის შეყვანას
+                if (value !== "100") {
+                  value = value.slice(0, 2); // დატოვე მხოლოდ პირველი 2 ციფრი
+                }
+              }
+
+              // არ დაუშვას 14-ზე ნაკლები რიცხვის შეყვანა
+              if (value.length > 0) {
+                const numValue = parseInt(value, 10);
+                if (numValue < 14 && value.length >= 2) {
+                  value = "14"; // ავტომატურად გახადე 14
+                }
+              }
 
               // თუ ცარიელია, გაგზავნე ცარიელი სტრინგი
               if (value === "") {
@@ -659,57 +700,75 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
               // გადაიყვანე რიცხვად
               const numValue = parseInt(value, 10);
-
-              // დამატებითი ვალიდაცია - თუ NaN არის
-              if (isNaN(numValue)) {
-                handleChange(current.key, "");
-                return;
-              }
-
-              // შეზღუდე 14-100-მდე
-              if (numValue < 14) {
-                handleChange(current.key, 14);
-              } else if (numValue > 100) {
-                handleChange(current.key, 100);
-              } else {
-                handleChange(current.key, numValue);
-              }
+              handleChange(current.key, numValue);
             }}
             onBlur={(e) => {
-              // როცა მომხმარებელი input-ს ტოვებს, შევამოწმოთ მინიმალური მნიშვნელობა
               const value = e.target.value;
               if (value === "") return;
 
               const numValue = parseInt(value, 10);
+              // ვალიდაცია მხოლოდ როცა მომხმარებელი input-ს ტოვებს
               if (numValue < 14) {
                 handleChange(current.key, 14);
+              } else if (numValue > 100) {
+                handleChange(current.key, 100);
               }
             }}
             onKeyDown={(e) => {
-              // აკრძალე წერტილის და მინუსის შეყვანა
-              if (e.key === "." || e.key === "-" || e.key === ",") {
+              if (
+                !/[0-9]/.test(e.key) &&
+                e.key !== "Backspace" &&
+                e.key !== "Delete" &&
+                e.key !== "Tab" &&
+                e.key !== "ArrowLeft" &&
+                e.key !== "ArrowRight"
+              ) {
                 e.preventDefault();
               }
             }}
             pattern="[0-9]*"
             inputMode="numeric"
-            placeholder="14-100"
-            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
-    text-sm leading-5 font-helveticaneue-regular
-    focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
-    xl:text-base"
+            placeholder="შეიყვანეთ თქვენი ასაკი (14 წლიდან 100 წლამდე)"
+            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-xl text-[#000000] 
+      text-sm leading-5 font-helveticaneue-regular
+      focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+      xl:text-base"
           />
         )}
 
         {current.type === "textarea" && (
           <textarea
             value={getStringValue(current.key)}
-            onChange={(e) => handleChange(current.key, e.target.value)}
-            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
-            text-sm leading-5 font-helveticaneue-regular
-          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
-          xl:text-base"
+            onChange={(e) => {
+              let value = e.target.value;
+
+              // დავუშვათ მხოლოდ ქართული ასოები, სფეისი და სასვენი ნიშნები
+              value = value.replace(/[^ა-ჰ\s\-.,!?;:()'"„“]/g, "");
+
+              handleChange(current.key, value);
+            }}
+            onKeyDown={(e) => {
+              // აკრძალე არა-ქართული სიმბოლოების შეყვანა
+              if (
+                !/^[ა-ჰ\s\-.,!?;:()'"„“]$/.test(e.key) &&
+                e.key !== "Backspace" &&
+                e.key !== "Delete" &&
+                e.key !== "Tab" &&
+                e.key !== "ArrowLeft" &&
+                e.key !== "ArrowRight" &&
+                e.key !== "Home" &&
+                e.key !== "End" &&
+                e.key !== "Enter"
+              ) {
+                e.preventDefault();
+              }
+            }}
+            className="w-full py-4 px-4 border border-[#EBEBEB] rounded-xl text-[#000000] 
+      text-sm leading-5 font-helveticaneue-regular
+      focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+      xl:text-base"
             rows={4}
+            placeholder="შეიყვანეთ ქართულად"
           />
         )}
 
@@ -718,7 +777,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
             <select
               value={getStringValue(current.key)}
               onChange={(e) => handleSelectChange(current.key, e.target.value)}
-              className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+              className="w-full py-4 px-4 border border-[#EBEBEB] rounded-xl text-[#000000] 
               text-sm leading-5 font-helveticaneue-regular
             focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
             xl:text-base"
@@ -743,7 +802,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                     handleOtherTextChange(current.key, e.target.value)
                   }
                   placeholder={`შეიყვანეთ ${current.label.toLowerCase()}`}
-                  className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
+                  className="w-full py-4 px-4 border border-[#EBEBEB] rounded-xl text-[#000000] 
                   text-sm leading-5 font-helveticaneue-regular
                   focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
                   xl:text-base"
@@ -793,7 +852,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
               <button
                 type="button"
                 onClick={() => handleChange(current.key, true)}
-                className={`flex-1 py-4 px-4 border rounded-[12px] text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 py-4 px-4 border rounded-xl text-sm font-medium transition-all duration-200 ${
                   getBooleanValue(current.key) === true
                     ? "bg-[#FFD52A] border-[#FFD52A] text-[#0C0F21]"
                     : "bg-white border-gray-300 text-gray-700 hover:border-[#FFD52A]"
@@ -804,7 +863,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
               <button
                 type="button"
                 onClick={() => handleChange(current.key, false)}
-                className={`flex-1 py-4 px-4 border rounded-[12px] text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 py-4 px-4 border rounded-xl text-sm font-medium transition-all duration-200 ${
                   getBooleanValue(current.key) === false
                     ? "bg-[#FFD52A] border-[#FFD52A] text-[#0C0F21]"
                     : "bg-white border-gray-300 text-gray-700 hover:border-[#FFD52A]"
@@ -816,7 +875,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
             {current.key === "hasCertificate" &&
               shouldShowDependentSection("hasCertificate") && (
-                <div className="mt-6 space-y-4 p-4 border border-[#EBEBEB] rounded-[12px] bg-gray-50">
+                <div className="mt-6 space-y-4 p-4 border border-[#EBEBEB] rounded-xl bg-gray-50">
                   <h3 className="font-helveticaneue-medium text-[#0C0F21] text-sm">
                     სერტიფიკატის დეტალები
                   </h3>
@@ -828,13 +887,33 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                     <input
                       type="text"
                       value={getStringValue("certificateDescription")}
-                      onChange={(e) =>
-                        handleChange("certificateDescription", e.target.value)
-                      }
-                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
-                    text-sm leading-5 font-helveticaneue-regular
-                    focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
-                      placeholder="მიუთითეთ სერტიფიკატის დეტალები..."
+                      onChange={(e) => {
+                        let value = e.target.value;
+
+                        // დავუშვათ მხოლოდ ქართული ასოები, სფეისი და სასვენი ნიშნები
+                        value = value.replace(/[^ა-ჰ\s\-.,!?;:()'"„“]/g, "");
+
+                        handleChange("certificateDescription", value);
+                      }}
+                      onKeyDown={(e) => {
+                        // აკრძალე არა-ქართული სიმბოლოების შეყვანა
+                        if (
+                          !/^[ა-ჰ\s\-.,!?;:()'"„“]$/.test(e.key) &&
+                          e.key !== "Backspace" &&
+                          e.key !== "Delete" &&
+                          e.key !== "Tab" &&
+                          e.key !== "ArrowLeft" &&
+                          e.key !== "ArrowRight" &&
+                          e.key !== "Home" &&
+                          e.key !== "End"
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-lg text-[#000000] 
+      text-sm leading-5 font-helveticaneue-regular
+      focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                      placeholder="მიუთითეთ სერტიფიკატის დეტალები... (ქართულად)"
                     />
                   </div>
 
@@ -848,7 +927,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                       onChange={(e) =>
                         handleFileChange("certificateFiles", e.target.files)
                       }
-                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
+                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-lg text-[#000000] 
                     text-sm leading-5 font-helveticaneue-regular
                     focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
                       accept=".pdf,.jpg,.jpeg,.png"
@@ -862,7 +941,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
             {current.key === "hasIntroVideo" &&
               shouldShowDependentSection("hasIntroVideo") && (
-                <div className="mt-6 space-y-4 p-4 border border-[#EBEBEB] rounded-[12px] bg-gray-50">
+                <div className="mt-6 space-y-4 p-4 border border-[#EBEBEB] rounded-xl bg-gray-50">
                   <h3 className="font-helveticaneue-medium text-[#0C0F21] text-sm">
                     გაცნობითი ვიდეო
                   </h3>
@@ -876,7 +955,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                       onChange={(e) =>
                         handleFileChange("introVideoUrl", e.target.files)
                       }
-                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
+                      className="w-full py-3 px-4 border border-[#EBEBEB] rounded-lg text-[#000000] 
                     text-sm leading-5 font-helveticaneue-regular
                     focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
                     xl:text-base"
@@ -897,14 +976,15 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
               onChange={(e) => {
                 const name = e.target.value;
                 if (name && !getSubjectsValue().find((s) => s.name === name)) {
-                  handleSubjectChange(name, 0);
+                  // ახალი საგნის დამატება ცარიელი ფასით (undefined ან "")
+                  handleSubjectChange(name, "" as unknown as number);
                 }
                 e.target.value = "";
               }}
-              className="w-full py-4 px-4 border border-[#EBEBEB] rounded-[12px] text-[#000000] 
-                text-sm leading-5 font-helveticaneue-regular
-                focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
-                xl:text-base"
+              className="w-full py-4 px-4 border border-[#EBEBEB] rounded-xl text-[#000000] 
+        text-sm leading-5 font-helveticaneue-regular
+        focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+        xl:text-base"
             >
               <option value="">აირჩიეთ საგანი...</option>
               {subjectOptions.map((s) => (
@@ -918,7 +998,7 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
               {getSubjectsValue().map((subject, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-3 p-3 border border-[#EBEBEB] rounded-[12px]"
+                  className="flex items-center gap-3 p-3 border border-[#EBEBEB] rounded-xl"
                 >
                   <span className="flex-1 text-[#0C0F21] font-helveticaneue-regular">
                     {subject.name}
@@ -926,17 +1006,16 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
-                      value={subject.price}
-                      onChange={(e) =>
-                        handleSubjectChange(
-                          subject.name,
-                          Number(e.target.value)
-                        )
-                      }
+                      value={subject.price === 0 ? "" : subject.price}
+                      onChange={(e) => {
+                        const priceValue =
+                          e.target.value === "" ? 0 : Number(e.target.value);
+                        handleSubjectChange(subject.name, priceValue);
+                      }}
                       placeholder="ფასი"
-                      className="w-24 py-2 px-3 border border-[#EBEBEB] rounded-[8px] text-[#000000] 
-                        text-sm leading-5 font-helveticaneue-regular
-                        focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
+                      className="w-24 py-2 px-3 border border-[#EBEBEB] rounded-lg text-[#000000] 
+                text-sm leading-5 font-helveticaneue-regular
+                focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out"
                       min="0"
                     />
                     <span className="text-[#737373] text-sm">₾</span>

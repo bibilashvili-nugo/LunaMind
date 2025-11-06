@@ -43,7 +43,7 @@ const LoginPageClient = () => {
   };
 
   return (
-    <div className="h-screen flex px-4 sm:px-6 lg:px-[44px] w-full gap-6 2xl:px-[152px] 2xl:gap-[44px]">
+    <div className="h-screen flex px-4 sm:px-6 lg:px-11 w-full gap-6 2xl:px-[152px] 2xl:gap-11">
       <div className="pt-8 flex flex-col mx-auto w-full lg:w-[65%] xl:w-1/2">
         {/* Header */}
         <LoginRegisterContentHeader />
@@ -60,7 +60,7 @@ const LoginPageClient = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="ელ.ფოსტა"
-            className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none text-sm leading-5 font-helveticaneue-regular
+            className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-xl focus:outline-none text-sm leading-5 font-helveticaneue-regular
           placeholder:font-helveticaneue-regular placeholder:text-[#737373] placeholder:text-sm placeholder:leading-5
           xl:text-base xl:leading-6"
             required
@@ -72,7 +72,7 @@ const LoginPageClient = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="პაროლი"
-              className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none text-sm leading-5 font-helveticaneue-regular
+              className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-xl focus:outline-none text-sm leading-5 font-helveticaneue-regular
             placeholder:font-helveticaneue-regular placeholder:text-[#737373] placeholder:text-sm placeholder:leading-5
             xl:text-base xl:leading-6"
               required
