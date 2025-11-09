@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AccountCircle } from "../ui/Icons";
+import { AccountCircle, Evectus } from "../ui/Icons";
 import Link from "next/link";
 import { Files, House01, Star, Suitcase, UsersGroup } from "react-coolicons";
 import Image from "next/image";
@@ -15,7 +15,6 @@ interface NavBarProps {
 }
 
 const NavBar = ({ userImage }: NavBarProps) => {
-  console.log(userImage);
   const headerLinks: {
     key: HeaderKey;
     href: string;
@@ -99,10 +98,13 @@ const NavBar = ({ userImage }: NavBarProps) => {
       <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
         <div className="flex items-center justify-between pt-6">
           <div
-            className="text-2xl leading-[100%] font-freeman-regular xl:text-[32px] cursor-pointer lg:block hidden"
+            className="cursor-pointer lg:flex items-center gap-2 hidden"
             onClick={(e) => handleScrollClick(e, "#home")}
           >
-            EVECTUS
+            <Evectus />
+            <span className="text-2xl leading-[100%] font-freeman-regular xl:text-[32px]">
+              EVECTUS
+            </span>
           </div>
 
           <ul className="flex bg-[#F6F7FB] rounded-[50px] p-1 mx-auto">

@@ -27,9 +27,6 @@ const DiscoverEducation = () => {
                 <span className="text-[#0C0F21] text-base leading-6 font-helveticaneue-medium">
                   {item?.title}
                 </span>
-                <p className="text-[#737373] text-sm leading-5">
-                  {item?.description}
-                </p>
               </div>
             </div>
           );

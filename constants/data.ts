@@ -18,7 +18,6 @@ interface SubjectType {
 
 interface DiscoveryEducationItem {
   title: string;
-  description: string;
   icon: string | FC<{ color?: string }>;
   backgroundColor: string;
 }
@@ -41,22 +40,16 @@ export const subjectsData: SubjectType[] = [
 export const discoveryEducationData: DiscoveryEducationItem[] = [
   {
     title: "საკუთარი ცოდნის გაძლიერება სერტიფიცირებული განათლებით",
-    description:
-      "განიცადეთ უნიკალური საგანმანათლებლო მოგზაურობა შეუდარებელი სწავლის მოქნილობისთვის",
     icon: WavyCheck,
     backgroundColor: "#63D49C",
   },
   {
     title: "ინდივიდუალურად მორგებული განათლება ხელმისაწვდომ ფასად",
-    description:
-      "განიცადეთ უნიკალური საგანმანათლებლო მოგზაურობა შეუდარებელი სწავლის მოქნილობისთვის",
     icon: Gift,
     backgroundColor: "rgba(125, 63, 255, 0.97)",
   },
   {
     title: "შეუზღუდავი მოქნილობა და მუდმივად მზარდი გამოცდილება",
-    description:
-      "განიცადეთ უნიკალური საგანმანათლებლო მოგზაურობა შეუდარებელი სწავლის მოქნილობისთვის",
     icon: TrendingUp,
     backgroundColor: "#FF8C38",
   },
@@ -67,8 +60,7 @@ export const whyOurPlatformData: WhyOurPlatform[] = [
     title: "ონლაინ ვიდეო გაკვეთილები",
     description: `Evectus გთავაზობთ ონლაინ გაკვეთილებს, სადაც მოსწავლე იძენს ცოდნას
 პროფესიონალი მასწავლებლებისგან, პირდაპირ ცოცხალ რეჟიმში.
-ყოველი გაკვეთილი მოიცავს ინტერაქტიულ დავალებებს, უკუკავშირსა და
-ვიდეოჩანაწერს, რათა სწავლა იყოს მარტივი და ეფექტური`,
+ყოველი გაკვეთილი მოიცავს ინტერაქტიულ დავალებებს და უკუკავშირს, რათა სწავლა იყოს მარტივი და ეფექტური`,
     color: "#8144FF",
   },
   {

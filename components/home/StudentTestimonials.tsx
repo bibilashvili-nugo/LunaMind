@@ -2,15 +2,16 @@ import Link from "next/link";
 import { SectionHeader } from "../ui/Text";
 import Image from "next/image";
 
-const StudentBox = () => {
+const StudentBox = ({ name, desc }: { name: string; desc: string }) => {
   return (
     <div className="bg-[#ECE3FF] rounded-3xl p-6 flex flex-col gap-[74px] sm:h-[296px] sm:justify-between xl:h-auto">
       <span className="text-[#0C0F21] text-sm leading-5 font-helveticaneue-regular xl:text-base xl:leading-6">
-        “ ცნობილი ფაქტია, რომ გვერდის წაკითხვად შიგთავსს შეუძლია მკითხველის
-        ყურადღება მიიზიდოს და დიზაინის აღქმაში ხელი შეუშალოს “
+        {/* “ ცნობილი ფაქტია, რომ გვერდის წაკითხვად შიგთავსს შეუძლია მკითხველის
+        ყურადღება მიიზიდოს და დიზაინის აღქმაში ხელი შეუშალოს “ */}
+        {`“ ${desc} “`}
       </span>
       <span className="text-[#0C0F21] text-[32px] leading-[32px] font-lgvanastasia-regular">
-        ანა დაუშვილი
+        {name}
       </span>
     </div>
   );
@@ -70,10 +71,24 @@ const StudentTestimonials = ({ id }: { id: string }) => {
           </div>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <StudentBox />
-          <StudentBox />
-          <StudentBox />
-          <StudentBox />
+          <StudentBox
+            name="ლიკა ამაშუკელი"
+            desc="
+რაც ყველაზე მეტად მომწონს შეგიძლია ისწავლო შენი ტემპით. არავინ გაჩქარებს და არც ჩამორჩენის გეშინია."
+          />
+          <StudentBox
+            name="ანუკა ნიკოლაძე"
+            desc="Evectus-ზე სწავლა ბევრად უფრო მარტივი და საინტერესოა, ვიდრე ველოდი. სასიამოვნო გარემოა და ყველაფერს გასაგებად ხსნიან."
+          />
+          <StudentBox
+            name="გიორგი კაპანაძე"
+            desc="პლატფორმა ძალიან მოსახერხებელია – ტელეფონითაც კი შემიძლია გაკვეთილებს ჩავერთო და არაფერი მაფერხებს."
+          />
+          <StudentBox
+            name="ანი ხუციშვილი"
+            desc="Evectus-ზე მასწავლებლები სულ გეხმარებიან, არ გტოვებენ მარტო, სანამ ბოლომდე არ გაიგებ.
+"
+          />
         </div>
       </div>
     </div>

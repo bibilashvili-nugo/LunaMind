@@ -24,8 +24,8 @@ const WhyOurPlatform = ({ id }: { id: string }) => {
           </span>
         </div>
 
-        <p className="text-[#939393] text-sm leading-5 font-helveticaneue-regular lg:w-1/2 xl:pl-0 xl:mt-2">
-          ჩვენ გვჯერა, რომ ტექნოლოგიებს შეუძლიათ სწავლის გამოცდილების შეცვლა
+        <p className="text-[#939393] text-base leading-5 font-helveticaneue-regular lg:w-1/2 xl:pl-0 xl:mt-2">
+          მარტივი გზა ცოდნამდე
         </p>
       </div>
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-2 xl:grid-cols-12">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Evectus } from "../ui/Icons";
 
 const Hero = ({ id }: { id: string }) => {
   return (
@@ -6,9 +7,12 @@ const Hero = ({ id }: { id: string }) => {
       className="flex flex-col items-center justify-center pb-6 lg:mt-[100px]"
       id={id}
     >
-      <span className="font-freeman-regular text-2xl leading-[0] text-[#0C0F21] pt-8 pb-6 sm:text-[32px] sm:pb-8 lg:hidden">
-        EVECTUS
-      </span>
+      <div className="lg:hidden pt-8 pb-6 sm:pb-8 flex gap-2 items-center">
+        <Evectus />
+        <span className="font-freeman-regular text-2xl leading-[0] text-[#0C0F21]  sm:text-[32px]  ">
+          EVECTUS
+        </span>
+      </div>
 
       <div>
         <span
