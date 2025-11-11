@@ -91,11 +91,11 @@ const NavBar = ({ userImage }: NavBarProps) => {
 
   return (
     <div
-      className={`fixed bottom-0 lg:bottom-auto lg:top-0 left-0 w-full pb-[20px] z-50 transition-all duration-300 ${
+      className={`fixed bottom-0 lg:bottom-auto lg:top-0 left-0 w-full pb-5 z-50 transition-all duration-300 ${
         isScrolled ? "lg:bg-white/70 lg:backdrop-blur-md" : "lg:bg-white"
       }`}
     >
-      <div className="px-4 sm:px-6 lg:px-11 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto">
+      <div className="px-4 sm:px-6 lg:px-11 3xl:px-40 max-w-[1920px] 3xl:mx-auto">
         <div className="flex items-center justify-between pt-6">
           <div
             className="cursor-pointer lg:flex items-center gap-2 hidden"

@@ -109,10 +109,12 @@ export const LoginRegisterContentTermsAndPrivacy = ({
   checked,
   onChange,
   text,
+  href,
 }: {
   checked: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   text: string;
+  href: string;
 }) => {
   return (
     <div className="flex items-center space-x-2">
@@ -120,13 +122,18 @@ export const LoginRegisterContentTermsAndPrivacy = ({
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="w-[18px] h-[18px] rounded-[4px] border border-[#EBEBEB]"
+        className="w-[18px] h-[18px] rounded-sm border border-[#EBEBEB]"
       />
       <label className="text-sm leading-5 font-helveticaneue-regular text-[#737373] xl:text-base xl:leading-6">
         ვეთანხმები{" "}
-        <span className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6">
+        <Link
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6"
+        >
           {text}
-        </span>
+        </Link>
       </label>
     </div>
   );

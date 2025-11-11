@@ -213,11 +213,13 @@ const RegistrationForm = () => {
               checked={acceptedTerms}
               onChange={(e) => setAcceptedTerms(e.target.checked)}
               text="წესებს და პირობებს"
+              href={"/terms-and-conditions"}
             />
             <LoginRegisterContentTermsAndPrivacy
               checked={acceptedPrivacy}
               onChange={(e) => setAcceptedPrivacy(e.target.checked)}
               text="კონფიდენციალურობის პოლიტიკას"
+              href={"/confidentiality"}
             />
           </div>
           <button
