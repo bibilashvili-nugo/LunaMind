@@ -386,12 +386,6 @@ const RegistrationForm = () => {
                   : "კოდის მიღება"}
               </button>
             </div>
-            <LoginRegisterContentInput
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="ტელეფონის ნომერი"
-            />
 
             {/* OTP Section */}
             {!otpVerified && (
@@ -425,6 +419,12 @@ const RegistrationForm = () => {
                 </p>
               </div>
             )}
+            <LoginRegisterContentInput
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="ტელეფონის ნომერი"
+            />
 
             <LoginRegisterContentInputPassword
               value={password}
