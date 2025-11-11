@@ -362,12 +362,30 @@ const RegistrationForm = () => {
               onChange={handleFullNameChange}
               type="text"
             />
-            <LoginRegisterContentInput
-              placeholder="ელ.ფოსტა"
-              type="email"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-            />
+            <div className="flex gap-2">
+              <LoginRegisterContentInput
+                placeholder="ელ.ფოსტა"
+                type="email"
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+              />
+              <button
+                type="button"
+                disabled={!isValidEmail || loading || countdown > 0}
+                onClick={handleRequestOtp}
+                className={`px-4 rounded-[40px] text-sm font-helveticaneue-medium min-w-40 ${
+                  isValidEmail && countdown === 0
+                    ? "bg-[#FFD52A] text-[#0C0F21] cursor-pointer"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                {loading
+                  ? "გაგზავნა..."
+                  : countdown > 0
+                  ? `${countdown}წ`
+                  : "კოდის მიღება"}
+              </button>
+            </div>
             <LoginRegisterContentInput
               type="tel"
               value={phone}
@@ -386,22 +404,6 @@ const RegistrationForm = () => {
                     onChange={handleChange(setOtp)}
                   />
                 </div>
-                <button
-                  type="button"
-                  disabled={!isValidEmail || loading || countdown > 0}
-                  onClick={handleRequestOtp}
-                  className={`px-4 rounded-[40px] text-sm font-helveticaneue-medium min-w-[120px] ${
-                    isValidEmail && countdown === 0
-                      ? "bg-[#FFD52A] text-[#0C0F21] cursor-pointer"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  {loading
-                    ? "გაგზავნა..."
-                    : countdown > 0
-                    ? `${countdown}წ`
-                    : "კოდის მიღება"}
-                </button>
               </div>
             )}
 
