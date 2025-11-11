@@ -91,7 +91,7 @@ const NavBar = ({ userImage }: NavBarProps) => {
 
   return (
     <div
-      className={`fixed bottom-0 lg:bottom-auto lg:top-0 left-0 w-full pb-5 z-50 transition-all duration-300 ${
+      className={`fixed bottom-0 lg:bottom-auto lg:top-0 left-0 w-full pb-1 z-50 transition-all duration-300 ${
         isScrolled ? "lg:bg-white/70 lg:backdrop-blur-md" : "lg:bg-white"
       }`}
     >
