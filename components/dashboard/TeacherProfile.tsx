@@ -17,6 +17,7 @@ type TeacherPageProps = {
 
 const TeacherProfile: React.FC<TeacherPageProps> = ({ user }) => {
   const { data: lessons } = useBookedLessons({ teacherId: user?.id });
+
   return (
     <div className="px-4 lg:px-6 bg-[#F6F5FA] 3xl:px-[160px] max-w-[1920px] 3xl:mx-auto pb-[70px] lg:pb-8">
       <NavBar user={user} />

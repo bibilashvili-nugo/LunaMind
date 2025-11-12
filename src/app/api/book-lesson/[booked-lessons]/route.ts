@@ -51,6 +51,7 @@ export async function GET(req: Request) {
       }
     }
 
+    // ✅ ყველა დაჯავშნილი გაკვეთილი, არანაირი დამატებითი ფილტრი
     const bookedLessons = await prisma.bookedLesson.findMany({
       where: whereClause,
       include: {
@@ -59,7 +60,7 @@ export async function GET(req: Request) {
             id: true,
             firstName: true,
             lastName: true,
-            image: true, // ✅ სურათი დაემატა
+            image: true,
           },
         },
         student: {
@@ -67,24 +68,16 @@ export async function GET(req: Request) {
             id: true,
             firstName: true,
             lastName: true,
-            image: true, // ✅ სურათი დაემატა
+            image: true,
           },
         },
       },
-      orderBy: { date: "asc" },
+      orderBy: { date: "asc" }, // სურვილისამებრ
     });
 
-    console.log("📚 All booked lessons:", bookedLessons);
+    console.log("📚 Booked lessons:", bookedLessons);
 
-    const now = new Date();
-
-    const futureLessons = bookedLessons.filter(
-      (lesson) => new Date(lesson.date) >= now
-    );
-
-    console.log("🚀 Future lessons:", futureLessons);
-
-    return NextResponse.json(futureLessons);
+    return NextResponse.json(bookedLessons);
   } catch (error: unknown) {
     console.error("❌ API Error:", error);
     return NextResponse.json(
