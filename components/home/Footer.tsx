@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Facebook, Instagram, TikTok, Youtube } from "../ui/Icons";
+import { Facebook, Instagram } from "../ui/Icons";
 import Link from "next/link";
 
 type SocialMediaIconsProps = {
