@@ -32,7 +32,7 @@ const StudentTestimonials = ({ id }: { id: string }) => {
               className="font-lgvanastasia-regular text-[32px] leading-9 text-[#0C0F21] sm:w-[383px]
              sm:text-[52px] sm:leading-[52px]"
             >
-              გაიმყარე ცოდნა შეოუერთდი ჩვენს სტუდენტებს და დაიწყწე დღესვე
+              გაიმყარე ცოდნა შეოუერთდი ჩვენს სტუდენტებს და დაიწყე დღესვე
             </span>
             <div className="flex flex-col gap-3 items-center sm:flex-row">
               <Link

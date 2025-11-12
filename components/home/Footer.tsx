@@ -73,18 +73,22 @@ const Footer = () => {
               <li className={`${liClass}`}>info@evectus.ge</li>
             </ul>
             <div className="flex gap-3">
-              <SocialMediaIcons>
-                <Facebook />
-              </SocialMediaIcons>
-              <SocialMediaIcons>
-                <Instagram />
-              </SocialMediaIcons>
-              <SocialMediaIcons>
-                <Youtube />
-              </SocialMediaIcons>
-              <SocialMediaIcons>
-                <TikTok />
-              </SocialMediaIcons>
+              <Link
+                target="_blank"
+                href={"https://www.facebook.com/profile.php?id=61583831033359"}
+              >
+                <SocialMediaIcons>
+                  <Facebook />
+                </SocialMediaIcons>
+              </Link>
+              <Link
+                target="_blank"
+                href={"https://www.instagram.com/evectusacademy/"}
+              >
+                <SocialMediaIcons>
+                  <Instagram />
+                </SocialMediaIcons>
+              </Link>
             </div>
           </div>
         </div>
