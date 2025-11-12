@@ -37,18 +37,15 @@ export async function POST(req: NextRequest) {
     // Create transporter with TLS
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: 465,
-      secure: true, // true for 465, false for 587
+      port: Number(process.env.SMTP_PORT),
+      secure: false, // 587 არ არის SSL
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false, // prevents self-signed cert errors
+        user: process.env.SENDGRID_USER,
+        pass: process.env.SENDGRID_PASS,
       },
     });
 
-    // Send email
+    // send mail
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
