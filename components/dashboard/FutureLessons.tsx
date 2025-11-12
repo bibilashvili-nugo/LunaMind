@@ -249,7 +249,7 @@ const FutureLessons = ({
   useClickOutside(editModalRef, () => setEditModalOpen(false));
   useClickOutside(meetingModalRef, () => setMeetingModalOpen(false));
 
-  const { data: bookedLessons } = useBookedLessons({
+  const { data: bookedLessons, isLoading: isLoadingBooked } = useBookedLessons({
     teacherId,
   });
 
@@ -297,12 +297,8 @@ const FutureLessons = ({
         const data: Lesson[] = await res.json();
         console.log("Fetched data:", data);
 
-        // მხოლოდ მომავალი გაკვეთილები
-        const futureLessons = data.filter(
-          (lesson) => new Date(lesson.date) >= new Date()
-        );
-
-        setLessons(futureLessons);
+        // ✅ ყველა გაკვეთილი (ფილტრაციის გარეშე)
+        setLessons(data);
       } catch (error) {
         console.error("Error fetching lessons:", error);
       }
@@ -357,9 +353,15 @@ const FutureLessons = ({
     setLessons((prev) => [...prev, newLesson]);
   };
 
-  const upcomingBookedLessons =
-    bookedLessons?.filter((lesson) => new Date(lesson.date) >= new Date()) ||
-    [];
+  // ✅ ყველა დაჯავშნილი გაკვეთილი (ფილტრაციის გარეშე)
+  const allBookedLessons = bookedLessons || [];
+
+  // Debug log
+  console.log("Booked lessons data:", {
+    allBookedLessons,
+    isLoadingBooked,
+    teacherId,
+  });
 
   return (
     <div
@@ -369,6 +371,7 @@ const FutureLessons = ({
           : "xl:grid-cols-1"
       }`}
     >
+      {/* პირველი ბლოკი - დაჯავშნილი გაკვეთილები */}
       <div
         className={`mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto lg:mt-0 xl:col-span-1 h-fit max-h-[644px] xl:max-h-[680px] ${
           !teacher && "hidden"
@@ -380,38 +383,38 @@ const FutureLessons = ({
             {formattedDate}
           </span>
           <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-            მოახლოებული გაკვეთილები ({upcomingBookedLessons.length})
+            დაჯავშნილი გაკვეთილები ({allBookedLessons.length})
           </span>
         </div>
         <hr className="text-[#EBECF0]" />
-        {teacher && bookedLessons && (
+
+        {isLoadingBooked ? (
+          <div>იტვირთება...</div>
+        ) : teacher ? (
           <>
-            {bookedLessons.filter(
-              (lesson) => new Date(lesson.date) >= new Date()
-            ).length === 0 ? (
+            {allBookedLessons.length === 0 ? (
               <NoContent
-                desc="ჯერ არ გაქვთ დაგეგმილი გაკვეთილები"
+                desc="ჯერ არ გაქვთ დაჯავშნილი გაკვეთილები"
                 needBtn={false}
               />
             ) : (
-              bookedLessons
-                .filter((lesson) => new Date(lesson.date) >= new Date())
-                .map((lesson) => (
-                  <FutureLessonsBox
-                    key={lesson.id}
-                    teacher={teacher}
-                    lesson={lesson}
-                    onOpenMeetingLink={handleOpenMeetingLink}
-                    booked={true}
-                    onDeleteLesson={handleDeleteLesson}
-                    onEditLesson={handleEditLesson}
-                  />
-                ))
+              allBookedLessons.map((lesson) => (
+                <FutureLessonsBox
+                  key={lesson.id}
+                  teacher={teacher}
+                  lesson={lesson}
+                  onOpenMeetingLink={handleOpenMeetingLink}
+                  booked={true}
+                  onDeleteLesson={handleDeleteLesson}
+                  onEditLesson={handleEditLesson}
+                />
+              ))
             )}
           </>
-        )}
+        ) : null}
       </div>
-      {/* second */}
+
+      {/* მეორე ბლოკი - შექმნილი გაკვეთილები */}
       <div
         className="mt-4 bg-white rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto lg:mt-0 xl:col-span-1 h-fit max-h-[644px] xl:max-h-[680px]"
         style={{ boxShadow: "0px 2px 5px 0px rgba(0,0,0,0.05)" }}
@@ -422,7 +425,7 @@ const FutureLessons = ({
               {formattedDate}
             </span>
             <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-              მოახლოებული გაკვეთილები ({lessons.length})
+              შექმნილი გაკვეთილები ({lessons.length})
             </span>
           </div>
           {teacher && (
