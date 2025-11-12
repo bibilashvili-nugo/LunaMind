@@ -53,8 +53,13 @@ export async function POST(req: Request) {
 
     const data = JSON.parse(text);
     return NextResponse.json(data);
-  } catch (error: any) {
-    console.error("💥 createOrder error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("💥 createOrder error:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    } else {
+      console.error("💥 createOrder unknown error:", error);
+      return NextResponse.json({ error: "Unknown error" }, { status: 500 });
+    }
   }
 }

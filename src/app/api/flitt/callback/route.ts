@@ -25,8 +25,13 @@ export async function POST(req: Request) {
       paymentId,
       status,
     });
-  } catch (error: any) {
-    console.error("❌ Callback error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("❌ Callback error:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    } else {
+      console.error("❌ Callback unknown error:", error);
+      return NextResponse.json({ error: "Unknown error" }, { status: 500 });
+    }
   }
 }
