@@ -1,17 +1,30 @@
 // app/api/auth/request-registration-otp/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
-export async function POST(request: NextRequest) {
+export const runtime = "nodejs";
+
+// Load env variables
+const SENDGRID_API_KEY = process.env.SENDGRID_PASS;
+const VERIFIED_SENDER = process.env.SENDGRID_USER; // Must be verified in SendGrid
+
+if (!SENDGRID_API_KEY) {
+  throw new Error("SENDGRID_PASS is not defined in .env");
+}
+if (!VERIFIED_SENDER) {
+  throw new Error("SENDGRID_USER is not defined in .env");
+}
+
+// Set SendGrid API key
+sgMail.setApiKey(SENDGRID_API_KEY);
+
+export async function POST(req: NextRequest) {
   try {
-    const { email, fullName, phone, role } = await request.json();
+    const { email, fullName, phone, role } = await req.json();
 
-    // Check if email already exists in actual users
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    // Check if email already exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
         { message: "ეს ელ.ფოსტა უკვე გამოყენებულია" },
@@ -23,44 +36,25 @@ export async function POST(request: NextRequest) {
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Store additional data in a way that can be retrieved later
-    // We'll store it as JSON in a separate field or use the identifier creatively
+    // Store registration data in JSON format
     const registrationData = JSON.stringify({ fullName, phone, role });
 
     // Delete any existing verification token for this email
-    await prisma.verificationToken.deleteMany({
-      where: { identifier: email },
-    });
+    await prisma.verificationToken.deleteMany({ where: { identifier: email } });
 
-    // Store OTP and registration data in VerificationToken
+    // Store OTP + registration data
     await prisma.verificationToken.create({
       data: {
         identifier: email,
-        token: `${otpCode}|${registrationData}`, // Combine OTP and data
+        token: `${otpCode}|${registrationData}`,
         expires: expiresAt,
       },
     });
 
-    console.log(`OTP for ${email}: ${otpCode}`);
-
-    // Create transporter with TLS
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-
-    // Send email
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    // Send email via SendGrid
+    await sgMail.send({
       to: email,
+      from: VERIFIED_SENDER as string, // verified sender
       subject: "რეგისტრაციის დასადასტურებელი კოდი - Evectus",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
@@ -100,7 +94,7 @@ export async function POST(request: NextRequest) {
       message: "ერთჯერადი კოდი გამოგზავნილია თქვენს ელ.ფოსტაზე",
     });
   } catch (error) {
-    console.error("OTP request error:", error);
+    console.error("Registration OTP error:", error);
     return NextResponse.json(
       { message: "დაფიქსირდა შეცდომა. გთხოვთ სცადოთ თავიდან." },
       { status: 500 }
