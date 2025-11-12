@@ -43,6 +43,9 @@ export async function POST(req: NextRequest) {
         user: process.env.SENDGRID_USER,
         pass: process.env.SENDGRID_PASS,
       },
+      tls: {
+        rejectUnauthorized: false, // აუცილებელია self-signed prevent
+      },
     });
 
     // send mail
