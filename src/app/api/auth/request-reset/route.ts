@@ -1,8 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
 export const runtime = "nodejs";
+
+// Load env variables
+const SENDGRID_API_KEY = process.env.SENDGRID_PASS;
+const VERIFIED_SENDER = process.env.SENDGRID_USER; // Must be verified in SendGrid
+
+if (!SENDGRID_API_KEY) {
+  throw new Error("SENDGRID_PASS is not defined in .env");
+}
+if (!VERIFIED_SENDER) {
+  throw new Error("SENDGRID_USER is not defined in .env");
+}
+
+// Set SendGrid API key
+sgMail.setApiKey(SENDGRID_API_KEY);
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,24 +48,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Create transporter with TLS
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false, // 587 არ არის SSL
-      auth: {
-        user: process.env.SENDGRID_USER,
-        pass: process.env.SENDGRID_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false, // აუცილებელია self-signed prevent
-      },
-    });
-
-    // send mail
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    // Send email via SendGrid
+    await sgMail.send({
       to: email,
+      from: VERIFIED_SENDER as string, // <<< ეს TypeScript-ისთვის გვაჩვენებს, რომ სტრინგია
       subject: "Password Reset OTP",
       text: `Your OTP code is ${otp}. It expires in 5 minutes.`,
     });
