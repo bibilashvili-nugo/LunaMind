@@ -13,6 +13,7 @@ import WhyOurPlatform from "../../../components/home/WhyOurPlatform";
 import VideoLesson from "../../../components/ui/VideoLesson";
 import TutorsInfo from "../../../components/home/TutorsInfo";
 import { getCurrentUser } from "@/lib/session";
+import { FlittPayButton } from "../../../components/FlittPayButton";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -25,6 +26,7 @@ export default async function Home() {
         </div>
         <Hero id="home" />
         <div className="lg:flex lg:gap-6">
+          <FlittPayButton />
           <VideoLesson />
           <div className="lg:order-3 lg:w-[20%] lg:h-full">
             <Tutors />
