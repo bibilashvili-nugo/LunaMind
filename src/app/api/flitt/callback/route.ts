@@ -55,22 +55,10 @@ export async function POST(req: Request) {
       // app/api/flitt/callback/route.ts
       const existingLesson = await prisma.lesson.findFirst({
         where: {
-          OR: [
-            // ჯერ სცადე teacherProfileId-ით
-            {
-              teacherProfileId: orderData.teacherProfileId,
-              subject: orderData.subject,
-              day: orderData.day,
-              time: orderData.time,
-            },
-            // თუ არ მოიძებნა, სცადე teacherId-ით (User ID)
-            {
-              teacherId: orderData.teacherId,
-              subject: orderData.subject,
-              day: orderData.day,
-              time: orderData.time,
-            },
-          ],
+          teacherId: orderData.teacherId, // ✅ მხოლოდ teacherId-ით (User ID)
+          subject: orderData.subject,
+          day: orderData.day,
+          time: orderData.time,
         },
       });
 
