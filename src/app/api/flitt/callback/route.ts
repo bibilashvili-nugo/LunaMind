@@ -1,3 +1,4 @@
+// app/api/flitt/callback/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -7,11 +8,11 @@ export async function POST(req: Request) {
     console.log("🟣 Flitt callback received:", body);
 
     const paymentId = body.payment_id || body.order_id || "unknown";
-    console.log("🔹 Full callback body:", JSON.stringify(body, null, 2));
-    const status = body["status"];
-    const amount = body["amount"];
+    const status = body.status;
+    const amount = body.amount;
 
-    const orderData = body.extraData;
+    // ✅ სწორად ვიღებთ extraData-ს
+    const orderData = body.extraData || body.extra_data;
     console.log("🔹 Order data:", orderData);
 
     console.log(
@@ -22,10 +23,18 @@ export async function POST(req: Request) {
       "Amount:",
       amount
     );
-    // აქ შეგიძლია შენახვა Supabase ან სხვა DB-ში
 
     if (status === "success") {
-      // აქ უნდა შეინახო bookedLesson
+      // ✅ დარწმუნდი რომ lessonId არსებობს
+      if (!orderData?.lessonId) {
+        console.error("❌ Missing lessonId in orderData");
+        return NextResponse.json(
+          { error: "Missing lessonId" },
+          { status: 400 }
+        );
+      }
+
+      // 1. შევქმნათ bookedLesson
       await prisma.bookedLesson.create({
         data: {
           studentId: orderData.studentId,
@@ -41,10 +50,12 @@ export async function POST(req: Request) {
         },
       });
 
-      // Lessons table-დან წაშლა
+      // 2. წავშალოთ lesson
       await prisma.lesson.delete({
         where: { id: orderData.lessonId },
       });
+
+      console.log("✅ Lesson successfully moved to booked lessons");
     }
 
     return NextResponse.json({

@@ -231,6 +231,7 @@ const SingleTeacherRightSide = ({
       return toast.error("გაკვეთილი ვერ მოიძებნა");
     }
 
+    // ✅ ახლა ვამატებთ lessonId-ს extraData-ში
     const orderData = {
       studentId,
       teacherId: teacher.user.id,
@@ -238,10 +239,10 @@ const SingleTeacherRightSide = ({
       day: selectedDay,
       time: selectedTime,
       price: currentPrice,
+      lessonId: selectedLesson.id, // ეს არის ყველაზე მნიშვნელოვანი ცვლილება
     };
 
     try {
-      // 1️⃣ Step: Flitt Payment
       const flittRes = await fetch("/api/flitt/createOrder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -249,10 +250,10 @@ const SingleTeacherRightSide = ({
           amount: currentPrice,
           currency: "GEL",
           order_desc: `გაკვეთილი: ${selectedSubject} ${selectedDay} ${selectedTime}`,
-          extraData: orderData, // გადაგვაქვს booking info
+          extraData: orderData,
         }),
       });
-      console.log(orderData);
+
       const flittData = await flittRes.json();
       const checkoutUrl =
         flittData?.response?.checkout_url || flittData?.checkout_url || null;
@@ -261,13 +262,7 @@ const SingleTeacherRightSide = ({
         return toast.error("გადახდის ლინკის გენერირება ვერ მოხერხდა");
       }
 
-      // 2️⃣ Step: Redirect to Flitt Checkout
       window.location.href = checkoutUrl;
-
-      // **გაკვეთილის დაჯავშნა უნდა მოხდეს Flitt callback-ით**
-      // ანუ მხოლოდ როცა Flitt დააბრუნებს წარმატებულ გადახდას,
-      // აქ მხოლოდ გადამისამართება ხდება, booking-ს API-ს ვერ ვეძახებით პირდაპირ აქ
-      // ის რაც უნდა მოხდეს გადახდის შემდეგ, უნდა მოაქციოთ /api/flitt/callback-ში
     } catch (error) {
       console.error("💥 Flitt payment failed:", error);
       toast.error("გადახდის დაწყება ვერ მოხერხდა");
