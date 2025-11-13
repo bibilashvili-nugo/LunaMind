@@ -4,11 +4,12 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // ✅ params არის Promise
 ) {
   try {
+    const { id } = await params; // ✅ await params
     const teacherProfile = await prisma.teacherProfile.findUnique({
-      where: { userId: params.id },
+      where: { userId: id },
       select: { id: true },
     });
 
@@ -21,6 +22,7 @@ export async function GET(
 
     return NextResponse.json({ teacherProfileId: teacherProfile.id });
   } catch (error) {
+    console.error("Error getting teacher profile:", error);
     return NextResponse.json(
       { error: "Failed to get teacher profile" },
       { status: 500 }
