@@ -29,6 +29,7 @@ export async function POST(req: Request) {
         order_desc,
         amount,
         signature,
+        extraData: body.extraData,
       },
     };
 
