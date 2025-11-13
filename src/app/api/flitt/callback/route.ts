@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    // 🟣 Flitt აგზავნის JSON
+    // 1️⃣ Flitt JSON
     const body = await req.json();
-    console.log(" 11111111111111111111111111შ✅ Received callback:", body);
+    console.log("111111111111111111 ✅ Received callback:", body);
 
     const orderStatus = body.order_status;
     const responseStatus = body.response_status;
@@ -17,104 +17,133 @@ export async function POST(req: Request) {
     console.log("Payment ID:", paymentId);
     console.log("ExtraData param:", extraDataParam);
 
-    // 🧩 extraData parsing
+    // 2️⃣ extraData parsing
     let extraData = null;
+    let reservationData = null;
+
     if (extraDataParam) {
       try {
         extraData = JSON.parse(extraDataParam);
+        console.log("2222222222222222 ✅ Parsed extraData:", extraData);
+
+        if (extraData.reservation_data) {
+          reservationData = JSON.parse(extraData.reservation_data);
+          console.log(
+            "3333333333333333 ✅ Parsed reservationData:",
+            reservationData
+          );
+        }
       } catch (err) {
-        console.error("❌ Error parsing extraData:", err);
+        console.error("❌ Error parsing extraData or reservation_data:", err);
       }
     }
 
-    // ✅ შემოწმება, რომ გადახდა წარმატებულია
+    // 3️⃣ გადახდის შემოწმება
     if (orderStatus === "approved" && responseStatus === "success") {
-      console.log("2222222222222222222✅ Payment approved");
+      console.log("44444444444444 ✅ Payment approved");
 
-      if (!extraData) {
-        console.error("❌ No extraData found, stopping processing");
+      if (!reservationData) {
+        console.error("❌ No reservationData found, stopping processing");
         return NextResponse.json(
-          { message: "Callback received but no extraData" },
-          { status: 200 } // Flitt არ გაიმეორებს
+          { message: "Callback received but no reservationData" },
+          { status: 200 }
         );
       }
 
-      // 🧩 საჭირო ველების შემოწმება
+      // 4️⃣ საჭირო ველების შემოწმება
       if (
-        !extraData.lessonId ||
-        !extraData.studentId ||
-        !extraData.teacherProfileId
+        !reservationData.lessonId ||
+        !reservationData.studentId ||
+        !reservationData.teacherProfileId
       ) {
-        console.error("❌ Missing required fields in extraData:", extraData);
+        console.error(
+          "❌ Missing required fields in reservationData:",
+          reservationData
+        );
         return NextResponse.json(
           { message: "Callback received but missing required fields" },
-          { status: 200 } // Flitt არ გაიმეორებს
+          { status: 200 }
         );
       }
-      console.log("33333333333333333333333333");
-      // 1️⃣ მოძებნე Lesson
+      console.log("55555555555555 ✅ Required fields present");
+
+      // 5️⃣ მოძებნე Lesson
       const existingLesson = await prisma.lesson.findUnique({
-        where: { id: extraData.lessonId },
-        include: { teacher: true },
+        where: { id: reservationData.lessonId },
+        include: {
+          teacher: true,
+          TeacherProfile: {
+            include: {
+              teacherSubjects: true, // price აქედან
+            },
+          },
+        },
       });
-      console.log("444444444444444444444444");
+      console.log("66666666666666 ✅ Lesson fetch attempted");
+
       if (!existingLesson) {
-        console.error("❌ Lesson not found with ID:", extraData.lessonId);
+        console.error("❌ Lesson not found with ID:", reservationData.lessonId);
         return NextResponse.json(
           { message: "Callback received but lesson not found" },
           { status: 200 }
         );
       }
-      console.log("555555555555555555555");
-      // 2️⃣ მოძებნე TeacherProfile
+      console.log("7777777777777 ✅ Lesson found:", existingLesson.id);
+
+      // 6️⃣ მოძებნე TeacherProfile
       const teacherProfile = await prisma.teacherProfile.findUnique({
-        where: { id: extraData.teacherProfileId },
+        where: { id: reservationData.teacherProfileId },
         select: { userId: true },
       });
 
       if (!teacherProfile) {
         console.error(
           "❌ TeacherProfile not found for ID:",
-          extraData.teacherProfileId
+          reservationData.teacherProfileId
         );
         return NextResponse.json(
           { message: "Callback received but teacher profile not found" },
           { status: 200 }
         );
       }
-
       const teacherUserId = teacherProfile.userId;
-      console.log("666666666666666666666666");
-      // 3️⃣ შექმენი BookedLesson
+      console.log("888888888888 ✅ Teacher user ID found:", teacherUserId);
+
+      // 7️⃣ price უსაფრთხოდ
+      let price: number;
+      if (reservationData.price) {
+        price = reservationData.price;
+      } else {
+        // პირველი subject-ის price
+        const teacherSubjects = existingLesson.TeacherProfile.teacherSubjects;
+        price = teacherSubjects?.[0]?.price ?? 0;
+      }
+      console.log("9999999999 ✅ Price calculated:", price);
+
+      // 8️⃣ BookedLesson შექმნა
       await prisma.bookedLesson.create({
         data: {
-          studentId: extraData.studentId,
+          studentId: reservationData.studentId,
           teacherId: teacherUserId,
           subject: existingLesson.subject,
           day: existingLesson.day,
           date: existingLesson.date,
           time: existingLesson.time,
-          price: extraData.price,
+          price,
           duration: existingLesson.duration,
           comment: existingLesson.comment,
           link: existingLesson.link,
         },
       });
+      console.log("101010101010 ✅ BookedLesson created successfully");
 
-      console.log(
-        "7777777777777777777777777777✅ BookedLesson created successfully"
-      );
-
-      // 4️⃣ წაშალე Lesson
+      // 9️⃣ Lesson წაშლა
       await prisma.lesson.delete({ where: { id: existingLesson.id } });
-      console.log(
-        "88888888888888888888888✅ Lesson deleted:",
-        existingLesson.id
-      );
+      console.log("111111111111 ✅ Lesson deleted:", existingLesson.id);
 
       console.log("🎉 Successfully moved lesson to booked lessons!");
 
-      // 🟢 Flitt-თვის დაბრუნება 200 OK
+      // 10️⃣ Flitt 200 OK
       return NextResponse.json(
         { message: "Callback processed successfully" },
         { status: 200 }
