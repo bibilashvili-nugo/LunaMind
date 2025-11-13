@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         order_desc,
         amount,
         signature,
-        extraData: extraDataString, // ✅ ორჯერ encode
+        extraData: JSON.stringify(body.extraData), // ✅ დარწმუნდით რომ string-ია
       },
     };
 

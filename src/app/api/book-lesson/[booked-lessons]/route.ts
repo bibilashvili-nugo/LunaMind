@@ -75,8 +75,6 @@ export async function GET(req: Request) {
       orderBy: { date: "asc" }, // სურვილისამებრ
     });
 
-    console.log("📚 Booked lessons:", bookedLessons);
-
     return NextResponse.json(bookedLessons);
   } catch (error: unknown) {
     console.error("❌ API Error:", error);

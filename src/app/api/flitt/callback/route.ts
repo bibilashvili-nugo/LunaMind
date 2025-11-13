@@ -3,57 +3,79 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
+    // 🟣 Flitt-ის მონაცემები მოდის URL encoded form data-ს სახით
+    const formData = await req.formData();
 
-    // 🟣 Flitt-ის პარამეტრების ამოღება
-    const orderStatus = searchParams.get("order_status");
-    const responseStatus = searchParams.get("response_status");
-    // const paymentId = searchParams.get("payment_id");
-    // const orderId = searchParams.get("order_id");
-    // const amount = searchParams.get("amount");
+    // 🟣 პარამეტრების ამოღება formData-დან
+    const orderStatus = formData.get("order_status") as string;
+    const responseStatus = formData.get("response_status") as string;
+    const paymentId = formData.get("payment_id") as string;
 
-    // Extra data
-    const extraDataParam = searchParams.get("extraData");
+    console.log("1 - POST callback received");
+    console.log("Order Status:", orderStatus);
+    console.log("Response Status:", responseStatus);
+    console.log("Payment ID:", paymentId);
+
+    // Extra data - Flitt-ში extraData მოდის როგორც ჩვეულებრივი პარამეტრი
+    const extraDataParam = formData.get("extraData") as string;
     let extraData = null;
-    console.log(2);
+    console.log("2 - ExtraData param:", extraDataParam);
+
     // 🧩 extraData-ის გაშიფვრა
     try {
       if (extraDataParam) {
-        const decodedOnce = decodeURIComponent(extraDataParam);
-        const decodedTwice = decodeURIComponent(decodedOnce);
-        extraData = JSON.parse(decodedTwice);
-        console.log("✅ Parsed extraData:", extraData);
+        // ცადეთ პირდაპირ JSON.parse (თუ არ არის URL encoded)
+        extraData = JSON.parse(extraDataParam);
+        console.log("✅ Direct JSON parse worked:", extraData);
       }
-    } catch (e) {
-      console.error("❌ Error parsing extraData:", e);
-      console.log(3);
-      // ვცადოთ backup parsing additional_info-დან
-      const additionalInfo = searchParams.get("additional_info");
-      if (additionalInfo) {
-        try {
-          const additionalInfoObj = JSON.parse(additionalInfo);
-          if (
-            additionalInfoObj.reservation_data &&
-            additionalInfoObj.reservation_data !== "{}"
-          ) {
-            extraData = JSON.parse(additionalInfoObj.reservation_data);
+    } catch (directError) {
+      console.log("❌ Direct parse failed, trying URL decode");
+      try {
+        if (extraDataParam) {
+          // URL decode და მერე JSON parse
+          const decoded = decodeURIComponent(extraDataParam);
+          extraData = JSON.parse(decoded);
+          console.log("✅ URL decode + JSON parse worked:", extraData);
+        }
+      } catch (urlDecodeError) {
+        console.error("❌ URL decode also failed:", urlDecodeError);
+
+        // ვცადოთ backup parsing additional_info-დან
+        const additionalInfo = formData.get("additional_info") as string;
+        if (additionalInfo) {
+          try {
+            const additionalInfoObj = JSON.parse(additionalInfo);
+            if (
+              additionalInfoObj.reservation_data &&
+              additionalInfoObj.reservation_data !== "{}"
+            ) {
+              extraData = JSON.parse(additionalInfoObj.reservation_data);
+              console.log("✅ Found extraData in additional_info:", extraData);
+            }
+          } catch (parseError) {
+            console.error("❌ Error parsing additional_info:", parseError);
           }
-        } catch (parseError) {
-          console.error("❌ Error parsing additional_info:", parseError);
         }
       }
     }
-    console.log(4);
+
+    console.log("3 - Final extraData:", extraData);
+
     // 🧠 შეამოწმე რომ გადახდა წარმატებულია
     if (orderStatus === "approved" && responseStatus === "success") {
       if (!extraData) {
         console.error("❌ No extraData found");
-        console.log("🔍 All search params:", Object.fromEntries(searchParams));
+        console.log("🔍 All formData entries:");
+        for (const [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
         return NextResponse.redirect(
           new URL("/payment/error?reason=no_data", req.url)
         );
       }
-      console.log(5);
+
+      console.log("4 - Payment approved, processing...");
+
       // 🧩 აუცილებელი ველების შემოწმება
       if (
         !extraData.lessonId ||
@@ -66,8 +88,9 @@ export async function POST(req: Request) {
         );
       }
 
+      console.log("5 - All required fields present");
       console.log("🔍 Checking if lesson exists...");
-      console.log(6);
+
       // 1️⃣ მოვძებნოთ lesson
       const existingLesson = await prisma.lesson.findUnique({
         where: { id: extraData.lessonId },
@@ -81,14 +104,14 @@ export async function POST(req: Request) {
         );
       }
 
-      console.log("✅ Lesson found:", existingLesson.id);
+      console.log("6 - Lesson found:", existingLesson.id);
 
       // 2️⃣ მოძებნე teacher-ის userId TeacherProfile-იდან
       const teacherProfile = await prisma.teacherProfile.findUnique({
         where: { id: extraData.teacherProfileId },
         select: { userId: true },
       });
-      console.log(7);
+
       if (!teacherProfile) {
         console.error(
           "❌ TeacherProfile not found for ID:",
@@ -100,7 +123,8 @@ export async function POST(req: Request) {
       }
 
       const teacherUserId = teacherProfile.userId;
-      console.log(8);
+      console.log("7 - Teacher user ID found:", teacherUserId);
+
       // 3️⃣ შევქმნათ bookedLesson
       console.log("📝 Creating booked lesson...");
       await prisma.bookedLesson.create({
@@ -118,23 +142,34 @@ export async function POST(req: Request) {
         },
       });
 
-      // 4️⃣ წავშალოთ Lesson
+      console.log("8 - BookedLesson created successfully");
 
+      // 4️⃣ წავშალოთ Lesson
       await prisma.lesson.delete({
         where: { id: existingLesson.id },
       });
-      console.log(9);
-      console.log("✅ Lesson deleted:", existingLesson.id);
+
+      console.log("9 - Lesson deleted:", existingLesson.id);
       console.log("🎉 Successfully moved lesson to booked lessons!");
 
       // ✅ Success redirect
       return NextResponse.redirect(new URL("/payment/success", req.url));
     } else {
       console.log("❌ Payment failed or not approved");
+      console.log(
+        "Order Status:",
+        orderStatus,
+        "Response Status:",
+        responseStatus
+      );
       return NextResponse.redirect(new URL("/payment/failed", req.url));
     }
   } catch (error: unknown) {
     console.error("💥 Callback error:", error);
+    if (error instanceof Error) {
+      console.error("Error details:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     return NextResponse.redirect(new URL("/payment/error", req.url));
   }
 }
