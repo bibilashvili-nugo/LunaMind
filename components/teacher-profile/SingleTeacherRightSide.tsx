@@ -148,6 +148,69 @@ const SingleTeacherRightSide = ({
     toggler(false);
   };
 
+  // const handlePayment = async () => {
+  //   if (!selectedSubject) return toast.error("გთხოვთ, აირჩიოთ საგანი");
+  //   if (!selectedDay) return toast.error("გთხოვთ, აირჩიოთ დღე");
+  //   if (!selectedTime) return toast.error("გთხოვთ, აირჩიოთ დრო");
+  //   if (!acceptedTerms)
+  //     return toast.error("გთხოვთ, დაეთანხმეთ პირობებს და წესებს");
+  //   if (!acceptedPrivacy)
+  //     return toast.error("გთხოვთ, დაეთანხმეთ კონფიდენციალურობის პოლიტიკას");
+
+  //   // იპოვე შერჩეული ლესონი დეტალებით
+  //   const selectedLesson = teacher.lessons.find(
+  //     (lesson) =>
+  //       lesson.subject === selectedSubject &&
+  //       lesson.day === selectedDay &&
+  //       lesson.time === selectedTime
+  //   );
+
+  //   if (!selectedLesson) {
+  //     return toast.error("გაკვეთილი ვერ მოიძებნა");
+  //   }
+
+  //   const orderData = {
+  //     studentId,
+  //     teacherId: teacher.user.id,
+  //     subject: selectedSubject,
+  //     day: selectedDay,
+  //     time: selectedTime,
+  //     price: currentPrice,
+  //   };
+
+  //   // გადახდა
+  //   // აქ დაამატე გადახდის ლოგიკაა თქო
+
+  //   try {
+  //     const response = await fetch("/api/book-lesson", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(orderData),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (!response.ok)
+  //       throw new Error(data.error || "შეცდომა გაკვეთილის დასაწერად");
+
+  //     toast.success(
+  //       `გაკვეთილი წარმატებით დაინიშნა! მასწავლებელი: ${teacher.user.firstName} ${teacher.user.lastName}, საგანი: ${selectedSubject}, დრო: ${selectedDay} ${selectedTime}, ფასი: ${currentPrice}₾`,
+  //       { duration: 6000 }
+  //     );
+
+  //     router.push("/dashboard");
+  //   } catch (error: unknown) {
+  //     if (error instanceof Error) {
+  //       toast.error(error.message);
+  //       console.error(error.message);
+  //     } else {
+  //       toast.error("შეცდომა მოხდა");
+  //       console.error(error);
+  //     }
+  //   }
+  // };
+
+  /// ვ2
   const handlePayment = async () => {
     if (!selectedSubject) return toast.error("გთხოვთ, აირჩიოთ საგანი");
     if (!selectedDay) return toast.error("გთხოვთ, აირჩიოთ დღე");
@@ -157,7 +220,6 @@ const SingleTeacherRightSide = ({
     if (!acceptedPrivacy)
       return toast.error("გთხოვთ, დაეთანხმეთ კონფიდენციალურობის პოლიტიკას");
 
-    // იპოვე შერჩეული ლესონი დეტალებით
     const selectedLesson = teacher.lessons.find(
       (lesson) =>
         lesson.subject === selectedSubject &&
@@ -179,31 +241,36 @@ const SingleTeacherRightSide = ({
     };
 
     try {
-      const response = await fetch("/api/book-lesson", {
+      // 1️⃣ Step: Flitt Payment
+      const flittRes = await fetch("/api/flitt/createOrder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({
+          amount: currentPrice,
+          currency: "GEL",
+          order_desc: `გაკვეთილი: ${selectedSubject} ${selectedDay} ${selectedTime}`,
+          extraData: orderData, // გადაგვაქვს booking info
+        }),
       });
+      console.log(orderData);
+      const flittData = await flittRes.json();
+      const checkoutUrl =
+        flittData?.response?.checkout_url || flittData?.checkout_url || null;
 
-      const data = await response.json();
-
-      if (!response.ok)
-        throw new Error(data.error || "შეცდომა გაკვეთილის დასაწერად");
-
-      toast.success(
-        `გაკვეთილი წარმატებით დაინიშნა! მასწავლებელი: ${teacher.user.firstName} ${teacher.user.lastName}, საგანი: ${selectedSubject}, დრო: ${selectedDay} ${selectedTime}, ფასი: ${currentPrice}₾`,
-        { duration: 6000 }
-      );
-
-      router.push("/dashboard");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-        console.error(error.message);
-      } else {
-        toast.error("შეცდომა მოხდა");
-        console.error(error);
+      if (!checkoutUrl) {
+        return toast.error("გადახდის ლინკის გენერირება ვერ მოხერხდა");
       }
+
+      // 2️⃣ Step: Redirect to Flitt Checkout
+      window.location.href = checkoutUrl;
+
+      // **გაკვეთილის დაჯავშნა უნდა მოხდეს Flitt callback-ით**
+      // ანუ მხოლოდ როცა Flitt დააბრუნებს წარმატებულ გადახდას,
+      // აქ მხოლოდ გადამისამართება ხდება, booking-ს API-ს ვერ ვეძახებით პირდაპირ აქ
+      // ის რაც უნდა მოხდეს გადახდის შემდეგ, უნდა მოაქციოთ /api/flitt/callback-ში
+    } catch (error) {
+      console.error("💥 Flitt payment failed:", error);
+      toast.error("გადახდის დაწყება ვერ მოხერხდა");
     }
   };
 
