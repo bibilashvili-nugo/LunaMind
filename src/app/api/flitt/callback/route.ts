@@ -3,110 +3,70 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    // 🟣 Flitt-ის მონაცემები მოდის URL encoded form data-ს სახით
-    const formData = await req.formData();
+    // 🟣 Flitt აგზავნის JSON
+    const body = await req.json();
+    console.log(" 11111111111111111111111111შ✅ Received callback:", body);
 
-    // 🟣 პარამეტრების ამოღება formData-დან
-    const orderStatus = formData.get("order_status") as string;
-    const responseStatus = formData.get("response_status") as string;
-    const paymentId = formData.get("payment_id") as string;
+    const orderStatus = body.order_status;
+    const responseStatus = body.response_status;
+    const paymentId = body.payment_id;
+    const extraDataParam = body.merchant_data || body.additional_info;
 
-    console.log("1 - POST callback received");
     console.log("Order Status:", orderStatus);
     console.log("Response Status:", responseStatus);
     console.log("Payment ID:", paymentId);
+    console.log("ExtraData param:", extraDataParam);
 
-    // Extra data - Flitt-ში extraData მოდის როგორც ჩვეულებრივი პარამეტრი
-    const extraDataParam = formData.get("extraData") as string;
+    // 🧩 extraData parsing
     let extraData = null;
-    console.log("2 - ExtraData param:", extraDataParam);
-
-    // 🧩 extraData-ის გაშიფვრა
-    try {
-      if (extraDataParam) {
-        // ცადეთ პირდაპირ JSON.parse (თუ არ არის URL encoded)
-        extraData = JSON.parse(extraDataParam);
-        console.log("✅ Direct JSON parse worked:", extraData);
-      }
-    } catch (directError) {
-      console.log("❌ Direct parse failed, trying URL decode");
+    if (extraDataParam) {
       try {
-        if (extraDataParam) {
-          // URL decode და მერე JSON parse
-          const decoded = decodeURIComponent(extraDataParam);
-          extraData = JSON.parse(decoded);
-          console.log("✅ URL decode + JSON parse worked:", extraData);
-        }
-      } catch (urlDecodeError) {
-        console.error("❌ URL decode also failed:", urlDecodeError);
-
-        // ვცადოთ backup parsing additional_info-დან
-        const additionalInfo = formData.get("additional_info") as string;
-        if (additionalInfo) {
-          try {
-            const additionalInfoObj = JSON.parse(additionalInfo);
-            if (
-              additionalInfoObj.reservation_data &&
-              additionalInfoObj.reservation_data !== "{}"
-            ) {
-              extraData = JSON.parse(additionalInfoObj.reservation_data);
-              console.log("✅ Found extraData in additional_info:", extraData);
-            }
-          } catch (parseError) {
-            console.error("❌ Error parsing additional_info:", parseError);
-          }
-        }
+        extraData = JSON.parse(extraDataParam);
+      } catch (err) {
+        console.error("❌ Error parsing extraData:", err);
       }
     }
 
-    console.log("3 - Final extraData:", extraData);
-
-    // 🧠 შეამოწმე რომ გადახდა წარმატებულია
+    // ✅ შემოწმება, რომ გადახდა წარმატებულია
     if (orderStatus === "approved" && responseStatus === "success") {
+      console.log("2222222222222222222✅ Payment approved");
+
       if (!extraData) {
-        console.error("❌ No extraData found");
-        console.log("🔍 All formData entries:");
-        for (const [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
-        }
-        return NextResponse.redirect(
-          new URL("/payment/error?reason=no_data", req.url)
+        console.error("❌ No extraData found, stopping processing");
+        return NextResponse.json(
+          { message: "Callback received but no extraData" },
+          { status: 200 } // Flitt არ გაიმეორებს
         );
       }
 
-      console.log("4 - Payment approved, processing...");
-
-      // 🧩 აუცილებელი ველების შემოწმება
+      // 🧩 საჭირო ველების შემოწმება
       if (
         !extraData.lessonId ||
         !extraData.studentId ||
         !extraData.teacherProfileId
       ) {
         console.error("❌ Missing required fields in extraData:", extraData);
-        return NextResponse.redirect(
-          new URL("/payment/error?reason=missing_data", req.url)
+        return NextResponse.json(
+          { message: "Callback received but missing required fields" },
+          { status: 200 } // Flitt არ გაიმეორებს
         );
       }
-
-      console.log("5 - All required fields present");
-      console.log("🔍 Checking if lesson exists...");
-
-      // 1️⃣ მოვძებნოთ lesson
+      console.log("33333333333333333333333333");
+      // 1️⃣ მოძებნე Lesson
       const existingLesson = await prisma.lesson.findUnique({
         where: { id: extraData.lessonId },
         include: { teacher: true },
       });
-
+      console.log("444444444444444444444444");
       if (!existingLesson) {
         console.error("❌ Lesson not found with ID:", extraData.lessonId);
-        return NextResponse.redirect(
-          new URL("/payment/error?reason=lesson_not_found", req.url)
+        return NextResponse.json(
+          { message: "Callback received but lesson not found" },
+          { status: 200 }
         );
       }
-
-      console.log("6 - Lesson found:", existingLesson.id);
-
-      // 2️⃣ მოძებნე teacher-ის userId TeacherProfile-იდან
+      console.log("555555555555555555555");
+      // 2️⃣ მოძებნე TeacherProfile
       const teacherProfile = await prisma.teacherProfile.findUnique({
         where: { id: extraData.teacherProfileId },
         select: { userId: true },
@@ -117,59 +77,60 @@ export async function POST(req: Request) {
           "❌ TeacherProfile not found for ID:",
           extraData.teacherProfileId
         );
-        return NextResponse.redirect(
-          new URL("/payment/error?reason=teacher_not_found", req.url)
+        return NextResponse.json(
+          { message: "Callback received but teacher profile not found" },
+          { status: 200 }
         );
       }
 
       const teacherUserId = teacherProfile.userId;
-      console.log("7 - Teacher user ID found:", teacherUserId);
-
-      // 3️⃣ შევქმნათ bookedLesson
-      console.log("📝 Creating booked lesson...");
+      console.log("666666666666666666666666");
+      // 3️⃣ შექმენი BookedLesson
       await prisma.bookedLesson.create({
         data: {
           studentId: extraData.studentId,
-          teacherId: teacherUserId, // ✅ ეს უნდა იყოს User.id
+          teacherId: teacherUserId,
           subject: existingLesson.subject,
           day: existingLesson.day,
           date: existingLesson.date,
           time: existingLesson.time,
-          price: extraData.price || existingLesson.duration * 25,
+          price: extraData.price,
           duration: existingLesson.duration,
           comment: existingLesson.comment,
           link: existingLesson.link,
         },
       });
 
-      console.log("8 - BookedLesson created successfully");
+      console.log(
+        "7777777777777777777777777777✅ BookedLesson created successfully"
+      );
 
-      // 4️⃣ წავშალოთ Lesson
-      await prisma.lesson.delete({
-        where: { id: existingLesson.id },
-      });
+      // 4️⃣ წაშალე Lesson
+      await prisma.lesson.delete({ where: { id: existingLesson.id } });
+      console.log(
+        "88888888888888888888888✅ Lesson deleted:",
+        existingLesson.id
+      );
 
-      console.log("9 - Lesson deleted:", existingLesson.id);
       console.log("🎉 Successfully moved lesson to booked lessons!");
 
-      // ✅ Success redirect
-      return NextResponse.redirect(new URL("/payment/success", req.url));
-    } else {
-      console.log("❌ Payment failed or not approved");
-      console.log(
-        "Order Status:",
-        orderStatus,
-        "Response Status:",
-        responseStatus
+      // 🟢 Flitt-თვის დაბრუნება 200 OK
+      return NextResponse.json(
+        { message: "Callback processed successfully" },
+        { status: 200 }
       );
-      return NextResponse.redirect(new URL("/payment/failed", req.url));
+    } else {
+      console.log("❌ Payment not approved or failed");
+      return NextResponse.json(
+        { message: "Payment not approved" },
+        { status: 200 }
+      );
     }
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("💥 Callback error:", error);
-    if (error instanceof Error) {
-      console.error("Error details:", error.message);
-      console.error("Error stack:", error.stack);
-    }
-    return NextResponse.redirect(new URL("/payment/error", req.url));
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
