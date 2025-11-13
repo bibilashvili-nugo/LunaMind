@@ -235,13 +235,17 @@ const SingleTeacherRightSide = ({
     const orderData = {
       studentId,
       teacherId: teacher.user.id,
+      teacherProfileId: teacher.id, // TeacherProfile-ის ID
       subject: selectedSubject,
       day: selectedDay,
       time: selectedTime,
       price: currentPrice,
-      lessonId: selectedLesson.id, // ეს არის ყველაზე მნიშვნელოვანი ცვლილება
+      lessonId: selectedLesson.id, // Lesson-ის ID
+      date: new Date(), // ვიყენებთ მიმდინარე თარიღს, რადგან selectedLesson-ს არ აქვს date
+      duration: selectedLesson.duration || 1, // duration აქვს
     };
 
+    console.log("📦 Order data being sent:", orderData);
     try {
       const flittRes = await fetch("/api/flitt/createOrder", {
         method: "POST",

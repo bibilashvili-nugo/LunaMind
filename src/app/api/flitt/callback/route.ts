@@ -2,30 +2,19 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+// app/api/flitt/callback/route.ts
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log("🟣 Flitt callback received:", body);
 
-    const paymentId = body.payment_id || body.order_id || "unknown";
     const status = body.status;
-    const amount = body.amount;
-
-    // ✅ სწორად ვიღებთ extraData-ს
     const orderData = body.extraData || body.extra_data;
+
     console.log("🔹 Order data:", orderData);
 
-    console.log(
-      "💰 Payment ID:",
-      paymentId,
-      "Status:",
-      status,
-      "Amount:",
-      amount
-    );
-
     if (status === "success") {
-      // ✅ დარწმუნდი რომ lessonId არსებობს
+      // ✅ ვალიდაცია - შევამოწმოთ რომ ყველა საჭირო ველი არსებობს
       if (!orderData?.lessonId) {
         console.error("❌ Missing lessonId in orderData");
         return NextResponse.json(
@@ -34,7 +23,15 @@ export async function POST(req: Request) {
         );
       }
 
-      // 1. შევქმნათ bookedLesson
+      if (!orderData?.teacherProfileId) {
+        console.error("❌ Missing teacherProfileId in orderData");
+        return NextResponse.json(
+          { error: "Missing teacherProfileId" },
+          { status: 400 }
+        );
+      }
+
+      // 1. ჯერ შევქმნათ bookedLesson
       await prisma.bookedLesson.create({
         data: {
           studentId: orderData.studentId,
@@ -50,26 +47,29 @@ export async function POST(req: Request) {
         },
       });
 
+      console.log("✅ BookedLesson created");
+
       // 2. წავშალოთ lesson
-      await prisma.lesson.delete({
-        where: { id: orderData.lessonId },
+      const deletedLesson = await prisma.lesson.delete({
+        where: {
+          id: orderData.lessonId,
+          // დამატებითი ვალიდაცია - დარწმუნდეთ რომ ეს lesson სწორი მასწავლებლისაა
+          teacherProfileId: orderData.teacherProfileId,
+        },
       });
 
-      console.log("✅ Lesson successfully moved to booked lessons");
+      console.log("✅ Lesson deleted:", deletedLesson.id);
     }
 
     return NextResponse.json({
-      message: "Callback received",
-      paymentId,
-      status,
+      message: "Callback processed successfully",
+      status: status,
     });
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("❌ Callback error:", error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    } else {
-      console.error("❌ Callback unknown error:", error);
-      return NextResponse.json({ error: "Unknown error" }, { status: 500 });
-    }
+    console.error("❌ Callback error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
