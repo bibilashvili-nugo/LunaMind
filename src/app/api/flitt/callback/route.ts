@@ -50,6 +50,27 @@ export async function POST(req: Request) {
 
       if (!existingLesson) {
         console.error("❌ Lesson not found:", orderData.lessonId);
+
+        // ✅ შევამოწმოთ უკვე არსებობს თუ არა bookedLesson
+        const existingBookedLesson = await prisma.bookedLesson.findFirst({
+          where: {
+            studentId: orderData.studentId,
+            teacherId: orderData.teacherId,
+            subject: orderData.subject,
+            day: orderData.day,
+            time: orderData.time,
+          },
+        });
+
+        if (existingBookedLesson) {
+          console.log("✅ BookedLesson already exists, skipping...");
+          return NextResponse.json({
+            message: "BookedLesson already exists",
+            paymentId,
+            status,
+          });
+        }
+
         return NextResponse.json(
           { error: "Lesson not found" },
           { status: 404 }
@@ -103,9 +124,30 @@ export async function POST(req: Request) {
       console.error("❌ Error details:", error.message);
       console.error("❌ Error stack:", error.stack);
 
-      // Prisma error-ების დეტალები
-      if (error.message.includes("prisma") || error.message.includes("P")) {
-        console.error("❌ Prisma error detected");
+      // Unique constraint error (უკვე არსებობს)
+      if (
+        error.message.includes("Unique constraint") ||
+        error.message.includes("P2002")
+      ) {
+        console.log(
+          "ℹ️ BookedLesson already exists, this is normal for duplicate callbacks"
+        );
+        return NextResponse.json({
+          message: "BookedLesson already exists",
+        });
+      }
+
+      // Record not found (lesson უკვე წაშლილია)
+      if (
+        error.message.includes("Record to delete does not exist") ||
+        error.message.includes("P2025")
+      ) {
+        console.log(
+          "ℹ️ Lesson already deleted, this is normal for duplicate callbacks"
+        );
+        return NextResponse.json({
+          message: "Lesson already deleted",
+        });
       }
     }
 
