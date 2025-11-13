@@ -231,21 +231,20 @@ const SingleTeacherRightSide = ({
       return toast.error("გაკვეთილი ვერ მოიძებნა");
     }
 
-    // ✅ ახლა ვამატებთ lessonId-ს extraData-ში
+    // ✅ სწორი orderData ყველა საჭირო ველით
     const orderData = {
       studentId,
-      teacherId: teacher.user.id,
-      teacherProfileId: teacher.id, // TeacherProfile-ის ID
+      teacherId: teacher.user.id, // User ID
+      teacherProfileId: teacher.id, // TeacherProfile ID (ეს არის ყველაზე მნიშვნელოვანი!)
       subject: selectedSubject,
       day: selectedDay,
       time: selectedTime,
       price: currentPrice,
-      lessonId: selectedLesson.id, // Lesson-ის ID
-      date: new Date(), // ვიყენებთ მიმდინარე თარიღს, რადგან selectedLesson-ს არ აქვს date
-      duration: selectedLesson.duration || 1, // duration აქვს
+      lessonId: selectedLesson.id, // Lesson ID
     };
 
     console.log("📦 Order data being sent:", orderData);
+
     try {
       const flittRes = await fetch("/api/flitt/createOrder", {
         method: "POST",
