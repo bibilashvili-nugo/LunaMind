@@ -2,47 +2,74 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// app/api/flitt/callback/route.ts
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
-    const body = await req.json();
-    console.log("🟣 Flitt callback received:", JSON.stringify(body, null, 2));
+    const { searchParams } = new URL(req.url);
 
-    const paymentId = body.payment_id || body.order_id || "unknown";
-    const status = body.status;
-    const amount = body.amount;
+    // Flitt-ის პარამეტრების ამოღება URL-დან
+    const orderStatus = searchParams.get("order_status");
+    const responseStatus = searchParams.get("response_status");
+    const paymentId = searchParams.get("payment_id");
+    const orderId = searchParams.get("order_id");
+    const amount = searchParams.get("amount");
 
-    const orderData = body.extraData || body.extra_data;
-    console.log("🔹 Order data from callback:", orderData);
+    // extraData ამოღება - ეს არის ცალკე პარამეტრი
+    const extraDataParam = searchParams.get("extraData");
+    let extraData = null;
 
-    console.log(
-      "💰 Payment ID:",
-      paymentId,
-      "Status:",
-      status,
-      "Amount:",
-      amount
-    );
+    console.log("🟣 Flitt GET callback received:");
+    console.log("Order Status:", orderStatus);
+    console.log("Response Status:", responseStatus);
+    console.log("Payment ID:", paymentId);
+    console.log("Order ID:", orderId);
+    console.log("Amount:", amount);
+    console.log("Extra Data Parameter:", extraDataParam);
 
-    if (status === "success") {
-      if (!orderData) {
-        console.error("❌ orderData is undefined");
-        return NextResponse.json(
-          { error: "Missing orderData" },
-          { status: 400 }
+    try {
+      if (extraDataParam) {
+        // URL decode და JSON parse
+        const decodedData = decodeURIComponent(extraDataParam);
+        extraData = JSON.parse(decodedData);
+        console.log("✅ Parsed extraData:", extraData);
+      }
+    } catch (e) {
+      console.error("❌ Error parsing extraData:", e);
+      // ვცადოთ დამატებითი ინფორმაციიდან ამოღება
+      const additionalInfo = searchParams.get("additional_info");
+      if (additionalInfo) {
+        try {
+          const additionalInfoObj = JSON.parse(additionalInfo);
+          if (
+            additionalInfoObj.reservation_data &&
+            additionalInfoObj.reservation_data !== "{}"
+          ) {
+            extraData = JSON.parse(additionalInfoObj.reservation_data);
+          }
+        } catch (parseError) {
+          console.error("❌ Error parsing additional_info:", parseError);
+        }
+      }
+    }
+
+    // დავრწმუნდეთ რომ გადახდა წარმატებულია
+    if (orderStatus === "approved" && responseStatus === "success") {
+      if (!extraData) {
+        console.error("❌ No extraData found");
+        console.log("🔍 All search params:", Object.fromEntries(searchParams));
+        return NextResponse.redirect(
+          new URL("/payment/error?reason=no_data", req.url)
         );
       }
 
       // ✅ დაამატე lessonId validation
       if (
-        !orderData.lessonId ||
-        !orderData.studentId ||
-        !orderData.teacherProfileId
+        !extraData.lessonId ||
+        !extraData.studentId ||
+        !extraData.teacherProfileId
       ) {
-        console.error("❌ Missing required fields:", orderData);
-        return NextResponse.json(
-          { error: "Missing lessonId, studentId or teacherProfileId" },
-          { status: 400 }
+        console.error("❌ Missing required fields:", extraData);
+        return NextResponse.redirect(
+          new URL("/payment/error?reason=missing_data", req.url)
         );
       }
 
@@ -50,33 +77,32 @@ export async function POST(req: Request) {
 
       // 1. მოვძებნოთ lesson
       const existingLesson = await prisma.lesson.findUnique({
-        where: { id: orderData.lessonId },
+        where: { id: extraData.lessonId },
         include: {
-          teacher: true, // User-ის ინფორმაციაც დაგვჭირდება
+          teacher: true,
         },
       });
 
       if (!existingLesson) {
-        console.error("❌ Lesson not found with ID:", orderData.lessonId);
-        return NextResponse.json(
-          { error: "Lesson not found" },
-          { status: 404 }
+        console.error("❌ Lesson not found with ID:", extraData.lessonId);
+        return NextResponse.redirect(
+          new URL("/payment/error?reason=lesson_not_found", req.url)
         );
       }
 
       console.log("✅ Lesson found:", existingLesson.id);
 
-      // 2. შევქმნათ bookedLesson - გამოიყენე სწორი teacherId (TeacherProfile ID)
+      // 2. შევქმნათ bookedLesson
       console.log("📝 Creating booked lesson...");
       const bookedLesson = await prisma.bookedLesson.create({
         data: {
-          studentId: orderData.studentId,
-          teacherId: orderData.teacherProfileId, // ✅ TeacherProfile ID
+          studentId: extraData.studentId,
+          teacherId: extraData.teacherProfileId,
           subject: existingLesson.subject,
           day: existingLesson.day,
           date: existingLesson.date,
           time: existingLesson.time,
-          price: orderData.price || existingLesson.duration * 25,
+          price: extraData.price || existingLesson.duration * 25,
           duration: existingLesson.duration,
           comment: existingLesson.comment,
           link: existingLesson.link,
@@ -93,18 +119,15 @@ export async function POST(req: Request) {
 
       console.log("✅ Lesson deleted:", existingLesson.id);
       console.log("🎉 Successfully moved lesson to booked lessons!");
-    }
 
-    return NextResponse.json({
-      message: "Callback processed successfully",
-      paymentId,
-      status,
-    });
+      // Redirect to success page
+      return NextResponse.redirect(new URL("/payment/success", req.url));
+    } else {
+      console.log("❌ Payment failed or pending");
+      return NextResponse.redirect(new URL("/payment/failed", req.url));
+    }
   } catch (error: unknown) {
     console.error("❌ Callback error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.redirect(new URL("/payment/error", req.url));
   }
 }
