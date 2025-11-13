@@ -1,4 +1,4 @@
-// app/api/flitt/callback/route.ts
+// app/api/flitt/callback/route.ts - შეცვალე ასე
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -11,7 +11,6 @@ export async function POST(req: Request) {
     const status = body.status;
     const amount = body.amount;
 
-    // ✅ სწორად ვიღებთ extraData-ს
     const orderData = body.extraData || body.extra_data;
     console.log("🔹 Order data from callback:", orderData);
 
@@ -25,7 +24,6 @@ export async function POST(req: Request) {
     );
 
     if (status === "success") {
-      // ✅ ვალიდაცია - შევამოწმოთ რომ orderData არსებობს
       if (!orderData) {
         console.error("❌ orderData is undefined");
         return NextResponse.json(
@@ -34,17 +32,11 @@ export async function POST(req: Request) {
         );
       }
 
-      if (
-        !orderData.studentId ||
-        !orderData.teacherId ||
-        !orderData.subject ||
-        !orderData.day ||
-        !orderData.time ||
-        !orderData.price
-      ) {
-        console.error("❌ Missing required fields in orderData:", orderData);
+      // ✅ დაამატე lessonId validation
+      if (!orderData.lessonId || !orderData.studentId) {
+        console.error("❌ Missing lessonId or studentId:", orderData);
         return NextResponse.json(
-          { error: "Missing required fields" },
+          { error: "Missing lessonId or studentId" },
           { status: 400 }
         );
       }
@@ -52,15 +44,12 @@ export async function POST(req: Request) {
       console.log("🔍 Checking if lesson exists...");
 
       // 1. მოვძებნოთ lesson
-      // app/api/flitt/callback/route.ts
       const existingLesson = await prisma.lesson.findUnique({
-        where: {
-          id: orderData.lessonId, // ✅ პირდაპირ lessonId-ით
-        },
+        where: { id: orderData.lessonId },
       });
 
       if (!existingLesson) {
-        console.error("❌ Lesson not found");
+        console.error("❌ Lesson not found with ID:", orderData.lessonId);
         return NextResponse.json(
           { error: "Lesson not found" },
           { status: 404 }
@@ -69,17 +58,17 @@ export async function POST(req: Request) {
 
       console.log("✅ Lesson found:", existingLesson.id);
 
-      // 2. შევქმნათ bookedLesson
+      // 2. შევქმნათ bookedLesson - გამოიყენე lesson-ის მონაცემები!
       console.log("📝 Creating booked lesson...");
       const bookedLesson = await prisma.bookedLesson.create({
         data: {
           studentId: orderData.studentId,
-          teacherId: orderData.teacherId,
-          subject: orderData.subject,
-          day: orderData.day,
+          teacherId: existingLesson.teacherId, // ✅ lesson-დან
+          subject: existingLesson.subject, // ✅ lesson-დან (არა orderData-დან)
+          day: existingLesson.day, // ✅ lesson-დან (არა orderData-დან)
           date: existingLesson.date,
-          time: orderData.time,
-          price: orderData.price,
+          time: existingLesson.time, // ✅ lesson-დან (არა orderData-დან)
+          price: orderData.price || existingLesson.duration * 25, // fallback
           duration: existingLesson.duration,
           comment: existingLesson.comment,
           link: existingLesson.link,
