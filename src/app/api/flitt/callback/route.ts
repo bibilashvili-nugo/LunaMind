@@ -53,12 +53,9 @@ export async function POST(req: Request) {
 
       // 1. მოვძებნოთ lesson
       // app/api/flitt/callback/route.ts
-      const existingLesson = await prisma.lesson.findFirst({
+      const existingLesson = await prisma.lesson.findUnique({
         where: {
-          teacherId: orderData.teacherId, // ✅ მხოლოდ teacherId-ით (User ID)
-          subject: orderData.subject,
-          day: orderData.day,
-          time: orderData.time,
+          id: orderData.lessonId, // ✅ პირდაპირ lessonId-ით
         },
       });
 
