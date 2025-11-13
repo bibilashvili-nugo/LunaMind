@@ -26,6 +26,17 @@ export async function POST(req: Request) {
       .update(signatureString)
       .digest("hex");
 
+    const extraData = {
+      lessonId: body.lessonId,
+      studentId: body.studentId,
+      teacherProfileId: body.teacherProfileId,
+      price: body.price,
+    };
+
+    const reservationBase64 = Buffer.from(JSON.stringify(extraData)).toString(
+      "base64"
+    );
+
     const requestBody = {
       request: {
         server_callback_url,
@@ -35,7 +46,9 @@ export async function POST(req: Request) {
         order_desc,
         amount,
         signature,
-        extraData: JSON.stringify(body.extraData), // ✅ დარწმუნდით რომ string-ია
+
+        // FIX
+        reservation_data: reservationBase64,
       },
     };
 
