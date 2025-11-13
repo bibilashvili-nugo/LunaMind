@@ -210,6 +210,17 @@ const SingleTeacherRightSide = ({
   //   }
   // };
 
+  const getTeacherProfileId = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/teachers/${userId}/profile`);
+      const data = await response.json();
+      return data.teacherProfileId;
+    } catch (error) {
+      console.error("Failed to get teacher profile ID:", error);
+      return "cmhxghbe30009mitnmbonvflf"; // fallback
+    }
+  };
+
   /// ვ2
   const handlePayment = async () => {
     if (!selectedSubject) return toast.error("გთხოვთ, აირჩიოთ საგანი");
@@ -231,11 +242,13 @@ const SingleTeacherRightSide = ({
       return toast.error("გაკვეთილი ვერ მოიძებნა");
     }
 
+    const teacherProfileId = await getTeacherProfileId(teacher.user.id);
+
     // ✅ სწორი orderData ყველა საჭირო ველით
     const orderData = {
       studentId,
       teacherId: teacher.user.id, // User ID
-      teacherProfileId: teacher.id, // TeacherProfile ID (ეს არის ყველაზე მნიშვნელოვანი!)
+      teacherProfileId: teacherProfileId, // TeacherProfile ID (ეს არის ყველაზე მნიშვნელოვანი!)
       subject: selectedSubject,
       day: selectedDay,
       time: selectedTime,
