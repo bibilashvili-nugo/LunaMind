@@ -52,9 +52,10 @@ export async function POST(req: Request) {
       console.log("🔍 Checking if lesson exists...");
 
       // 1. მოვძებნოთ lesson
+      // app/api/flitt/callback/route.ts
       const existingLesson = await prisma.lesson.findFirst({
         where: {
-          teacherId: orderData.teacherId,
+          teacherProfileId: orderData.teacherProfileId, // ✅ გამოიყენე teacherProfileId
           subject: orderData.subject,
           day: orderData.day,
           time: orderData.time,
