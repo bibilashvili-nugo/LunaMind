@@ -2,28 +2,21 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
+  console.log(1);
   try {
     const { searchParams } = new URL(req.url);
 
     // 🟣 Flitt-ის პარამეტრების ამოღება
     const orderStatus = searchParams.get("order_status");
     const responseStatus = searchParams.get("response_status");
-    const paymentId = searchParams.get("payment_id");
-    const orderId = searchParams.get("order_id");
-    const amount = searchParams.get("amount");
+    // const paymentId = searchParams.get("payment_id");
+    // const orderId = searchParams.get("order_id");
+    // const amount = searchParams.get("amount");
 
     // Extra data
     const extraDataParam = searchParams.get("extraData");
     let extraData = null;
-
-    console.log("🟣 Flitt GET callback received:");
-    console.log("Order Status:", orderStatus);
-    console.log("Response Status:", responseStatus);
-    console.log("Payment ID:", paymentId);
-    console.log("Order ID:", orderId);
-    console.log("Amount:", amount);
-    console.log("Extra Data Parameter:", extraDataParam);
-
+    console.log(2);
     // 🧩 extraData-ის გაშიფვრა
     try {
       if (extraDataParam) {
@@ -34,7 +27,7 @@ export async function GET(req: Request) {
       }
     } catch (e) {
       console.error("❌ Error parsing extraData:", e);
-
+      console.log(3);
       // ვცადოთ backup parsing additional_info-დან
       const additionalInfo = searchParams.get("additional_info");
       if (additionalInfo) {
@@ -51,7 +44,7 @@ export async function GET(req: Request) {
         }
       }
     }
-
+    console.log(4);
     // 🧠 შეამოწმე რომ გადახდა წარმატებულია
     if (orderStatus === "approved" && responseStatus === "success") {
       if (!extraData) {
@@ -61,7 +54,7 @@ export async function GET(req: Request) {
           new URL("/payment/error?reason=no_data", req.url)
         );
       }
-
+      console.log(5);
       // 🧩 აუცილებელი ველების შემოწმება
       if (
         !extraData.lessonId ||
@@ -75,7 +68,7 @@ export async function GET(req: Request) {
       }
 
       console.log("🔍 Checking if lesson exists...");
-
+      console.log(6);
       // 1️⃣ მოვძებნოთ lesson
       const existingLesson = await prisma.lesson.findUnique({
         where: { id: extraData.lessonId },
@@ -96,7 +89,7 @@ export async function GET(req: Request) {
         where: { id: extraData.teacherProfileId },
         select: { userId: true },
       });
-
+      console.log(7);
       if (!teacherProfile) {
         console.error(
           "❌ TeacherProfile not found for ID:",
@@ -108,10 +101,10 @@ export async function GET(req: Request) {
       }
 
       const teacherUserId = teacherProfile.userId;
-
+      console.log(8);
       // 3️⃣ შევქმნათ bookedLesson
       console.log("📝 Creating booked lesson...");
-      const bookedLesson = await prisma.bookedLesson.create({
+      await prisma.bookedLesson.create({
         data: {
           studentId: extraData.studentId,
           teacherId: teacherUserId, // ✅ ეს უნდა იყოს User.id
@@ -126,14 +119,12 @@ export async function GET(req: Request) {
         },
       });
 
-      console.log("✅ BookedLesson created:", bookedLesson.id);
-
       // 4️⃣ წავშალოთ Lesson
-      console.log("🗑️ Deleting lesson...");
+
       await prisma.lesson.delete({
         where: { id: existingLesson.id },
       });
-
+      console.log(9);
       console.log("✅ Lesson deleted:", existingLesson.id);
       console.log("🎉 Successfully moved lesson to booked lessons!");
 
