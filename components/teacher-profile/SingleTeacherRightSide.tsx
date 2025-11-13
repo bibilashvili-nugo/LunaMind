@@ -251,16 +251,15 @@ const SingleTeacherRightSide = ({
     try {
       const teacherProfileId = await getTeacherProfileId(teacher.user.id);
 
-      // ✅ სწორი orderData ყველა საჭირო ველით
       const orderData = {
         studentId,
-        teacherId: teacher.user.id, // User ID
-        teacherProfileId: teacherProfileId, // TeacherProfile ID
+        teacherId: teacher.user.id,
+        teacherProfileId,
         subject: selectedSubject,
         day: selectedDay,
         time: selectedTime,
         price: currentPrice,
-        lessonId: selectedLesson.id, // Lesson ID
+        lessonId: selectedLesson.id,
       };
 
       console.log("📦 Order data being sent:", orderData);
@@ -277,14 +276,18 @@ const SingleTeacherRightSide = ({
       });
 
       const flittData = await flittRes.json();
+
+      console.log("🟣 Flitt response from API:", flittData);
+
       const checkoutUrl =
-        flittData?.response?.checkout_url || flittData?.checkout_url || null;
+        flittData?.checkoutUrl || flittData?.response?.checkout_url || null;
 
       if (!checkoutUrl) {
         console.error("❌ No checkout URL in response:", flittData);
-        return toast.error("გადახდის ლინკის გენერირება ვერ მოხერხდა");
+        return toast.error("გადახდის ბმულის მიღება ვერ მოხერხდა");
       }
 
+      // ✅ გადამისამართება Flitt-ის გვერდზე
       window.location.href = checkoutUrl;
     } catch (error) {
       console.error("💥 Payment setup failed:", error);
