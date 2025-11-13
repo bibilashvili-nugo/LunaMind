@@ -214,10 +214,16 @@ const SingleTeacherRightSide = ({
     try {
       const response = await fetch(`/api/teachers/${userId}/profile`);
       const data = await response.json();
-      return data.teacherProfileId;
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to get teacher profile");
+      }
+
+      console.log("🔹 Teacher profile data:", data);
+      return data.id || data.teacherProfileId; // დავრწმუნდეთ რომ სწორ ველს ვიღებთ
     } catch (error) {
-      console.error("Failed to get teacher profile ID:", error);
-      return "cmhxghbe30009mitnmbonvflf"; // fallback
+      console.error("❌ Failed to get teacher profile ID:", error);
+      throw error; // გადავაგდოთ error რომ მთავარ ფუნქციაში დაიჭიროს
     }
   };
 
@@ -242,23 +248,23 @@ const SingleTeacherRightSide = ({
       return toast.error("გაკვეთილი ვერ მოიძებნა");
     }
 
-    const teacherProfileId = await getTeacherProfileId(teacher.user.id);
-
-    // ✅ სწორი orderData ყველა საჭირო ველით
-    const orderData = {
-      studentId,
-      teacherId: teacher.user.id, // User ID
-      teacherProfileId: teacherProfileId, // TeacherProfile ID (ეს არის ყველაზე მნიშვნელოვანი!)
-      subject: selectedSubject,
-      day: selectedDay,
-      time: selectedTime,
-      price: currentPrice,
-      lessonId: selectedLesson.id, // Lesson ID
-    };
-
-    console.log("📦 Order data being sent:", orderData);
-
     try {
+      const teacherProfileId = await getTeacherProfileId(teacher.user.id);
+
+      // ✅ სწორი orderData ყველა საჭირო ველით
+      const orderData = {
+        studentId,
+        teacherId: teacher.user.id, // User ID
+        teacherProfileId: teacherProfileId, // TeacherProfile ID
+        subject: selectedSubject,
+        day: selectedDay,
+        time: selectedTime,
+        price: currentPrice,
+        lessonId: selectedLesson.id, // Lesson ID
+      };
+
+      console.log("📦 Order data being sent:", orderData);
+
       const flittRes = await fetch("/api/flitt/createOrder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -275,12 +281,13 @@ const SingleTeacherRightSide = ({
         flittData?.response?.checkout_url || flittData?.checkout_url || null;
 
       if (!checkoutUrl) {
+        console.error("❌ No checkout URL in response:", flittData);
         return toast.error("გადახდის ლინკის გენერირება ვერ მოხერხდა");
       }
 
       window.location.href = checkoutUrl;
     } catch (error) {
-      console.error("💥 Flitt payment failed:", error);
+      console.error("💥 Payment setup failed:", error);
       toast.error("გადახდის დაწყება ვერ მოხერხდა");
     }
   };

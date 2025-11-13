@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// app/api/flitt/callback/route.ts
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -33,10 +34,14 @@ export async function POST(req: Request) {
       }
 
       // ✅ დაამატე lessonId validation
-      if (!orderData.lessonId || !orderData.studentId) {
-        console.error("❌ Missing lessonId or studentId:", orderData);
+      if (
+        !orderData.lessonId ||
+        !orderData.studentId ||
+        !orderData.teacherProfileId
+      ) {
+        console.error("❌ Missing required fields:", orderData);
         return NextResponse.json(
-          { error: "Missing lessonId or studentId" },
+          { error: "Missing lessonId, studentId or teacherProfileId" },
           { status: 400 }
         );
       }
@@ -46,6 +51,9 @@ export async function POST(req: Request) {
       // 1. მოვძებნოთ lesson
       const existingLesson = await prisma.lesson.findUnique({
         where: { id: orderData.lessonId },
+        include: {
+          teacher: true, // User-ის ინფორმაციაც დაგვჭირდება
+        },
       });
 
       if (!existingLesson) {
@@ -58,17 +66,17 @@ export async function POST(req: Request) {
 
       console.log("✅ Lesson found:", existingLesson.id);
 
-      // 2. შევქმნათ bookedLesson - გამოიყენე lesson-ის მონაცემები!
+      // 2. შევქმნათ bookedLesson - გამოიყენე სწორი teacherId (TeacherProfile ID)
       console.log("📝 Creating booked lesson...");
       const bookedLesson = await prisma.bookedLesson.create({
         data: {
           studentId: orderData.studentId,
-          teacherId: existingLesson.teacherId, // ✅ lesson-დან
-          subject: existingLesson.subject, // ✅ lesson-დან (არა orderData-დან)
-          day: existingLesson.day, // ✅ lesson-დან (არა orderData-დან)
+          teacherId: orderData.teacherProfileId, // ✅ TeacherProfile ID
+          subject: existingLesson.subject,
+          day: existingLesson.day,
           date: existingLesson.date,
-          time: existingLesson.time, // ✅ lesson-დან (არა orderData-დან)
-          price: orderData.price || existingLesson.duration * 25, // fallback
+          time: existingLesson.time,
+          price: orderData.price || existingLesson.duration * 25,
           duration: existingLesson.duration,
           comment: existingLesson.comment,
           link: existingLesson.link,
@@ -94,12 +102,6 @@ export async function POST(req: Request) {
     });
   } catch (error: unknown) {
     console.error("❌ Callback error:", error);
-
-    if (error instanceof Error) {
-      console.error("❌ Error details:", error.message);
-      console.error("❌ Error stack:", error.stack);
-    }
-
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
