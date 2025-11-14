@@ -87,7 +87,7 @@ export async function POST(req: Request) {
             if (!reservationData) reservationData = {};
             reservationData.studentId = merchantData.studentId;
           }
-        } catch (e) {
+        } catch {
           try {
             const decoded = Buffer.from(body.merchant_data, 'base64').toString('utf-8');
             const data = JSON.parse(decoded);
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
               }
             } catch {}
           }
-        } catch (e) {}
+        } catch {}
       }
     } catch (err) {
       console.error("Error extracting reservation_data:", err);

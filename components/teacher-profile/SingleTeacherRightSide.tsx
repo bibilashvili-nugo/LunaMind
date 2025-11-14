@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { CaretDownSm, Check, Star, WavyCheck } from "react-coolicons";
 import toast from "react-hot-toast";
@@ -50,7 +50,6 @@ const SingleTeacherRightSide = ({
   teacher,
   studentId,
 }: SingleTeacherRightSideProps) => {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // URL-დან საგნის ამოღება

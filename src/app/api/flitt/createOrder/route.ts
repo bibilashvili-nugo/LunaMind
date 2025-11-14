@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
     // Filter out empty values (following Flitt's PHP example)
     const filteredParams = Object.entries(params)
-      .filter(([_, value]) => value && value.toString().trim().length > 0)
+      .filter(([, value]) => value && value.toString().trim().length > 0)
       .reduce((acc, [key, value]) => {
         acc[key] = value.toString();
         return acc;
@@ -59,7 +59,17 @@ export async function POST(req: Request) {
       .toLowerCase();
 
     // Build request body
-    const requestBody: any = {
+    const requestBody: {
+      request: {
+        server_callback_url: string;
+        order_id: string;
+        currency: string;
+        merchant_id: number;
+        order_desc: string;
+        amount: string;
+        signature: string;
+      };
+    } = {
       request: {
         server_callback_url,
         order_id,

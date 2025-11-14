@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       receivedData: body,
       lessons,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Debug failed" }, { status: 500 });
   }
 }
