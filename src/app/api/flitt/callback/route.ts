@@ -3,127 +3,206 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    // 1️⃣ Flitt JSON
     const body = await req.json();
-    console.log("111111111111111111 ✅ Received callback:", body);
-
     const orderStatus = body.order_status;
     const responseStatus = body.response_status;
-    const paymentId = body.payment_id;
-    const extraDataParam = body.merchant_data || body.additional_info;
 
-    console.log("Order Status:", orderStatus);
-    console.log("Response Status:", responseStatus);
-    console.log("Payment ID:", paymentId);
-    console.log("ExtraData param:", extraDataParam);
-
-    // 2️⃣ extraData parsing
-    let extraData = null;
+    // Extract reservation data from order_id
     let reservationData = null;
+    const orderId = body.order_id;
 
-    if (extraDataParam) {
-      try {
-        extraData = JSON.parse(extraDataParam);
-        console.log("2222222222222222 ✅ Parsed extraData:", extraData);
+    try {
+      // Extract lessonId and studentId from order_id format: order_TIMESTAMP_LESSONID_STUDENTID
+      // Format: order_TIMESTAMP_LESSONID_STUDENTID (last 8 chars of each)
+      const orderIdParts = orderId.split('_');
+      if (orderIdParts.length >= 4) {
+        const encodedLessonId = orderIdParts[orderIdParts.length - 2];
+        const encodedStudentId = orderIdParts[orderIdParts.length - 1];
+        
+        // Find lesson by matching the last 8 characters of its ID
+        const lesson = await prisma.lesson.findFirst({
+          where: {
+            id: {
+              endsWith: encodedLessonId
+            }
+          },
+          include: {
+            TeacherProfile: {
+              include: {
+                teacherSubjects: true,
+              },
+            },
+          },
+        });
 
-        if (extraData.reservation_data) {
-          reservationData = JSON.parse(extraData.reservation_data);
-          console.log(
-            "3333333333333333 ✅ Parsed reservationData:",
-            reservationData
-          );
+        // Find student by matching the last 8 characters of their ID
+        const student = await prisma.user.findFirst({
+          where: {
+            id: {
+              endsWith: encodedStudentId
+            },
+            role: 'STUDENT'
+          }
+        });
+
+        if (lesson && student) {
+          reservationData = {
+            lessonId: lesson.id,
+            studentId: student.id,
+            teacherProfileId: lesson.teacherProfileId,
+          };
         }
-      } catch (err) {
-        console.error("❌ Error parsing extraData or reservation_data:", err);
+      } else if (orderIdParts.length >= 3) {
+        // Fallback: try old format with just lessonId
+        const encodedLessonId = orderIdParts[orderIdParts.length - 1];
+        
+        const lesson = await prisma.lesson.findFirst({
+          where: {
+            id: {
+              endsWith: encodedLessonId
+            }
+          },
+          include: {
+            TeacherProfile: {
+              include: {
+                teacherSubjects: true,
+              },
+            },
+          },
+        });
+
+        if (lesson) {
+          reservationData = {
+            lessonId: lesson.id,
+            teacherProfileId: lesson.teacherProfileId,
+          };
+        }
       }
+
+      // Try merchant_data or additional_info for studentId (fallback)
+      if (!reservationData?.studentId && body.merchant_data && body.merchant_data.trim()) {
+        try {
+          const merchantData = JSON.parse(body.merchant_data);
+          if (merchantData.studentId) {
+            if (!reservationData) reservationData = {};
+            reservationData.studentId = merchantData.studentId;
+          }
+        } catch (e) {
+          try {
+            const decoded = Buffer.from(body.merchant_data, 'base64').toString('utf-8');
+            const data = JSON.parse(decoded);
+            if (data.studentId) {
+              if (!reservationData) reservationData = {};
+              reservationData.studentId = data.studentId;
+            }
+          } catch {}
+        }
+      }
+
+      // Try additional_info (fallback)
+      if (!reservationData?.studentId && body.additional_info) {
+        try {
+          const additionalInfo = typeof body.additional_info === 'string' 
+            ? JSON.parse(body.additional_info)
+            : body.additional_info;
+          
+          if (additionalInfo.reservation_data && typeof additionalInfo.reservation_data === 'string') {
+            try {
+              const decoded = Buffer.from(additionalInfo.reservation_data, 'base64').toString('utf-8');
+              const data = JSON.parse(decoded);
+              if (data.studentId) {
+                if (!reservationData) reservationData = {};
+                reservationData.studentId = data.studentId;
+                reservationData.lessonId = data.lessonId || reservationData?.lessonId;
+                reservationData.teacherProfileId = data.teacherProfileId || reservationData?.teacherProfileId;
+              }
+            } catch {}
+          }
+        } catch (e) {}
+      }
+    } catch (err) {
+      console.error("Error extracting reservation_data:", err);
     }
 
-    // 3️⃣ გადახდის შემოწმება
+    // Process payment if approved
     if (orderStatus === "approved" && responseStatus === "success") {
-      console.log("44444444444444 ✅ Payment approved");
-
       if (!reservationData) {
-        console.error("❌ No reservationData found, stopping processing");
+        console.error("Callback: No reservationData found for order_id:", orderId);
         return NextResponse.json(
           { message: "Callback received but no reservationData" },
           { status: 200 }
         );
       }
 
-      // 4️⃣ საჭირო ველების შემოწმება
+      // Validate required fields
       if (
         !reservationData.lessonId ||
         !reservationData.studentId ||
         !reservationData.teacherProfileId
       ) {
-        console.error(
-          "❌ Missing required fields in reservationData:",
-          reservationData
-        );
+        console.error("Callback: Missing required fields in reservationData:", reservationData);
         return NextResponse.json(
           { message: "Callback received but missing required fields" },
           { status: 200 }
         );
       }
-      console.log("55555555555555 ✅ Required fields present");
 
-      // 5️⃣ მოძებნე Lesson
+      // Find lesson
       const existingLesson = await prisma.lesson.findUnique({
         where: { id: reservationData.lessonId },
         include: {
           teacher: true,
           TeacherProfile: {
             include: {
-              teacherSubjects: true, // price აქედან
+              teacherSubjects: true,
             },
           },
         },
       });
-      console.log("66666666666666 ✅ Lesson fetch attempted");
 
       if (!existingLesson) {
-        console.error("❌ Lesson not found with ID:", reservationData.lessonId);
+        console.error("Callback: Lesson not found with ID:", reservationData.lessonId);
         return NextResponse.json(
           { message: "Callback received but lesson not found" },
           { status: 200 }
         );
       }
-      console.log("7777777777777 ✅ Lesson found:", existingLesson.id);
 
-      // 6️⃣ მოძებნე TeacherProfile
+      // Find teacher profile
       const teacherProfile = await prisma.teacherProfile.findUnique({
         where: { id: reservationData.teacherProfileId },
         select: { userId: true },
       });
 
       if (!teacherProfile) {
-        console.error(
-          "❌ TeacherProfile not found for ID:",
-          reservationData.teacherProfileId
-        );
+        console.error("Callback: TeacherProfile not found for ID:", reservationData.teacherProfileId);
         return NextResponse.json(
           { message: "Callback received but teacher profile not found" },
           { status: 200 }
         );
       }
-      const teacherUserId = teacherProfile.userId;
-      console.log("888888888888 ✅ Teacher user ID found:", teacherUserId);
 
-      // 7️⃣ price უსაფრთხოდ
+      const teacherUserId = teacherProfile.userId;
+
+      // Calculate price
       let price: number;
-      if (reservationData.price) {
-        price = reservationData.price;
+      if (reservationData && 'price' in reservationData && reservationData.price) {
+        price = reservationData.price as number;
       } else {
-        // პირველი subject-ის price
         const teacherSubjects = existingLesson.TeacherProfile.teacherSubjects;
         price = teacherSubjects?.[0]?.price ?? 0;
       }
-      console.log("9999999999 ✅ Price calculated:", price);
 
-      // 8️⃣ BookedLesson შექმნა
+      // Create BookedLesson
+      if (!reservationData || !('studentId' in reservationData) || !reservationData.studentId) {
+        throw new Error("studentId is required but not found in reservationData");
+      }
+      
+      const studentId = reservationData.studentId as string;
+      
       await prisma.bookedLesson.create({
         data: {
-          studentId: reservationData.studentId,
+          studentId: studentId,
           teacherId: teacherUserId,
           subject: existingLesson.subject,
           day: existingLesson.day,
@@ -135,28 +214,23 @@ export async function POST(req: Request) {
           link: existingLesson.link,
         },
       });
-      console.log("101010101010 ✅ BookedLesson created successfully");
 
-      // 9️⃣ Lesson წაშლა
+      // Delete original lesson
       await prisma.lesson.delete({ where: { id: existingLesson.id } });
-      console.log("111111111111 ✅ Lesson deleted:", existingLesson.id);
 
-      console.log("🎉 Successfully moved lesson to booked lessons!");
-
-      // 10️⃣ Flitt 200 OK
       return NextResponse.json(
         { message: "Callback processed successfully" },
         { status: 200 }
       );
     } else {
-      console.log("❌ Payment not approved or failed");
+      // Payment not approved or failed - still return 200 to Flitt
       return NextResponse.json(
         { message: "Payment not approved" },
         { status: 200 }
       );
     }
   } catch (error) {
-    console.error("💥 Callback error:", error);
+    console.error("Callback error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

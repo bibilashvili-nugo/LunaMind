@@ -12,47 +12,67 @@ export async function POST(req: Request) {
     const merchant_id = process.env.FLITT_MERCHANT_ID!;
     const secret = process.env.FLITT_SECRET_KEY!;
     const server_callback_url = `${process.env.NEXTAUTH_URL}/api/flitt/callback`;
-    const order_id = `order_${Date.now()}`;
+    
+    // Support both body.extraData and direct body properties for backward compatibility
+    const extraData = {
+      lessonId: body.extraData?.lessonId || body.lessonId,
+      studentId: body.extraData?.studentId || body.studentId,
+      teacherProfileId: body.extraData?.teacherProfileId || body.teacherProfileId,
+      price: body.extraData?.price || body.price,
+    };
+    
+    // Encode lessonId and studentId in order_id so we can retrieve them in callback
+    // Format: order_TIMESTAMP_LESSONID_STUDENTID (last 8 chars of each to keep it short)
+    const hasRequiredFields = extraData.lessonId && extraData.studentId && extraData.teacherProfileId;
+    const order_id = hasRequiredFields 
+      ? `order_${Date.now()}_${extraData.lessonId.slice(-8)}_${extraData.studentId.slice(-8)}`
+      : `order_${Date.now()}`;
 
-    // ✅ extraData უნდა იყოს ორჯერ encodeURIComponent-ით გადამუშავებული JSON string
-    const extraDataString = encodeURIComponent(
-      encodeURIComponent(JSON.stringify(body.extraData || {}))
-    );
+    // Build params object (excluding signature and empty values)
+    const params: Record<string, string> = {
+      amount,
+      currency,
+      merchant_id: merchant_id.toString(),
+      order_desc,
+      order_id,
+      server_callback_url,
+    };
 
-    // Signature ფორმირება (Flitt-ის მოთხოვნით)
-    const signatureString = `${secret}|${amount}|${currency}|${merchant_id}|${order_desc}|${order_id}|${server_callback_url}`;
+    // Filter out empty values (following Flitt's PHP example)
+    const filteredParams = Object.entries(params)
+      .filter(([_, value]) => value && value.toString().trim().length > 0)
+      .reduce((acc, [key, value]) => {
+        acc[key] = value.toString();
+        return acc;
+      }, {} as Record<string, string>);
+
+    // Sort alphabetically by key
+    const sortedKeys = Object.keys(filteredParams).sort();
+
+    // Build signature string: secret first, then params in alphabetical order
+    const signatureString = [secret, ...sortedKeys.map(key => filteredParams[key])].join('|');
+    
     const signature = crypto
       .createHash("sha1")
       .update(signatureString)
-      .digest("hex");
+      .digest("hex")
+      .toLowerCase();
 
-    const extraData = {
-      lessonId: body.lessonId,
-      studentId: body.studentId,
-      teacherProfileId: body.teacherProfileId,
-      price: body.price,
-    };
-
-    const reservationBase64 = Buffer.from(JSON.stringify(extraData)).toString(
-      "base64"
-    );
-
-    const requestBody = {
+    // Build request body
+    const requestBody: any = {
       request: {
         server_callback_url,
         order_id,
         currency,
-        merchant_id,
+        merchant_id: parseInt(merchant_id, 10),
         order_desc,
         amount,
         signature,
-
-        // FIX
-        reservation_data: reservationBase64,
       },
     };
 
-    console.log("🟣 Sending to Flitt - extraData (encoded):", extraDataString);
+    // NOTE: Including merchant_data or reservation_data causes signature validation to fail
+    // Solution: lessonId and studentId are encoded in order_id, callback will extract them
 
     const flittRes = await fetch("https://pay.flitt.com/api/checkout/url", {
       method: "POST",
@@ -64,7 +84,6 @@ export async function POST(req: Request) {
     });
 
     const data = await flittRes.json();
-    console.log("🟣 Flitt API Response:", data);
 
     if (data?.response?.checkout_url) {
       return NextResponse.json({
@@ -73,14 +92,14 @@ export async function POST(req: Request) {
         orderId: order_id,
       });
     } else {
-      console.error("❌ Flitt response error:", data);
+      console.error("Flitt API error:", data);
       return NextResponse.json(
         { error: "Failed to create checkout URL", details: data },
         { status: 400 }
       );
     }
   } catch (error) {
-    console.error("💥 createOrder error:", error);
+    console.error("createOrder error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
