@@ -172,7 +172,7 @@ const NavBar = ({ userImage, userFullName }: NavBarProps) => {
           </ul>
 
           <div className="lg:flex items-center gap-2 xl:gap-6 hidden">
-            {userImage || userFullName ? (
+            {userFullName && userFullName.length > 0 ? (
               <Link
                 href={"/login"}
                 className="

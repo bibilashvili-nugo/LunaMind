@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Hide, Show } from "react-coolicons";
+import { Evectus } from "./Icons";
 
 export const LoginRegisterContentHeader = () => {
   return (
-    <div className="flex items-center justify-between 3xl:pr-[192px]">
+    <div className="flex items-center gap-2 3xl:pr-48">
+      <Evectus />
       <Link href={"/"} className="text-2xl text-[#0C0F21] font-freeman-regular">
         EVECTUS
       </Link>
