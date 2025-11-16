@@ -16,6 +16,7 @@ import {
 import { usePathname } from "next/navigation";
 import { useLogout } from "@/hooks/useLogout";
 import { useClickOutside } from "@/hooks/useClickOutside";
+import { Evectus } from "../ui/Icons";
 
 type NavigationItem = {
   id: number;
@@ -72,10 +73,13 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
     xl:pt-8 w-full"
     >
       <Link
-        href={"/"}
-        className="text-[32px] leading-[100%] text-[#0C0F21] font-freeman-regular lg:w-2/5 cursor-pointer"
+        href={"/dashboard"}
+        className="lg:w-2/5 cursor-pointer flex items-center gap-2"
       >
-        EVECTUS
+        <Evectus />
+        <span className="text-[32px] leading-[100%] text-[#0C0F21] font-freeman-regular">
+          EVECTUS
+        </span>
       </Link>
 
       <ul

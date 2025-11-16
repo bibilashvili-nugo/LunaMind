@@ -12,9 +12,10 @@ type HeaderKey = "home" | "why" | "tutors" | "reviews" | "packages";
 
 interface NavBarProps {
   userImage: string | null;
+  userFullName: string | null;
 }
 
-const NavBar = ({ userImage }: NavBarProps) => {
+const NavBar = ({ userImage, userFullName }: NavBarProps) => {
   const headerLinks: {
     key: HeaderKey;
     href: string;
@@ -163,7 +164,7 @@ const NavBar = ({ userImage }: NavBarProps) => {
               </Link>
             ) : (
               <Link href={"/login"}>
-                <div className="bg-[#FFD52A] py-[12px] px-[12px] rounded-full lg:hidden ml-2">
+                <div className="bg-[#FFD52A] py-3 px-3 rounded-full lg:hidden ml-2">
                   <AccountCircle />
                 </div>
               </Link>
@@ -171,26 +172,50 @@ const NavBar = ({ userImage }: NavBarProps) => {
           </ul>
 
           <div className="lg:flex items-center gap-2 xl:gap-6 hidden">
-            {userImage ? (
+            {userImage || userFullName ? (
               <Link
                 href={"/login"}
-                className="hidden lg:flex ml-2 items-center"
+                className="
+    hidden lg:flex ml-2 items-center gap-3 relative rounded-[50px]
+    p-[3px] overflow-hidden cursor-pointer
+    transition-transform duration-300 hover:scale-[1.04]
+
+    /* Spinner A: clockwise (slow) */
+    before:absolute before:inset-0 before:rounded-[50px]
+    before:bg-linear-to-r
+    before:from-[#F7C54E] before:via-[#FFE16A] before:to-[#0A0F2D]
+    before:bg-size-[300%_300%]
+    before:animate-[spinClockwiseChase_12s_linear_infinite]
+
+    /* Spinner B: counterclockwise (slow) */
+    after:absolute after:inset-0.5 after:rounded-[50px]
+    after:bg-linear-to-r
+    after:from-[#FFE16A] after:via-[#F7C54E] after:to-[#0A0F2D]
+    after:bg-size-[300%_300%]
+    after:animate-[spinCounterClockwiseChase_12s_linear_infinite]
+    after:pointer-events-none
+  "
               >
-                <div className="w-10 h-10 rounded-full overflow-hidden">
-                  <Image
-                    src={userImage || "/images/default-profile.png"}
-                    width={40}
-                    height={40}
-                    alt="user profile"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative z-10 flex items-center gap-3 bg-white/90 backdrop-blur-md rounded-[50px] px-4 py-2 shadow-md">
+                  <div className="w-10 h-10 rounded-full overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+                    <Image
+                      src={userImage || "/images/default-profile.png"}
+                      width={40}
+                      height={40}
+                      alt="user profile"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className="font-helveticaneue-medium text-[#0A0F2D]">
+                    {userFullName}
+                  </span>
                 </div>
               </Link>
             ) : (
               <Link href={"/login"}>
-                <div className="bg-[#FFD52A] py-[14px] px-[24px] rounded-[40px] xl:flex xl:items-center xl:gap-2">
+                <div className="bg-[#FFD52A] py-3.5 px-6 rounded-[40px] xl:flex xl:items-center xl:gap-2">
                   <AccountCircle />
-                  <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-[24px] font-helveticaneue-medium">
+                  <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-6 font-helveticaneue-medium">
                     შესვლა
                   </span>
                 </div>
