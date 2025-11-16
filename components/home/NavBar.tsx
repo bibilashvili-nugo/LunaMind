@@ -89,7 +89,7 @@ const NavBar = ({ userImage, userFullName }: NavBarProps) => {
       setTimeout(() => setIsScrolling(false), 300);
     }
   };
-
+  console.log(userFullName);
   return (
     <div
       className={`fixed bottom-0 lg:bottom-auto lg:top-0 left-0 w-full pb-1 z-50 transition-all duration-300 ${
@@ -172,7 +172,9 @@ const NavBar = ({ userImage, userFullName }: NavBarProps) => {
           </ul>
 
           <div className="lg:flex items-center gap-2 xl:gap-6 hidden">
-            {userFullName && userFullName.length > 0 ? (
+            {userFullName &&
+            userFullName.length > 0 &&
+            userFullName !== "undefined undefined" ? (
               <Link
                 href={"/login"}
                 className="

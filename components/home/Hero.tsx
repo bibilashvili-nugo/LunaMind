@@ -56,7 +56,8 @@ const Hero = ({ id }: { id: string }) => {
         <Link
           href="/register?role=STUDENT"
           className="font-helveticaneue-medium text-xs leading-4 px-[34px] py-[14px] rounded-[40px] bg-[#FFD52A] cursor-pointer
-        sm:text-sm sm:leading-5 lg:px-[44px] lg:py-[19px] text-[#0C0F21]"
+        sm:text-sm sm:leading-5 lg:px-[44px] lg:py-[19px] text-[#0C0F21]
+         transition-transform duration-300 hover:animate-[shakeScale_0.7s_linear]"
         >
           <span className="hidden sm:inline">გახდი მოსწავლე</span>
           <span className="inline sm:hidden">მოსწავლე</span>
@@ -64,7 +65,8 @@ const Hero = ({ id }: { id: string }) => {
         <Link
           href="/register?role=TEACHER"
           className="font-helveticaneue-medium text-xs leading-4 px-[34px] py-[14px] rounded-[40px] bg-[#F6F7FB] cursor-pointer
-        sm:text-sm sm:leading-5 lg:px-[44px] lg:py-[19px] text-[#0C0F21]"
+        sm:text-sm sm:leading-5 lg:px-[44px] lg:py-[19px] text-[#0C0F21]
+         transition-transform duration-300 hover:animate-[shakeScale_0.7s_linear]"
         >
           <span className="hidden sm:inline">გახდი რეპეტიტორი</span>
           <span className="inline sm:hidden">რეპეტიტორი</span>
