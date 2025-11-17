@@ -47,7 +47,13 @@ type TeacherWithCurrentSubject = Teacher & {
   currentSubject: TeacherSubject;
 };
 
-const TutorsInfo = ({ id }: { id: string }) => {
+const TutorsInfo = ({
+  id,
+  logined,
+}: {
+  id: string;
+  logined?: string | null;
+}) => {
   const { data: teacherList, isLoading, isError } = useTeachers();
   const router = useRouter();
 
@@ -221,14 +227,16 @@ const TutorsInfo = ({ id }: { id: string }) => {
           </div>
         ))}
       </div>
-      <div
-        className="hidden md:flex items-center bg-[#FFD52A] hover:bg-[#FFC700] transition-colors rounded-[40px] w-fit mx-auto justify-center py-4 px-[36px] mt-8 2xl:mt-6 3xl:mt-8 2xl:py-[19px] 2xl:px-[44px] cursor-pointer"
-        onClick={() => router.push("/register")}
-      >
-        <button className="text-sm leading-5 font-helveticaneue-medium cursor-pointer">
-          უფრო მეტის სანახავად დარეგისტრირდი
-        </button>
-      </div>
+      {logined && (
+        <div
+          className="hidden md:flex items-center bg-[#FFD52A] hover:bg-[#FFC700] transition-colors rounded-[40px] w-fit mx-auto justify-center py-4 px-[36px] mt-8 2xl:mt-6 3xl:mt-8 2xl:py-[19px] 2xl:px-[44px] cursor-pointer"
+          onClick={() => router.push("/register")}
+        >
+          <button className="text-sm leading-5 font-helveticaneue-medium cursor-pointer">
+            უფრო მეტის სანახავად დარეგისტრირდი
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -31,19 +31,17 @@ const Hero = ({ id }: { id: string }) => {
 
       <div className="relative pb-4 md:pb-3 lg:pb-[22px] xl:pb-[25px]">
         <span
-          className={`text-[#0C0F21] text-[40px] leading-[100%] bg-[#D6FFEB] px-[26px] py-2
-      border-r-2 border-l-2 border-[#52CE91] sm:text-[52px] sm:p-2 md:text-[64px] lg:hidden font-lgvanastasia-regular`}
+          className={`text-[#0C0F21] text-[40px] leading-[100%]  px-[26px] py-2
+       sm:text-[52px] sm:p-2 md:text-[64px] lg:hidden font-lgvanastasia-regular`}
         >
           რეპეტიტორებთან
         </span>
         <span
-          className={`hidden lg:block text-[84px] leading-[100%] border-r-2 border-l-2 border-[#52CE91] bg-[#D6FFEB] p-2
+          className={`hidden lg:block text-[84px] leading-[100%]   p-2
         xl:text-[102px] xl:px-[15px] xl:pt-[9px] xl:pb-[21px] font-lgvanastasia-regular`}
         >
           საუკეთესო რეპეტიტორებთან
         </span>
-        <div className="w-3 h-3 rounded-full border-2 xl:border-4 lg:w-[18px] lg:h-[18px]  border-[#52CE91] bg-white absolute z-10 top-[-8px] left-[-4px] lg:left-[-8px]"></div>
-        <div className="w-3 h-3 rounded-full border-2 xl:border-4 lg:w-[18px] lg:h-[18px] border-[#52CE91] bg-white absolute z-10 bottom-[8px] right-[-4px] lg:right-[-8px]"></div>
       </div>
       <span
         className="font-helveticaneue-regular text-xs leading-4 text-[#737373] text-center pb-6 sm:text-sm sm:leading-5 lg:text-base lg:leading-[24px] lg:pb-8

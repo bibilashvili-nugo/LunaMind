@@ -15,7 +15,7 @@ import { emailRegex, isValidPassword, isValidPhone } from "@/utils/validation";
 import toast from "react-hot-toast";
 import { Check } from "react-coolicons";
 
-type Role = "STUDENT" | "TEACHER";
+type Role = "STUDENT" | "TEACHER" | null;
 
 interface CheckEmailResponse {
   exists: boolean;
@@ -31,7 +31,7 @@ interface VerifyOtpResponse {
 }
 
 const RegistrationForm = () => {
-  const [role, setRole] = useState<Role>("STUDENT");
+  const [role, setRole] = useState<Role>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -209,6 +209,11 @@ const RegistrationForm = () => {
   // ✅ Complete Registration
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!role) {
+      setError("გთხოვთ აირჩიოთ როლი");
+      return;
+    }
 
     if (!otpVerified || !verifiedToken) {
       setError("გთხოვთ დაადასტუროთ თქვენი მეილი");

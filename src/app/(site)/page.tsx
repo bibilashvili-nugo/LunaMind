@@ -40,7 +40,7 @@ export default async function Home() {
         <SubjectDiscover />
         <OurPackages id="packages" />
         <HowItWorks />
-        <TutorsInfo id="tutors" />
+        <TutorsInfo id="tutors" logined={user?.id} />
         <StudentTestimonials id="reviews" />
       </div>
       <Footer />
