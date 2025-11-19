@@ -10,9 +10,18 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+// Define user type
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   const menuItems = [
@@ -135,14 +144,14 @@ const Page = () => {
           <div className="flex items-center gap-3 p-3 rounded-xl bg-[#1A2450] cursor-pointer hover:bg-[#2D3A6E] transition-all duration-200">
             <div className="w-10 h-10 bg-gradient-to-br from-[#CB3CFF] to-[#6C63FF] rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-sm">
-                {user?.firstName?.[0] || "A"}
+                {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "A"}
               </span>
             </div>
             <div className="flex-1">
               <p className="text-white font-semibold text-sm">
                 {user?.firstName && user?.lastName
                   ? `${user.firstName} ${user.lastName}`
-                  : "Admin User"}
+                  : user?.email || "Admin User"}
               </p>
               <p className="text-[#AEB9E1] text-xs capitalize">
                 {user?.role?.toLowerCase().replace("_", " ") || "Super Admin"}
