@@ -102,13 +102,6 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log("📝 Update data for student profile:", {
-      userId,
-      step,
-      isLastQuestion,
-      updateData,
-    });
-
     // ✅ Transaction-ის გამოყენება
     const result = await prisma.$transaction(async (tx) => {
       const profile = await tx.studentProfile.upsert({
@@ -124,13 +117,6 @@ export async function POST(req: Request) {
       });
 
       return profile;
-    });
-
-    console.log("✅ Student profile saved successfully:", {
-      id: result.id,
-      currentStep: result.currentStep,
-      completed: result.completed,
-      desiredSubjects: result.desiredSubjects,
     });
 
     return NextResponse.json({
