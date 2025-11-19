@@ -1,20 +1,29 @@
-// app/dashboard/student-profile/page.tsx
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import NavBar from "../../../../../components/dashboard/NavBar";
 import PersonalInfo from "../../../../../components/teacher-profile/page";
 
-export default async function StudentProfilePage() {
+function isTeacher(user: { role: string }): user is { role: "TEACHER" } {
+  return user.role === "TEACHER";
+}
+
+export default async function TeacherProfile() {
   const user = await getCurrentUser();
 
-  // ✅ Server-side redirect if user not found
+  // Redirect if not logged in
   if (!user) {
     redirect("/login");
   }
 
+  // Redirect if not a TEACHER
+  if (!isTeacher(user)) {
+    redirect("/dashboard"); // or redirect to /login if you want
+  }
+
+  // Fix image type: convert null -> undefined
   const safeUser = {
     ...user,
-    image: user.image || undefined,
+    image: user.image ?? undefined, // string | undefined
   };
 
   return (

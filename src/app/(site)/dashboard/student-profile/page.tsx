@@ -4,22 +4,28 @@ import { getCurrentUser } from "@/lib/session";
 import NavBar from "../../../../../components/dashboard/NavBar";
 import PersonalInfo from "../../../../../components/student-profile/PersonalInfo";
 
+function isStudent(user: { role: string }): user is { role: "STUDENT" } {
+  return user.role === "STUDENT";
+}
+
 export default async function StudentProfilePage() {
   const user = await getCurrentUser();
 
-  // ✅ Server-side redirect if user not found
+  // Redirect if not logged in
   if (!user) {
     redirect("/login");
   }
 
-  const safeUser = {
-    ...user,
-    image: user.image || undefined,
-  };
-
-  if (safeUser.role === "TEACHER") {
+  // Redirect if not a STUDENT
+  if (!isStudent(user)) {
     redirect("/dashboard");
   }
+
+  // Fix image type: convert null -> undefined
+  const safeUser = {
+    ...user,
+    image: user.image ?? undefined, // string | undefined
+  };
 
   return (
     <div className="bg-[#F6F5FA]">
