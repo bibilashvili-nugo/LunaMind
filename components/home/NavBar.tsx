@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { AccountCircle, Evectus } from "../ui/Icons";
 import Link from "next/link";
-import { Files, House01, Star, Suitcase, UsersGroup } from "react-coolicons";
+import {
+  Files,
+  House01,
+  LogOut,
+  Star,
+  Suitcase,
+  UsersGroup,
+} from "react-coolicons";
 import Image from "next/image";
 
 const NAV_OFFSET = 80;
@@ -214,14 +221,24 @@ const NavBar = ({ userImage, userFullName }: NavBarProps) => {
                 </div>
               </Link>
             ) : (
-              <Link href={"/login"}>
-                <div className="bg-[#FFD52A] py-3.5 px-6 rounded-[40px] xl:flex xl:items-center xl:gap-2">
-                  <AccountCircle />
-                  <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-6 font-helveticaneue-medium">
-                    შესვლა
-                  </span>
-                </div>
-              </Link>
+              <div className="flex items-center">
+                <Link href={"/login"}>
+                  <div className="bg-[#FFD52A] py-3.5 px-6 rounded-l-[40px] xl:flex xl:items-center xl:gap-2 ">
+                    <AccountCircle />
+                    <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-6 font-helveticaneue-medium">
+                      შესვლა
+                    </span>
+                  </div>
+                </Link>
+                <Link href={"/register"}>
+                  <div className="bg-[#FFD52A] py-3.5 px-6 rounded-r-[40px] xl:flex xl:items-center xl:gap-2 border-l border-[#737373]">
+                    <LogOut />
+                    <span className="hidden xl:block xl:text-sm xl:leading-5 3xl:text-base 3xl:leading-6 font-helveticaneue-medium">
+                      რეგისტრაცია
+                    </span>
+                  </div>
+                </Link>
+              </div>
             )}
           </div>
         </div>
