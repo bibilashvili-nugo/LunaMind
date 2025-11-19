@@ -73,7 +73,7 @@ const NavBar: FC<NavBarProps> = ({ user }) => {
     xl:pt-8 w-full"
     >
       <Link
-        href={"/dashboard"}
+        href={"/"}
         className="lg:w-2/5 cursor-pointer flex items-center gap-2"
       >
         <Evectus />
