@@ -8,7 +8,7 @@ type TeacherUser = {
   id: string;
   firstName: string;
   lastName: string;
-  role: "STUDENT" | "TEACHER";
+  role: "TEACHER";
 };
 
 type TeacherPageProps = {
