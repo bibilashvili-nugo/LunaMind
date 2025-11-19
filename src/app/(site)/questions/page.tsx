@@ -9,6 +9,10 @@ export default async function QuestionsPage() {
   // 1️⃣ თუ მომხმარებელი არ არსებობს → login
   if (!user) return redirect("/login");
 
+  if (user.role !== "STUDENT" && user.role !== "TEACHER") {
+    return redirect("/"); // ❗ ADMIN და სხვა როლები ბლოკი
+  }
+
   // 2️⃣ მიიღე profile პირდაპირ server-side
   let currentStep = 0;
   if (user.role === "STUDENT") {

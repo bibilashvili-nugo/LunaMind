@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import QuestionsClient from "../questions/QuestionsClient";
+import { Role } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,6 +13,10 @@ export default async function OnboardingPage() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) {
+    redirect("/admin/dashboard");
   }
 
   let profile;
@@ -38,7 +43,7 @@ export default async function OnboardingPage() {
   return (
     <QuestionsClient
       userId={user.id}
-      role={user.role}
+      role={user.role as "STUDENT" | "TEACHER"}
       initialStep={currentStep}
     />
   );
