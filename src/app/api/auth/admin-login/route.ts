@@ -3,12 +3,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
+import { Role } from "@prisma/client";
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    // Find user by email
+    // Find user
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -20,15 +21,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if user is admin or super_admin
-    if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
+    // Ensure user is ADMIN or SUPER_ADMIN
+    if (user.role !== Role.ADMIN && user.role !== Role.SUPER_ADMIN) {
       return NextResponse.json(
         { message: "არ გაქვთ ადმინის პრივილეგიები" },
         { status: 403 }
       );
     }
 
-    // Check if user is active and not banned
+    // Check active / banned
     if (!user.isActive || user.banned) {
       return NextResponse.json(
         { message: "თქვენი ანგარიში დაბლოკილია" },
@@ -37,15 +38,16 @@ export async function POST(req: Request) {
     }
 
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isPasswordValid) {
+    const validPassword = await bcrypt.compare(password, user.passwordHash);
+
+    if (!validPassword) {
       return NextResponse.json(
         { message: "არასწორი ელფოსტა ან პაროლი" },
         { status: 401 }
       );
     }
 
-    // Create admin log
+    // Log admin login
     await prisma.adminLog.create({
       data: {
         action: "ADMIN_LOGIN",
@@ -58,8 +60,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // Generate JWT token
+    // Generate JWT
     const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+
     const token = await new SignJWT({
       id: user.id,
       email: user.email,
@@ -67,7 +70,7 @@ export async function POST(req: Request) {
       isAdmin: true,
     })
       .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("8h") // Shorter expiration for admin sessions
+      .setExpirationTime("8h")
       .sign(secret);
 
     const response = NextResponse.json({
@@ -81,13 +84,13 @@ export async function POST(req: Request) {
       },
     });
 
-    // Set HttpOnly cookie
+    // Set cookie
     response.cookies.set({
       name: "admin-token",
       value: token,
       httpOnly: true,
       path: "/",
-      maxAge: 8 * 60 * 60, // 8 hours
+      maxAge: 8 * 3600,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
     });
