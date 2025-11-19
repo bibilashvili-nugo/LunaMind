@@ -11,7 +11,7 @@ interface MuxPlayerElement extends HTMLElement {
 }
 
 const VideoLesson = () => {
-  const playbackId = "Ys01rL65mPmdWKj4qhfC244SeBCd2Kl9ixVWtZ1WnteU";
+  const playbackId = "RMmbqoOzUxXe57UcSdokiP6JX01U9VV7I9g202k7kqab8";
   const playerRef = useRef<MuxPlayerElement>(null);
   const [muted, setMuted] = useState(true);
 
