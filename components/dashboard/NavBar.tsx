@@ -40,7 +40,7 @@ type StudentUser = {
   id: string;
   firstName: string;
   lastName: string;
-  role: "STUDENT" | "TEACHER";
+  role: "STUDENT" | "TEACHER" | "ADMIN" | "SUPER_ADMIN";
   image?: string;
 };
 

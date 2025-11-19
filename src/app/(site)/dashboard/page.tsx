@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import DashboardClient from "./DashboardClient";
-import { DashboardUser } from "../../../../types/dashboard";
+import { StudentTeacherUser } from "../../../../types/dashboard";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,6 +13,11 @@ export default async function DashboardPage() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  // ადმინებისთვის რედირექტი აქ
+  if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
+    redirect("/admin/dashboard");
   }
 
   let profile;
@@ -31,13 +36,13 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  // შევქმნათ სწორი ტიპის user ობიექტი
-  const dashboardUser: DashboardUser = {
+  // აქ უკვე მხოლოდ STUDENT ან TEACHER არის
+  const dashboardUser: StudentTeacherUser = {
     id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    role: user.role as "STUDENT" | "TEACHER" | "ADMIN" | "SUPER_ADMIN",
+    role: user.role as "STUDENT" | "TEACHER", // აქ უკვე უსაფრთხოა
   };
 
   return <DashboardClient user={dashboardUser} />;
