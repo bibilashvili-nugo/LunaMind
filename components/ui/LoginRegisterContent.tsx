@@ -5,6 +5,14 @@ import { useState } from "react";
 import { Hide, Show } from "react-coolicons";
 import { Evectus } from "./Icons";
 
+interface LoginRegisterContentInputProps {
+  placeholder: string;
+  value: string;
+  type?: string;
+  disabled?: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
 export const LoginRegisterContentHeader = () => {
   return (
     <div className="flex items-center gap-2 3xl:pr-48">
@@ -53,22 +61,21 @@ export const LoginRegisterContentInput = ({
   placeholder,
   value,
   onChange,
-  type,
-}: {
-  placeholder: string;
-  value: string;
-  type?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) => {
+  type = "text",
+  disabled = false,
+}: LoginRegisterContentInputProps) => {
   return (
     <input
       type={type}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] focus:outline-none text-sm leading-5 font-helveticaneue-regular
-        placeholder:font-helveticaneue-regular placeholder:text-[#737373] placeholder:text-sm placeholder:leading-5
-        xl:text-base xl:leading-6"
+      disabled={disabled}
+      className={`w-full text-[#737373] p-4 border border-[#EBEBEB] rounded-[12px] 
+        focus:outline-none text-sm leading-5 font-helveticaneue-regular
+        placeholder:font-helveticaneue-regular placeholder:text-[#737373] 
+        placeholder:text-sm placeholder:leading-5 xl:text-base xl:leading-6
+        ${disabled ? "bg-[#f5f5f5] cursor-not-allowed" : ""}`}
       required
     />
   );

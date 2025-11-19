@@ -16,11 +16,22 @@ interface RegisterRequest {
   verifiedToken?: string;
 }
 
+// Prisma P2002 Guard – NO ANY
+function isPrismaUniqueError(
+  err: unknown
+): err is { code: "P2002"; meta?: { target?: string[] } } {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code: unknown }).code === "P2002"
+  );
+}
+
 export async function POST(req: Request) {
   try {
     const body: RegisterRequest = await req.json();
 
-    // Trim inputs
     const fullName = body.fullName.trim();
     const email = body.email.trim().toLowerCase();
     const phoneNumber = body.phoneNumber.trim();
@@ -30,7 +41,6 @@ export async function POST(req: Request) {
     const acceptedPrivacy = body.acceptedPrivacy;
     const verifiedToken = body.verifiedToken;
 
-    // 1️⃣ Required fields
     if (!fullName || !role || !email || !phoneNumber || !password) {
       return NextResponse.json(
         { message: "ყველა ველი სავალდებულოა" },
@@ -38,7 +48,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2️⃣ Check if email is verified via OTP
     if (!verifiedToken) {
       return NextResponse.json(
         { message: "გთხოვთ ჯერ დაადასტუროთ თქვენი მეილი" },
@@ -46,12 +55,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3️⃣ Verify the registration token
     const verification = await prisma.verificationToken.findFirst({
-      where: {
-        identifier: `verified_${email}`,
-        token: verifiedToken,
-      },
+      where: { identifier: `verified_${email}`, token: verifiedToken },
     });
 
     if (!verification) {
@@ -71,9 +76,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4️⃣ Full name validation (at least 2 characters each)
     const [firstName, ...lastNameParts] = fullName.split(" ");
     const lastName = lastNameParts.join(" ") || "";
+
     if (firstName.length < 2 || lastName.length < 2) {
       return NextResponse.json(
         { message: "სახელი და გვარი უნდა იყოს მინიმუმ 2 ასო" },
@@ -81,7 +86,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 5️⃣ Email validation
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { message: "ელფოსტა არასწორია" },
@@ -89,7 +93,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 6️⃣ Password strength
     if (!isValidPassword(password)) {
       return NextResponse.json(
         {
@@ -100,7 +103,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 7️⃣ Phone validation (digits only, 9-15 digits)
     if (!isValidPhone(phoneNumber)) {
       return NextResponse.json(
         { message: "ტელეფონი არასწორია" },
@@ -108,7 +110,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 8️⃣ Terms & Privacy
     if (!acceptedTerms || !acceptedPrivacy) {
       return NextResponse.json(
         { message: "უნდა დაეთანხმო წესებს და პოლიტიკას" },
@@ -116,58 +117,54 @@ export async function POST(req: Request) {
       );
     }
 
-    // 9️⃣ Check if email already exists (double check)
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return NextResponse.json(
-        { message: "ეს ელფოსტა უკვე გამოყენებულია" },
-        { status: 400 }
-      );
-    }
-
-    // 🔟 Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 1️⃣1️⃣ Create user
-    const user = await prisma.user.create({
-      data: {
-        role,
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
-        passwordHash: hashedPassword,
-        acceptedTerms,
-        acceptedPrivacy,
-        emailVerified: new Date(), // Mark as verified since OTP was used
-      },
-    });
+    // CREATE USER WITH UNIQUE CHECK
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          role,
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
+          passwordHash: hashedPassword,
+          acceptedTerms,
+          acceptedPrivacy,
+          emailVerified: new Date(),
+        },
+      });
+    } catch (err: unknown) {
+      let message = "უცნობი სერვერის შეცდომა";
 
-    // 1️⃣2️⃣ Create profile based on role
-    if (role === "STUDENT") {
-      await prisma.studentProfile.create({
-        data: {
-          userId: user.id,
-        },
-      });
-    } else if (role === "TEACHER") {
-      await prisma.teacherProfile.create({
-        data: {
-          userId: user.id,
-        },
-      });
+      if (isPrismaUniqueError(err)) {
+        const target = err.meta?.target ?? [];
+
+        if (target.includes("email")) message = "ელფოსტა უკვე დაკავებულია";
+        if (target.includes("phoneNumber")) message = "ნომერი უკვე დაკავებულია";
+
+        return NextResponse.json({ message }, { status: 400 });
+      }
+
+      if (err instanceof Error) message = err.message;
+      return NextResponse.json({ message }, { status: 500 });
     }
 
-    // 1️⃣3️⃣ Clean up verification token
+    if (role === "STUDENT") {
+      await prisma.studentProfile.create({ data: { userId: user.id } });
+    } else if (role === "TEACHER") {
+      await prisma.teacherProfile.create({ data: { userId: user.id } });
+    }
+
     await prisma.verificationToken.deleteMany({
       where: { identifier: `verified_${email}` },
     });
 
-    // 1️⃣4️⃣ Remove sensitive info before sending to client
     const safeUser = {
       id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName,
+      lastName,
       email: user.email,
       phoneNumber: user.phoneNumber,
       role: user.role,
@@ -181,7 +178,6 @@ export async function POST(req: Request) {
     console.error(err);
     const message =
       err instanceof Error ? err.message : "უცნობი სერვერის შეცდომა";
-
     return NextResponse.json({ message }, { status: 500 });
   }
 }
