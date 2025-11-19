@@ -33,6 +33,24 @@ model User {
 
   bookedLessonsAsStudent BookedLesson[] @relation("BookedLessonStudent")
   bookedLessonsAsTeacher BookedLesson[] @relation("BookedLessonTeacher")
+
+  isActive  Boolean @default(true)
+  banned    Boolean @default(false)
+  banReason String?
+
+  adminLogs AdminLog[]
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  action    String
+  details   Json?
+  userId    String
+  targetId  String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model Account {
@@ -74,6 +92,8 @@ model VerificationToken {
 enum Role {
   STUDENT
   TEACHER
+  ADMIN
+  SUPER_ADMIN
 }
 
 model StudentProfile {
