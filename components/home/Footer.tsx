@@ -65,6 +65,9 @@ const Footer = () => {
               <Link href={"/terms-and-conditions"} className={`${liClass}`}>
                 გამოყენების პოლიტიკა
               </Link>
+              <Link href={"/return-policy"} className={`${liClass}`}>
+                დაბრუნების პოლიტიკა
+              </Link>
             </ul>
           </div>
           <div className="flex flex-col gap-4">
@@ -113,6 +116,12 @@ const Footer = () => {
             className="text-sm leading-5 text-white font-helveticaneue-regular underline"
           >
             წესები და პირობები
+          </Link>
+          <Link
+            href={"/return-policy"}
+            className="text-sm leading-5 text-white font-helveticaneue-regular underline"
+          >
+            დაბრუნების პოლიტიკა
           </Link>
         </div>
       </div>

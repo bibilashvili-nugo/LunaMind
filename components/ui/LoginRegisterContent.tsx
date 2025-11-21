@@ -119,11 +119,15 @@ export const LoginRegisterContentTermsAndPrivacy = ({
   onChange,
   text,
   href,
+  secondText,
+  secondHref,
 }: {
   checked: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   text: string;
   href: string;
+  secondText?: string;
+  secondHref?: string;
 }) => {
   return (
     <div className="flex items-center space-x-2">
@@ -133,16 +137,71 @@ export const LoginRegisterContentTermsAndPrivacy = ({
         onChange={onChange}
         className="w-[18px] h-[18px] rounded-sm border border-[#EBEBEB]"
       />
-      <label className="text-sm leading-5 font-helveticaneue-regular text-[#737373] xl:text-base xl:leading-6">
+      <label className="text-sm leading-5 font-helveticaneue-regular text-[#737373] xl:text-base xl:leading-6 flex items-center">
         ვეთანხმები{" "}
-        <Link
+        {/* {secondHref && secondText ? (
+          <div className="flex flex-col ml-1">
+            <Link
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6"
+            >
+              {text}
+            </Link>
+            <Link
+              href={secondHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6"
+            >
+              {secondText}
+            </Link>
+          </div> */}
+        {/* ) : ( */}
+        {/* <Link
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6"
+          className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6 ml-1"
         >
           {text}
-        </Link>
+        </Link> */}
+        <span className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6 ml-1">
+          {secondHref && secondText ? (
+            <span>
+              <Link
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6"
+              >
+                {text}
+              </Link>
+              <span>, </span>
+              <Link
+                href={secondHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6"
+              >
+                {secondText}
+              </Link>
+            </span>
+          ) : (
+            <span>
+              <Link
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm leading-5 font-helveticaneue-regular text-[#0077FF] xl:text-base xl:leading-6"
+              >
+                {text}
+              </Link>
+            </span>
+          )}
+        </span>
+        {/* )} */}
       </label>
     </div>
   );

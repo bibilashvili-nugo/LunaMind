@@ -393,7 +393,7 @@ const RegistrationForm = () => {
                   type="button"
                   disabled={loading}
                   onClick={handleVerifyOtp}
-                  className="py-4 px-4 rounded-[40px] text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium bg-[#FFD52A]"
+                  className="py-2 px-6 rounded-[40px] text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium bg-[#FFD52A]"
                 >
                   {loading ? "მიმდინარეობს..." : "მეილის დადასტურება"}
                 </button>
@@ -433,12 +433,14 @@ const RegistrationForm = () => {
               onChange={(e) => setAcceptedTerms(e.target.checked)}
               text="წესებს და პირობებს"
               href={"/terms-and-conditions"}
+              secondText="კონფიდენციალურობის პოლიტიკას"
+              secondHref={"/confidentiality"}
             />
             <LoginRegisterContentTermsAndPrivacy
               checked={acceptedPrivacy}
               onChange={(e) => setAcceptedPrivacy(e.target.checked)}
-              text="კონფიდენციალურობის პოლიტიკას"
-              href={"/confidentiality"}
+              text="დაბრუნების პოლიტიკა"
+              href={"/return-policy"}
             />
           </div>
 

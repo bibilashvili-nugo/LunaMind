@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { CaretDownSm, Check, Star, WavyCheck } from "react-coolicons";
@@ -457,7 +458,21 @@ const SingleTeacherRightSide = ({
               <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
                 ვეთანხმები{" "}
                 <span className="text-[#0077FF] cursor-pointer text-sm leading-5 font-helveticaneue-regular">
-                  პირობებს და წესებს
+                  <Link
+                    href={"/confidentiality"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    კონფიდენციალურობა
+                  </Link>
+                  <span>,</span>
+                  <Link
+                    href={"/terms-and-conditions"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    გამოყენების პოლიტიკა
+                  </Link>
                 </span>
               </span>
             </label>
@@ -473,7 +488,13 @@ const SingleTeacherRightSide = ({
               <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
                 ვეთანხმები{" "}
                 <span className="text-[#0077FF] cursor-pointer text-sm leading-5 font-helveticaneue-regular">
-                  კონფიდენციალურობის პოლიტიკას
+                  <Link
+                    href={"/return-policy"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    დაბრუნების პოლიტიკა
+                  </Link>
                 </span>
               </span>
             </label>
