@@ -68,16 +68,23 @@ const AddNewLessons = () => {
 const OurLessons = ({
   profilePage = false,
   teacher = false,
-  // studentId,
-  // teacherId,
   lessons,
 }: {
   profilePage?: boolean;
   teacher?: boolean;
-  // studentId?: string;
-  // teacherId?: string;
   lessons?: BookedLesson[];
 }) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // თუ lessons არსებობს, ვფილტრავთ მხოლოდ მომავლებს (>= today)
+  const filteredLessons = lessons
+    ? lessons.filter((lesson) => {
+        const lessonDate = new Date(lesson.date);
+        lessonDate.setHours(0, 0, 0, 0);
+        return lessonDate >= today;
+      })
+    : [];
   return (
     <div
       className={` bg-white rounded-2xl p-5 flex flex-col
@@ -96,8 +103,8 @@ const OurLessons = ({
       </span>
       <div className="flex flex-col justify-between h-full gap-2">
         <div className="flex flex-col gap-2">
-          {lessons && lessons.length > 0 ? (
-            lessons.map((lesson) => (
+          {filteredLessons.length > 0 ? (
+            filteredLessons.map((lesson) => (
               <OurLessonsBox
                 key={lesson.id}
                 subject={lesson.subject}

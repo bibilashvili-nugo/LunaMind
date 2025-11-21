@@ -285,20 +285,24 @@ const FutureLessons = ({
           ? `/api/teachers/lessons?teacherId=${teacherId}`
           : `/api/book-lesson/booked-lessons?studentId=${studentId}`;
 
-        console.log("Fetching from:", url);
-        console.log("Student ID:", studentId);
-
         const res = await fetch(url);
-
-        console.log("Response status:", res.status);
 
         if (!res.ok) throw new Error("Failed to fetch");
 
         const data: Lesson[] = await res.json();
-        console.log("Fetched data:", data);
 
-        // ✅ ყველა გაკვეთილი (ფილტრაციის გარეშე)
-        setLessons(data);
+        // დღევანდელი თარიღი 00:00-ზე (რათა გამარტივდეს შედარება)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // მხოლოდ მომავალი ან დღევანდელი გაკვეთილები
+        const upcomingLessons = data.filter((lesson) => {
+          const lessonDate = new Date(lesson.date);
+          lessonDate.setHours(0, 0, 0, 0);
+          return lessonDate >= today;
+        });
+
+        setLessons(upcomingLessons);
       } catch (error) {
         console.error("Error fetching lessons:", error);
       }
@@ -425,7 +429,7 @@ const FutureLessons = ({
               {formattedDate}
             </span>
             <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-              შექმნილი გაკვეთილები ({lessons.length})
+              აქტიური გაკვეთილები ({lessons.length})
             </span>
           </div>
           {teacher && (

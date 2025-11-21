@@ -90,7 +90,8 @@ const ActivityTracker = ({
         }))
       )
     : 0;
-
+  const hours = Math.floor(finishedLessonsHours / 60);
+  const minutes = finishedLessonsHours % 60;
   return (
     <div
       className={` rounded-[20px] flex flex-col gap-3 xl:flex-row xl:items-center
@@ -135,7 +136,7 @@ const ActivityTracker = ({
             className="text-2xl leading-[28px] font-spacegrotesk-bold md:text-[32px]"
             style={{ color: "rgba(125, 63, 255, 0.973)" }}
           >
-            {finishedLessonsHours}:00:00
+            {hours}:{minutes}:00
           </span>
           <span className="text-[10px] leading-3 text-[#737373] font-helveticaneue-regular md:text-xs md:leading-4 xl:text-[10px]">
             სწავლაში დაბანდებული დრო არასდროს არის დაკარგული
