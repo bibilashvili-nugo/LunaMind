@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminNavbar from "../../../../../components/admin/AdminNavbar";
+import Link from "next/link";
 
 interface User {
   id: string;
@@ -57,9 +58,12 @@ const AdminUsers: React.FC = () => {
       <div className="bg-linear-to-br from-[#0A1330] to-[#151F45] col-span-4 rounded-2xl shadow-2xl border border-[#1A2450] p-8">
         <h2 className="text-3xl font-bold text-white mb-8">Users Management</h2>
         <div className="grid grid-cols-2 h-[80%] gap-4">
-          <div className="bg-[#1c2650] p-4 rounded-2xl flex justify-center items-center text-white font-bold cursor-pointer hover:bg-[#7E89AC]">
+          <Link
+            href={"/admin/users/teachers"}
+            className="bg-[#1c2650] p-4 rounded-2xl flex justify-center items-center text-white font-bold cursor-pointer hover:bg-[#7E89AC]"
+          >
             მასწავლებელი
-          </div>
+          </Link>
           <div className="bg-[#1A2450] p-4 rounded-2xl flex justify-center items-center text-white font-bold cursor-pointer hover:bg-[#7E89AC]">
             მოსწავლე
           </div>

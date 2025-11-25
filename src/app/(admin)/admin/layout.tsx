@@ -1,5 +1,6 @@
 import React from "react";
 import "./globals.css";
+import Providers from "@/app/(site)/Providers";
 
 export default function AdminLayout({
   children,
@@ -8,7 +9,9 @@ export default function AdminLayout({
 }) {
   return (
     <html lang="en">
-      <body className="">{children}</body>
+      <body className="">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
