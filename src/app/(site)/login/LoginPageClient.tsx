@@ -9,12 +9,14 @@ import {
   LoginRegisterContentTitle,
 } from "../../../../components/ui/LoginRegisterContent";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const LoginPageClient = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +37,10 @@ const LoginPageClient = () => {
       }
 
       // ✅ Instead of router.replace("/questions"), reload to trigger server-side redirect
-      window.location.reload();
+      // window.location.reload();
+      if (res.ok) {
+        router.push("/dashboard"); // ან router.replace("/dashboard")
+      }
     } catch (err) {
       console.error("Client login error:", err);
       setError("სერვერის შეცდომა. სცადეთ მოგვიანებით.");
