@@ -38,8 +38,12 @@ export default async function DashboardPage() {
     });
   }
 
+  // if (!profile || !profile.completed) {
+  //   redirect("/onboarding");
+  // }
+
   if (!profile || !profile.completed) {
-    redirect("/onboarding");
+    redirect("/questions");
   }
 
   const dashboardUser: StudentTeacherUser = {
