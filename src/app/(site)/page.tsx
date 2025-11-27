@@ -18,13 +18,14 @@ export default async function Home() {
   const user = await getCurrentUser();
   const userImage = user?.image || null;
   const userFullName = `${user?.firstName} ${user?.lastName}` || null;
+
   return (
     <>
       <div className="px-4 sm:px-6 lg:px-11 3xl:px-40 max-w-[1920px] 3xl:mx-auto">
         <div className="">
           <NavBar userImage={userImage} userFullName={userFullName} />
         </div>
-        <Hero id="home" />
+        <Hero id="home" userExist={user?.id} />
         <div className="lg:flex lg:gap-6">
           <VideoLesson />
           <div className="lg:order-3 lg:w-[20%] lg:h-full">
