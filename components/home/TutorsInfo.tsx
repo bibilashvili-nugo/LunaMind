@@ -49,10 +49,10 @@ type TeacherWithCurrentSubject = Teacher & {
 
 const TutorsInfo = ({
   id,
-  logined,
+  userExist,
 }: {
   id: string;
-  logined?: string | null;
+  userExist?: string | null;
 }) => {
   const { data: teacherList, isLoading, isError } = useTeachers();
   const router = useRouter();
@@ -216,18 +216,22 @@ const TutorsInfo = ({
                   </div>
                 </div>
               </div>
-              <hr className="mt-3 border border-[#EBECF0]" />
-              <button
-                className="py-[14px] w-full rounded-[40px] bg-[#F6F7FB] cursor-pointer mt-4 text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium hover:bg-[#E0E2E8] transition"
-                onClick={() => router.push("/register")}
-              >
-                რეგისტრაცია
-              </button>
+              {!userExist && (
+                <>
+                  <hr className="mt-3 border border-[#EBECF0]" />
+                  <button
+                    className="py-[14px] w-full rounded-[40px] bg-[#F6F7FB] cursor-pointer mt-4 text-sm leading-5 text-[#0C0F21] font-helveticaneue-medium hover:bg-[#E0E2E8] transition"
+                    onClick={() => router.push("/register")}
+                  >
+                    რეგისტრაცია
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))}
       </div>
-      {logined && (
+      {!userExist && (
         <div
           className="hidden md:flex items-center bg-[#FFD52A] hover:bg-[#FFC700] transition-colors rounded-[40px] w-fit mx-auto justify-center py-4 px-[36px] mt-8 2xl:mt-6 3xl:mt-8 2xl:py-[19px] 2xl:px-[44px] cursor-pointer"
           onClick={() => router.push("/register")}

@@ -20,7 +20,7 @@ const SocialMediaIcons: React.FC<SocialMediaIconsProps> = ({ children }) => {
   );
 };
 
-const Footer = () => {
+const Footer = ({ userExist }: { userExist?: string | null }) => {
   return (
     <div className="bg-[#080A16] w-full mt-8 md:mt-11 lg:mt-[52px] xl:mt-[64px] 2xl:mt-[54px] 3xl:mt-[64px] pb-20 lg:pb-10">
       <div className="pt-[64px] px-4 md:px-6 lg:px-11 flex flex-col gap-8 lg:flex-row lg:gap-8 2xl:px-[80px] 2xl:gap-0 2xl:justify-between 3xl:max-w-[1600px] 3xl:gap-16 3xl:mx-auto 3xl:px-[160px]">
@@ -45,15 +45,25 @@ const Footer = () => {
           <div className="flex flex-col gap-4">
             <span className={`${spanClass}`}>მომსახურება</span>
             <ul className="flex flex-col gap-3">
-              <Link href="/register?role=STUDENT" className={`${liClass}`}>
-                სტუდენტებისთვის
-              </Link>
-              <Link href="/register?role=STUDENT" className={`${liClass}`}>
-                დაწყებითი კლასებისთვის
-              </Link>
-              <Link href="/register?role=TEACHER" className={`${liClass}`}>
-                მასწავლებლებისთვის
-              </Link>
+              {!userExist ? (
+                <>
+                  <Link href="/register?role=STUDENT" className={`${liClass}`}>
+                    სტუდენტებისთვის
+                  </Link>
+                  <Link href="/register?role=STUDENT" className={`${liClass}`}>
+                    დაწყებითი კლასებისთვის
+                  </Link>
+                  <Link href="/register?role=TEACHER" className={`${liClass}`}>
+                    მასწავლებლებისთვის
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <li className={`${liClass}`}>სტუდენტებისთვის</li>
+                  <li className={`${liClass}`}>დაწყებითი კლასებისთვის</li>
+                  <li className={`${liClass}`}>მასწავლებლებისთვის</li>
+                </>
+              )}
             </ul>
           </div>
           <div className="flex flex-col gap-4">

@@ -39,12 +39,12 @@ export default async function Home() {
         <DiscoverEducation />
         <WhyOurPlatform id="why" />
         <SubjectDiscover />
-        <OurPackages id="packages" />
+        <OurPackages id="packages" userExist={user?.id} />
         <HowItWorks />
-        <TutorsInfo id="tutors" logined={user?.id} />
-        <StudentTestimonials id="reviews" />
+        <TutorsInfo id="tutors" userExist={user?.id} />
+        <StudentTestimonials id="reviews" userExist={user?.id} />
       </div>
-      <Footer />
+      <Footer userExist={user?.id} />
     </>
   );
 }

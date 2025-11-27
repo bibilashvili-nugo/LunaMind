@@ -17,7 +17,13 @@ const StudentBox = ({ name, desc }: { name: string; desc: string }) => {
   );
 };
 
-const StudentTestimonials = ({ id }: { id: string }) => {
+const StudentTestimonials = ({
+  id,
+  userExist,
+}: {
+  id: string;
+  userExist?: string | null;
+}) => {
   return (
     <div className="pt-8 sm:pt-[44px] lg:pt-[64px] 3xl:pt-[84px]" id={id}>
       <SectionHeader title="რას ამბობენ ჩვენი სტუდენტები" description="" />
@@ -34,20 +40,22 @@ const StudentTestimonials = ({ id }: { id: string }) => {
             >
               გაიმყარე ცოდნა შეოუერთდი ჩვენს სტუდენტებს და დაიწყე დღესვე
             </span>
-            <div className="flex flex-col gap-3 items-center sm:flex-row">
-              <Link
-                href="/register?role=STUDENT"
-                className="text-sm leading-5 font-helveticaneue-medium text-white bg-[#0C0F21] py-4 px-8 rounded-[40px]"
-              >
-                გახდი მოსწავლე
-              </Link>
-              <Link
-                href="/register?role=TEACHER"
-                className="text-sm leading-5 font-helveticaneue-medium text-[#0C0F21] bg-white py-4 px-8 rounded-[40px]"
-              >
-                გახდი რეპეტიტორი
-              </Link>
-            </div>
+            {!userExist && (
+              <div className="flex flex-col gap-3 items-center sm:flex-row">
+                <Link
+                  href="/register?role=STUDENT"
+                  className="text-sm leading-5 font-helveticaneue-medium text-white bg-[#0C0F21] py-4 px-8 rounded-[40px]"
+                >
+                  გახდი მოსწავლე
+                </Link>
+                <Link
+                  href="/register?role=TEACHER"
+                  className="text-sm leading-5 font-helveticaneue-medium text-[#0C0F21] bg-white py-4 px-8 rounded-[40px]"
+                >
+                  გახდი რეპეტიტორი
+                </Link>
+              </div>
+            )}
           </div>
           <div className="relative w-full h-[200px] sm:h-[296px] rounded-3xl overflow-hidden  xl:h-[384px]">
             <Image
