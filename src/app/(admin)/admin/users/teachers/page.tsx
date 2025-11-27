@@ -1,19 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import AdminNavbar from "../../../../../../components/admin/AdminNavbar";
 import { useTeachers } from "@/hooks/useTeachers";
 import Image from "next/image";
 import { CloseCircle, TrashFull } from "react-coolicons";
-
-interface User {
-  id: string;
-  email: string;
-  role: string;
-  firstName?: string;
-  lastName?: string;
-}
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 type Teacher = {
   id: string;
@@ -61,38 +53,11 @@ type Teacher = {
 };
 
 const AdminTeacher: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoading } = useAdminAuth();
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const router = useRouter();
 
   const { data } = useTeachers();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/auth/check-admin", {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (!res.ok) {
-          router.push("/admin");
-          return;
-        }
-
-        const data = await res.json();
-        setUser(data.user);
-        setIsLoading(false);
-      } catch (err) {
-        console.error(err);
-        router.push("/admin");
-      }
-    };
-
-    checkAuth();
-  }, [router]);
 
   const toggleExpand = (teacherId: string) => {
     setExpandedTeacher(expandedTeacher === teacherId ? null : teacherId);

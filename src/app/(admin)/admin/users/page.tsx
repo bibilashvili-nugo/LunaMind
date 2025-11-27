@@ -64,9 +64,12 @@ const AdminUsers: React.FC = () => {
           >
             მასწავლებელი
           </Link>
-          <div className="bg-[#1A2450] p-4 rounded-2xl flex justify-center items-center text-white font-bold cursor-pointer hover:bg-[#7E89AC]">
+          <Link
+            href={"/admin/users/students"}
+            className="bg-[#1A2450] p-4 rounded-2xl flex justify-center items-center text-white font-bold cursor-pointer hover:bg-[#7E89AC]"
+          >
             მოსწავლე
-          </div>
+          </Link>
           <div className="bg-[#1A2450] p-4 rounded-2xl flex justify-center items-center text-white font-bold cursor-pointer hover:bg-[#7E89AC]">
             ადმინი
           </div>

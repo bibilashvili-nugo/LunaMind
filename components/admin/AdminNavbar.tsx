@@ -40,9 +40,9 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({ user }) => {
     },
     {
       icon: <BookOpen />,
-      label: "Courses",
+      label: "Review",
       color: "#AEB9E1",
-      href: "/admin/courses",
+      href: "/admin/review",
     },
     {
       icon: <BookOpen />,
