@@ -19,7 +19,7 @@ export default function NotFound() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.header}>LunaMind</h1>
+      <h1 className={styles.header}>Evectus</h1>
 
       <div className={styles.content}>
         <Lottie

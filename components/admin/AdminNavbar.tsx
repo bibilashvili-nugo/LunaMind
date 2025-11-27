@@ -6,6 +6,7 @@ import {
   Settings,
   BookOpen,
   LogOut,
+  Book,
 } from "react-coolicons";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -45,10 +46,10 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({ user }) => {
       href: "/admin/review",
     },
     {
-      icon: <BookOpen />,
-      label: "Analytics",
+      icon: <Book />,
+      label: "BookedLessons",
       color: "#AEB9E1",
-      href: "/admin/analytics",
+      href: "/admin/bookedLessons",
     },
     {
       icon: <BookOpen />,
