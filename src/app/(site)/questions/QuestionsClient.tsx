@@ -774,15 +774,17 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
 
         {current.type === "select" && (
           <div className="space-y-4">
+            {/* SELECT FIELD */}
             <select
               value={getStringValue(current.key)}
               onChange={(e) => handleSelectChange(current.key, e.target.value)}
               className="w-full py-4 px-4 border border-[#EBEBEB] rounded-xl text-[#000000] 
-              text-sm leading-5 font-helveticaneue-regular
-            focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
-            xl:text-base"
+      text-sm leading-5 font-helveticaneue-regular
+      focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+      xl:text-base"
             >
               <option value="">აირჩიეთ...</option>
+
               {current.options?.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
@@ -790,11 +792,13 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
               ))}
             </select>
 
-            {isOtherSelected && (
+            {/* OTHER TEXT FIELD */}
+            {getStringValue(current.key) === "სხვა" && (
               <div className="mt-4">
                 <label className="block text-base leading-5 font-helveticaneue-regular text-black mb-2">
                   გთხოვთ მიუთითოთ თქვენი ვერსია:
                 </label>
+
                 <input
                   type="text"
                   value={getCurrentOtherValue()}
@@ -803,9 +807,9 @@ const QuestionsClient: React.FC<QuestionsClientProps> = ({
                   }
                   placeholder={`შეიყვანეთ ${current.label.toLowerCase()}`}
                   className="w-full py-4 px-4 border border-[#EBEBEB] rounded-xl text-[#000000] 
-                  text-sm leading-5 font-helveticaneue-regular
-                  focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
-                  xl:text-base"
+          text-sm leading-5 font-helveticaneue-regular
+          focus:outline-none focus:ring-2 focus:ring-[#FFD52A] focus:border-0 transition-all duration-300 ease-in-out
+          xl:text-base"
                 />
               </div>
             )}
