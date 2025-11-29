@@ -350,6 +350,13 @@ const RegistrationForm = () => {
               type="text"
             />
 
+            <LoginRegisterContentInput
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="ტელეფონის ნომერი"
+            />
+
             <div className="flex gap-2">
               <LoginRegisterContentInput
                 placeholder="ელ.ფოსტა"
@@ -407,13 +414,6 @@ const RegistrationForm = () => {
                 </p>
               </div>
             )}
-
-            <LoginRegisterContentInput
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="ტელეფონის ნომერი"
-            />
 
             <LoginRegisterContentInputPassword
               value={password}
