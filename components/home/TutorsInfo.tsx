@@ -7,6 +7,7 @@ import React from "react";
 import { WavyCheck } from "react-coolicons";
 import { UnionCrown } from "../ui/Icons";
 import { useResponsiveSlice } from "@/hooks/useResponsiveSlice";
+import { getLessonDuration } from "@/utils/helperFunc";
 
 // Types
 type TeacherSubject = {
@@ -76,12 +77,6 @@ const TutorsInfo = ({
   if (isError) return <div>გაიშვება შეცდომა</div>;
 
   // Get first lesson duration for display
-  const getLessonDuration = (teacher: TeacherWithCurrentSubject) => {
-    if (!teacher.lessons || teacher.lessons.length === 0) return "1 საათი";
-    // Use first lesson for simplicity
-    const duration = teacher.lessons[0].duration;
-    return `${duration} საათი${duration > 1 ? "" : ""}`;
-  };
 
   return (
     <div
@@ -176,7 +171,7 @@ const TutorsInfo = ({
                       შეხვედრის ხანგრძლივობა
                     </span>
                     <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
-                      {getLessonDuration(item)}
+                      {getLessonDuration(item?.lessons[0]?.duration)}
                     </span>
                   </div>
                   <div className="w-1/2 flex flex-col">

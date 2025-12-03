@@ -50,7 +50,7 @@ const WhyOurPlatform = ({ id }: { id: string }) => {
                 <span className="text-[32px] leading-[100%] font-lgvanastasia-regular text-black lg:text-[44px] xl:text-[52px]">
                   {item?.title}
                 </span>
-                <p className="text-[#939393] text-sm leading-5">
+                <p className="text-[#939393] text-sm leading-5 font-helveticaneue-regular">
                   {item?.description}
                 </p>
               </div>

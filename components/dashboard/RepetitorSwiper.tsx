@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import RepetitorSwiperLoading from "../loading/RepetitorSwiperLoading";
 import { useTeachers } from "@/hooks/useTeachers";
+import { getLessonDuration } from "@/utils/helperFunc";
 
 interface Teacher {
   id: string;
@@ -24,6 +25,7 @@ interface Teacher {
   lessons: {
     day: string;
     time: string;
+    duration: number;
   }[];
   rating?: number;
   profession: string;
@@ -226,7 +228,7 @@ const RepetitorSwiper = () => {
                           ხანგრძლივობა
                         </span>
                         <span className="text-sm leading-5 text-[#080808] font-helveticaneue-medium !font-bold">
-                          2 საათი
+                          {getLessonDuration(teacher?.lessons[0]?.duration)}
                         </span>
                       </div>
                       <div className="w-1/2 flex flex-col">

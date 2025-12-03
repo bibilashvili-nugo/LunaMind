@@ -1,3 +1,4 @@
+import { getLessonDuration } from "@/utils/helperFunc";
 import React from "react";
 import {
   Camera,
@@ -72,7 +73,7 @@ const SingleTeacherLeftSide = ({
     return teacher.lessons.map((lesson, index) => (
       <div key={lesson.id} className="flex items-center gap-1">
         <span className="text-sm leading-5 font-helveticaneue-medium text-[#080808]">
-          {lesson.day}: {lesson.time} ({lesson.duration}სთ)
+          {lesson.day}: {lesson.time} ({getLessonDuration(lesson.duration)})
         </span>
         {index < teacher.lessons.length - 1 && (
           <span className="text-[#969696]">•</span>
@@ -241,21 +242,13 @@ const SingleTeacherLeftSide = ({
         <span className="text-sm leading-5 font-helveticaneue-regular text-[#737373]">
           დამატებითი ინფორმაცია
         </span>
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="flex flex-col gap-1 bg-[#EBECF0] rounded-xl px-4 py-[32px]">
             <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
               აკადემიური ხარისხი
             </span>
             <span className="text-sm leading-5 text-black font-helveticaneue-medium !font-bold">
               მაგისტრი
-            </span>
-          </div>
-          <div className="flex flex-col gap-1 bg-[#EBECF0] rounded-xl px-4 py-[32px]">
-            <span className="text-sm leading-5 text-[#737373] font-helveticaneue-regular">
-              უნივერსიტეტი
-            </span>
-            <span className="text-sm leading-5 text-black font-helveticaneue-medium !font-bold">
-              თსუ-ს იურიდიული ფაკულტეტი
             </span>
           </div>
           <div className="flex flex-col gap-1 bg-[#EBECF0] rounded-xl px-4 py-[32px]">
